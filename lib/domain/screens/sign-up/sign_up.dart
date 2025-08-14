@@ -1,0 +1,174 @@
+// import 'package:farmbros_mobile/apis/auth_api.dart';
+import 'package:farmbros_mobile/common/Utils/color_utils.dart';
+import 'package:farmbros_mobile/common/widgets/farmbros_button.dart';
+import 'package:farmbros_mobile/common/widgets/farmbros_input.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
+
+class SignUp extends StatefulWidget {
+  const SignUp({super.key});
+
+  @override
+  State<SignUp> createState() => _SignUpState();
+}
+
+class _SignUpState extends State<SignUp> {
+  late TapGestureRecognizer _tapGestureRecognizer;
+
+  @override
+  void initState() {
+    super.initState();
+    _tapGestureRecognizer = TapGestureRecognizer()..onTap = _handlePress;
+  }
+
+  @override
+  void dispose() {
+    _tapGestureRecognizer.dispose();
+    super.dispose();
+  }
+
+  void _handlePress() {
+    HapticFeedback.vibrate();
+    context.go("/sign_in");
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // AuthApi authApi = AuthApi();
+
+    // Future SignUp() {
+    //   try {
+    //     final SignUpAction = authApi.loginRequest(email, password);
+    //   } catch (e) {
+    //     return Future.error(e);
+    //   }
+
+    //   return Future.value();
+    // }
+
+    return Scaffold(
+        body: Stack(
+      children: [
+        Container(
+            height: MediaQuery.of(context).size.height,
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(vertical: 40),
+            decoration: BoxDecoration(
+                image: DecorationImage(
+                    fit: BoxFit.cover,
+                    image: AssetImage("assets/images/background-two.png"))),
+            child: Column(
+              children: [
+                Image(
+                    height: 200,
+                    width: 200,
+                    image: AssetImage("assets/images/farmbros-logo.png"))
+              ],
+            )),
+        Positioned(
+          bottom: 0,
+          left: 0,
+          right: 0,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+            height: MediaQuery.of(context).size.height * 0.70,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
+                color: ColorUtils.primaryTextColor),
+            child: SingleChildScrollView(
+              child: Column(
+                spacing: 15,
+                children: [
+                  Text(
+                    "Create your Account",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  FarmbrosInput(
+                    label: "Email Address",
+                    icon: FluentIcons.mail_48_regular,
+                    isPassword: false,
+                  ),
+                  FarmbrosInput(
+                    label: "Username",
+                    icon: FluentIcons.person_48_regular,
+                    isPassword: false,
+                  ),
+                  FarmbrosInput(
+                    label: "Password",
+                    icon: FluentIcons.key_32_regular,
+                    isPassword: true,
+                  ),
+                  FarmbrosInput(
+                    label: "Confirm Password",
+                    icon: FluentIcons.key_32_regular,
+                    isPassword: true,
+                  ),
+                  FarmbrosButton(
+                      label: "Login",
+                      buttonColor: ColorUtils.secondaryColor,
+                      textColor: ColorUtils.primaryTextColor,
+                      fontWeight: FontWeight.bold,
+                      onPressed: () {},
+                      elevation: 4),
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Divider(
+                        color: ColorUtils.secondaryTextColor,
+                      ),
+                      Positioned(
+                          left: 100,
+                          right: 100,
+                          bottom: -5,
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                                vertical: 5, horizontal: 10),
+                            decoration: BoxDecoration(
+                                color: ColorUtils.primaryTextColor),
+                            child: Text(
+                              textAlign: TextAlign.center,
+                              "or continue with",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ))
+                    ],
+                  ),
+                  InkWell(
+                    onTap: () {},
+                    child: Image(
+                      image: AssetImage("assets/images/google_logo.png"),
+                    ),
+                  ),
+                  Text.rich(
+                    TextSpan(
+                      text: "Already have an account? ",
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.black),
+                      children: [
+                        TextSpan(
+                            text: "Sign In",
+                            style: const TextStyle(
+                              color: Colors.blue, // link color
+                              decoration:
+                                  TextDecoration.underline, // underline link
+                            ),
+                            recognizer: _tapGestureRecognizer),
+                      ],
+                    ),
+                    textAlign: TextAlign.center,
+                  )
+                ],
+              ),
+            ),
+          ),
+        )
+      ],
+    ));
+  }
+}
