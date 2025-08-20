@@ -2,6 +2,9 @@
 import 'package:farmbros_mobile/core/configs/Utils/color_utils.dart';
 import 'package:farmbros_mobile/common/widgets/farmbros_button.dart';
 import 'package:farmbros_mobile/common/widgets/farmbros_input.dart';
+import 'package:farmbros_mobile/data/models/sign_in_req_params.dart';
+import 'package:farmbros_mobile/domain/usecases/sign_in_use_case.dart';
+import 'package:farmbros_mobile/service_locator.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +40,9 @@ class _SignInState extends State<SignIn> {
 
   @override
   Widget build(BuildContext context) {
+    TextEditingController username = TextEditingController();
+    TextEditingController password = TextEditingController();
+
     return Scaffold(
         body: Stack(
       children: [
@@ -72,7 +78,7 @@ class _SignInState extends State<SignIn> {
                   ),
                   color: ColorUtils.primaryTextColor,
                   image: DecorationImage(
-                    fit: BoxFit.cover,
+                      fit: BoxFit.cover,
                       image: AssetImage("assets/images/login_bg.png")),
                 ),
                 child: Column(
@@ -84,11 +90,13 @@ class _SignInState extends State<SignIn> {
                     ),
                     FarmbrosInput(
                       label: "Username or email address",
+                      controller: username,
                       icon: FluentIcons.mail_48_regular,
                       isPassword: false,
                     ),
                     FarmbrosInput(
                       label: "Password",
+                      controller: password,
                       icon: FluentIcons.key_32_regular,
                       isPassword: true,
                     ),
@@ -112,7 +120,12 @@ class _SignInState extends State<SignIn> {
                         buttonColor: ColorUtils.secondaryColor,
                         textColor: ColorUtils.primaryTextColor,
                         fontWeight: FontWeight.bold,
-                        onPressed: () {},
+                        onPressed: () {
+                          sl<SignInUseCase>().call(
+                              param: SignInReqParams(
+                                  username: username.text,
+                                  password: password.text));
+                        },
                         elevation: 4),
                     Stack(
                       clipBehavior: Clip.none,

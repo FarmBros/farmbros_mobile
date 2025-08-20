@@ -37,17 +37,11 @@ class _SignUpState extends State<SignUp> {
 
   @override
   Widget build(BuildContext context) {
-    // AuthApi authApi = AuthApi();
-
-    // Future SignUp() {
-    //   try {
-    //     final SignUpAction = authApi.loginRequest(email, password);
-    //   } catch (e) {
-    //     return Future.error(e);
-    //   }
-
-    //   return Future.value();
-    // }
+    final TextEditingController username = TextEditingController();
+    final TextEditingController email = TextEditingController();
+    final TextEditingController phoneNumber = TextEditingController();
+    final TextEditingController password = TextEditingController();
+    final TextEditingController confirmPassword = TextEditingController();
 
     return Scaffold(
         body: Stack(
@@ -94,21 +88,25 @@ class _SignUpState extends State<SignUp> {
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   FarmbrosInput(
+                    controller: email,
                     label: "Email Address",
                     icon: FluentIcons.mail_48_regular,
                     isPassword: false,
                   ),
                   FarmbrosInput(
+                    controller: username,
                     label: "Username",
                     icon: FluentIcons.person_48_regular,
                     isPassword: false,
                   ),
                   FarmbrosInput(
+                    controller: password,
                     label: "Password",
                     icon: FluentIcons.key_32_regular,
                     isPassword: true,
                   ),
                   FarmbrosInput(
+                    controller: confirmPassword,
                     label: "Confirm Password",
                     icon: FluentIcons.key_32_regular,
                     isPassword: true,

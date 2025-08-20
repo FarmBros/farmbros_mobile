@@ -1,3 +1,5 @@
+import 'package:farmbros_mobile/common/bloc/button/button_state.dart';
+import 'package:farmbros_mobile/common/bloc/button/button_state_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -23,7 +25,7 @@ class FarmbrosButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder(
+    return BlocBuilder<ButtonStateCubit, ButtonState>(
       builder: (context, state) {
         return SizedBox(
           width: double.infinity,
@@ -38,22 +40,22 @@ class FarmbrosButton extends StatelessWidget {
               backgroundColor: WidgetStatePropertyAll(buttonColor),
             ),
             onPressed: onPressed,
-            child:
-                //  const SizedBox(
-                //         width: 20,
-                //         height: 20,
-                //         child: CircularProgressIndicator(
-                //           strokeWidth: 2,
-                //           valueColor: AlwaysStoppedAnimation(Colors.white),
-                //         ),
-                //       )
-                Text(
-              label,
-              style: TextStyle(
-                  color: textColor,
-                  decoration: textDecoration,
-                  fontWeight: fontWeight),
-            ),
+            child: state is ButtonLoadingState
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation(Colors.white),
+                    ),
+                  )
+                : Text(
+                    label,
+                    style: TextStyle(
+                        color: textColor,
+                        decoration: textDecoration,
+                        fontWeight: fontWeight),
+                  ),
           ),
         );
       },

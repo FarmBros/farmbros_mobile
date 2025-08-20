@@ -10,6 +10,8 @@ class ForgotPassword extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    TextEditingController newPassword = TextEditingController();
+
     return Scaffold(
       body: Container(
           width: double.infinity,
@@ -44,6 +46,7 @@ class ForgotPassword extends StatelessWidget {
                       ),
                       FarmbrosPininput(),
                       FarmbrosInput(
+                        controller: newPassword,
                           label: "New Password",
                           icon: FluentIcons.key_32_regular,
                           isPassword: true),

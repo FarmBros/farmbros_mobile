@@ -1,8 +1,11 @@
+import 'package:farmbros_mobile/common/bloc/button/button_state_cubit.dart';
 import 'package:farmbros_mobile/routing/router.dart';
+import 'package:farmbros_mobile/service_locator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() {
+  setupServiceLocator();
   runApp(const MyApp());
 }
 
@@ -12,14 +15,16 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
-      providers: [],
+      providers: [
+        BlocProvider(create: (_) => ButtonStateCubit()),
+      ],
       child: const _AppRouterWrapper(),
     );
   }
 }
 
 class _AppRouterWrapper extends StatelessWidget {
-  const _AppRouterWrapper({super.key});
+  const _AppRouterWrapper();
 
   @override
   Widget build(BuildContext context) {
