@@ -1,5 +1,5 @@
 // import 'package:farmbros_mobile/apis/auth_api.dart';
-import 'package:farmbros_mobile/common/Utils/color_utils.dart';
+import 'package:farmbros_mobile/core/configs/Utils/color_utils.dart';
 import 'package:farmbros_mobile/common/widgets/farmbros_button.dart';
 import 'package:farmbros_mobile/common/widgets/farmbros_input.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
@@ -76,11 +76,15 @@ class _SignUpState extends State<SignUp> {
             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 40),
             height: MediaQuery.of(context).size.height * 0.70,
             decoration: BoxDecoration(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
-                ),
-                color: ColorUtils.primaryTextColor),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+              color: ColorUtils.primaryTextColor,
+              image: DecorationImage(
+                  fit: BoxFit.cover,
+                  image: AssetImage("assets/images/sign_up_bg.png")),
+            ),
             child: SingleChildScrollView(
               child: Column(
                 spacing: 15,

@@ -1,5 +1,3 @@
-import 'package:farmbros_mobile/bloc/auth_bloc/auth_bloc.dart';
-import 'package:farmbros_mobile/bloc/farmbros_button_bloc/button_bloc.dart';
 import 'package:farmbros_mobile/routing/router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,10 +12,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
-      providers: [
-        BlocProvider(create: (_) => AuthBloc()),
-        BlocProvider(create: (_) => ButtonBloc())
-      ],
+      providers: [],
       child: const _AppRouterWrapper(),
     );
   }

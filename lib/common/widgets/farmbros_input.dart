@@ -1,4 +1,4 @@
-import 'package:farmbros_mobile/common/Utils/color_utils.dart';
+import 'package:farmbros_mobile/core/configs/Utils/color_utils.dart';
 import 'package:flutter/material.dart';
 
 class FarmbrosInput extends StatelessWidget {

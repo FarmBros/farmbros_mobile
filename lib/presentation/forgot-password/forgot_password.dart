@@ -1,10 +1,12 @@
-import 'package:farmbros_mobile/common/Utils/color_utils.dart';
+import 'package:farmbros_mobile/core/configs/Utils/color_utils.dart';
 import 'package:farmbros_mobile/common/widgets/farmbros_button.dart';
+import 'package:farmbros_mobile/common/widgets/farmbros_input.dart';
 import 'package:farmbros_mobile/common/widgets/farmbros_pininput.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 
-class VerifyEmail extends StatelessWidget {
-  const VerifyEmail({super.key});
+class ForgotPassword extends StatelessWidget {
+  const ForgotPassword({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -30,23 +32,23 @@ class VerifyEmail extends StatelessWidget {
                     spacing: 15,
                     children: [
                       Text(
-                        "Confirm your Email",
+                        "Reset your Password",
                         style: TextStyle(
                             fontWeight: FontWeight.w900,
                             fontSize: 14,
                             fontFamily: "Poppins"),
                       ),
                       Text(
-                        "Use the OTP sent to your email  to confirm your email address",
+                        "Use the OTP sent to your email  to reset your password",
                         style: TextStyle(fontSize: 14, fontFamily: "Poppins"),
                       ),
                       FarmbrosPininput(),
-                      Text(
-                        "Request another code in: 0:45 Secs",
-                        style: TextStyle(fontSize: 14, fontFamily: "Poppins"),
-                      ),
+                      FarmbrosInput(
+                          label: "New Password",
+                          icon: FluentIcons.key_32_regular,
+                          isPassword: true),
                       FarmbrosButton(
-                          label: "Verify Email",
+                          label: "Reset Password",
                           onPressed: () {},
                           buttonColor: ColorUtils.secondaryColor,
                           textColor: ColorUtils.primaryTextColor,

@@ -1,5 +1,5 @@
 // import 'package:farmbros_mobile/apis/auth_api.dart';
-import 'package:farmbros_mobile/common/Utils/color_utils.dart';
+import 'package:farmbros_mobile/core/configs/Utils/color_utils.dart';
 import 'package:farmbros_mobile/common/widgets/farmbros_button.dart';
 import 'package:farmbros_mobile/common/widgets/farmbros_input.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
@@ -37,18 +37,6 @@ class _SignInState extends State<SignIn> {
 
   @override
   Widget build(BuildContext context) {
-    // AuthApi authApi = AuthApi();
-
-    // Future signIn() {
-    //   try {
-    //     final signInAction = authApi.loginRequest(email, password);
-    //   } catch (e) {
-    //     return Future.error(e);
-    //   }
-
-    //   return Future.value();
-    // }
-
     return Scaffold(
         body: Stack(
       children: [
@@ -76,13 +64,17 @@ class _SignInState extends State<SignIn> {
               physics: AlwaysScrollableScrollPhysics(),
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 40),
-                height: MediaQuery.of(context).size.height * 0.65,
+                height: MediaQuery.of(context).size.height * 0.6,
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      topRight: Radius.circular(20),
-                    ),
-                    color: ColorUtils.primaryTextColor),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
+                  ),
+                  color: ColorUtils.primaryTextColor,
+                  image: DecorationImage(
+                    fit: BoxFit.cover,
+                      image: AssetImage("assets/images/login_bg.png")),
+                ),
                 child: Column(
                   spacing: 15,
                   children: [
@@ -103,7 +95,9 @@ class _SignInState extends State<SignIn> {
                     SizedBox(
                       width: double.infinity,
                       child: InkWell(
-                        onTap: () {},
+                        onTap: () {
+                          context.go("/forgot_password");
+                        },
                         child: Text(
                           "Forgot Password?",
                           textAlign: TextAlign.right,

@@ -1,12 +1,10 @@
-import 'package:farmbros_mobile/common/Utils/color_utils.dart';
+import 'package:farmbros_mobile/core/configs/Utils/color_utils.dart';
 import 'package:farmbros_mobile/common/widgets/farmbros_button.dart';
-import 'package:farmbros_mobile/common/widgets/farmbros_input.dart';
 import 'package:farmbros_mobile/common/widgets/farmbros_pininput.dart';
-import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 
-class ForgotPassword extends StatelessWidget {
-  const ForgotPassword({super.key});
+class VerifyEmail extends StatelessWidget {
+  const VerifyEmail({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -32,23 +30,23 @@ class ForgotPassword extends StatelessWidget {
                     spacing: 15,
                     children: [
                       Text(
-                        "Reset your Password",
+                        "Confirm your Email",
                         style: TextStyle(
                             fontWeight: FontWeight.w900,
                             fontSize: 14,
                             fontFamily: "Poppins"),
                       ),
                       Text(
-                        "Use the OTP sent to your email  to reset your password",
+                        "Use the OTP sent to your email  to confirm your email address",
                         style: TextStyle(fontSize: 14, fontFamily: "Poppins"),
                       ),
                       FarmbrosPininput(),
-                      FarmbrosInput(
-                          label: "New Password",
-                          icon: FluentIcons.key_32_regular,
-                          isPassword: true),
+                      Text(
+                        "Request another code in: 0:45 Secs",
+                        style: TextStyle(fontSize: 14, fontFamily: "Poppins"),
+                      ),
                       FarmbrosButton(
-                          label: "Reset Password",
+                          label: "Verify Email",
                           onPressed: () {},
                           buttonColor: ColorUtils.secondaryColor,
                           textColor: ColorUtils.primaryTextColor,

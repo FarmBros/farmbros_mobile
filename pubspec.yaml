@@ -35,6 +35,9 @@ dependencies:
   http: ^1.5.0
   fluentui_system_icons: ^1.1.273
   pinput: ^5.0.1
+  dio: ^5.9.0
+  dartz: ^0.10.1
+  logger: ^2.6.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
