@@ -20,6 +20,8 @@ class SignIn extends StatefulWidget {
 
 class _SignInState extends State<SignIn> {
   late TapGestureRecognizer _tapGestureRecognizer;
+  TextEditingController username = TextEditingController();
+  TextEditingController password = TextEditingController();
 
   @override
   void initState() {
@@ -40,9 +42,6 @@ class _SignInState extends State<SignIn> {
 
   @override
   Widget build(BuildContext context) {
-    TextEditingController username = TextEditingController();
-    TextEditingController password = TextEditingController();
-
     return Scaffold(
         body: Stack(
       children: [

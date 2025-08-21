@@ -22,6 +22,8 @@ class FarmbrosInput extends StatelessWidget {
         controller: controller,
         obscureText: isPassword,
         decoration: InputDecoration(
+          filled: true,
+          fillColor: ColorUtils.primaryTextColor,
           labelText: label,
           labelStyle: const TextStyle(
               fontSize: 14, color: ColorUtils.secondaryTextColor),

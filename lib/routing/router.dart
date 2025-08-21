@@ -1,6 +1,6 @@
 import 'package:farmbros_mobile/presentation/dashboard/ui/dashboard.dart';
 import 'package:farmbros_mobile/presentation/forgot-password/forgot_password.dart';
-import 'package:farmbros_mobile/presentation/sign-in/ui/sign_in.dart';
+import 'package:farmbros_mobile/presentation/sign-in/sign_in.dart';
 import 'package:farmbros_mobile/presentation/sign-up/sign_up.dart';
 import 'package:farmbros_mobile/presentation/verify-email/verify_email.dart';
 import 'package:farmbros_mobile/presentation/welcome/welcome_screen.dart';

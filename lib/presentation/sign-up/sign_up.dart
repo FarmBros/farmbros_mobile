@@ -2,6 +2,9 @@
 import 'package:farmbros_mobile/core/configs/Utils/color_utils.dart';
 import 'package:farmbros_mobile/common/widgets/farmbros_button.dart';
 import 'package:farmbros_mobile/common/widgets/farmbros_input.dart';
+import 'package:farmbros_mobile/data/models/sign_up_req_params.dart';
+import 'package:farmbros_mobile/domain/usecases/sign_up_use_case.dart';
+import 'package:farmbros_mobile/service_locator.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +20,12 @@ class SignUp extends StatefulWidget {
 
 class _SignUpState extends State<SignUp> {
   late TapGestureRecognizer _tapGestureRecognizer;
+  final TextEditingController username = TextEditingController();
+  final TextEditingController firstname = TextEditingController();
+  final TextEditingController lastname = TextEditingController();
+  final TextEditingController email = TextEditingController();
+  final TextEditingController phoneNumber = TextEditingController();
+  final TextEditingController password = TextEditingController();
 
   @override
   void initState() {
@@ -37,12 +46,6 @@ class _SignUpState extends State<SignUp> {
 
   @override
   Widget build(BuildContext context) {
-    final TextEditingController username = TextEditingController();
-    final TextEditingController email = TextEditingController();
-    final TextEditingController phoneNumber = TextEditingController();
-    final TextEditingController password = TextEditingController();
-    final TextEditingController confirmPassword = TextEditingController();
-
     return Scaffold(
         body: Stack(
       children: [
@@ -94,9 +97,27 @@ class _SignUpState extends State<SignUp> {
                     isPassword: false,
                   ),
                   FarmbrosInput(
+                    controller: firstname,
+                    label: "firstname",
+                    icon: FluentIcons.person_48_regular,
+                    isPassword: false,
+                  ),
+                  FarmbrosInput(
+                    controller: lastname,
+                    label: "lastname",
+                    icon: FluentIcons.person_48_regular,
+                    isPassword: false,
+                  ),
+                  FarmbrosInput(
                     controller: username,
                     label: "Username",
                     icon: FluentIcons.person_48_regular,
+                    isPassword: false,
+                  ),
+                  FarmbrosInput(
+                    controller: phoneNumber,
+                    label: "Phone Number",
+                    icon: FluentIcons.call_48_regular,
                     isPassword: false,
                   ),
                   FarmbrosInput(
@@ -105,18 +126,22 @@ class _SignUpState extends State<SignUp> {
                     icon: FluentIcons.key_32_regular,
                     isPassword: true,
                   ),
-                  FarmbrosInput(
-                    controller: confirmPassword,
-                    label: "Confirm Password",
-                    icon: FluentIcons.key_32_regular,
-                    isPassword: true,
-                  ),
                   FarmbrosButton(
-                      label: "Login",
+                      label: "Register",
                       buttonColor: ColorUtils.secondaryColor,
                       textColor: ColorUtils.primaryTextColor,
                       fontWeight: FontWeight.bold,
-                      onPressed: () {},
+                      onPressed: () {
+                        sl<SignUpUseCase>().call(
+                            param: SignUpReqParams(
+                                username: username.text,
+                                firstName: firstname.text,
+                                lastName: lastname.text,
+                                fullName: "${firstname.text} ${lastname.text}",
+                                email: email.text,
+                                phoneNumber: phoneNumber.text,
+                                password: password.text));
+                      },
                       elevation: 4),
                   Stack(
                     clipBehavior: Clip.none,
