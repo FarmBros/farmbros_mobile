@@ -11,6 +11,7 @@ class AuthRepositoryImpl extends AuthRepository {
     return sl<AuthApiService>().signInRequest(signInReqParams);
   }
 
+  @override
   Future<Either> signUp(SignUpReqParams signUpReqParams) async {
     return sl<AuthApiService>().signUpRequest(signUpReqParams);
   }
