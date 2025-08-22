@@ -1,4 +1,5 @@
 import 'package:farmbros_mobile/common/bloc/form/combined_form_cubit.dart';
+import 'package:farmbros_mobile/common/bloc/onboarding/onboarding_state_cubit.dart';
 import 'package:farmbros_mobile/common/bloc/serverStatus/server_status_state.dart';
 import 'package:farmbros_mobile/common/bloc/serverStatus/server_status_state_cubit.dart';
 import 'package:farmbros_mobile/common/bloc/session/session_state_cubit.dart';
@@ -14,7 +15,9 @@ void main() async {
 
   setupServiceLocator();
   final sessionCubit = sl<SessionCubit>();
+  final onboardingCubit = sl<OnboardingStateCubit>();
   await sessionCubit.checkSession();
+  await onboardingCubit.verifyOnboardingStatus();
 
   runApp(const MyApp());
 }
@@ -28,6 +31,7 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider(create: (_) => CombinedFormCubit()),
         BlocProvider(create: (_) => SessionCubit()),
+        BlocProvider(create: (_) => OnboardingStateCubit()),
         BlocProvider(
           create: (_) {
             final cubit = ServerStatusStateCubit();

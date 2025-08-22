@@ -1,9 +1,12 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'onboarding_state.dart';
 
 class OnboardingStateCubit extends Cubit<OnboardingState> {
   OnboardingStateCubit() : super(UserOnboardingStatusState(isOnboarded: false));
+
+  Logger logger = Logger();
 
   /// Save onboarding status
   Future<void> saveOnboardingStatus({required bool isOnboarded}) async {
@@ -21,6 +24,8 @@ class OnboardingStateCubit extends Cubit<OnboardingState> {
 
     final prefs = await SharedPreferences.getInstance();
     final isOnboarded = prefs.getBool("is_onboarded") ?? false;
+
+    logger.log(Level.info, isOnboarded);
 
     emit(UserOnboardingStatusState(isOnboarded: isOnboarded));
   }

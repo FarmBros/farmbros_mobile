@@ -1,6 +1,10 @@
+import 'package:async/async.dart';
+import 'package:farmbros_mobile/common/bloc/onboarding/onboarding_state.dart';
+import 'package:farmbros_mobile/common/bloc/onboarding/onboarding_state_cubit.dart';
 import 'package:farmbros_mobile/common/bloc/session/session_state.dart';
 import 'package:farmbros_mobile/common/bloc/session/session_state_cubit.dart';
 import 'package:farmbros_mobile/core/configs/Helpers/go_stream.dart';
+import 'package:farmbros_mobile/presentation/Onboarding/onboarding_controller.dart';
 import 'package:farmbros_mobile/presentation/dashboard/ui/dashboard.dart';
 import 'package:farmbros_mobile/presentation/forgot-password/forgot_password.dart';
 import 'package:farmbros_mobile/presentation/sign-in/sign_in.dart';
@@ -15,7 +19,10 @@ import 'package:go_router/go_router.dart';
 
 GoRouter createRouter(BuildContext context) {
   final sessionCubit = sl<SessionCubit>();
-  final refresh = GoRouterRefreshStream(sessionCubit.stream);
+  final onboardingCubit = sl<OnboardingStateCubit>();
+  final refresh = GoRouterRefreshStream(
+    StreamGroup.merge([sessionCubit.stream, onboardingCubit.stream]),
+  );
 
   return GoRouter(
     initialLocation: Routes.welcome,
@@ -34,10 +41,17 @@ GoRouter createRouter(BuildContext context) {
       GoRoute(
           path: Routes.forgotPassword,
           builder: (context, state) => const ForgotPassword()),
+      GoRoute(
+          path: Routes.onboarding,
+          builder: (context, state) => const OnboardingController())
     ],
     redirect: (context, state) {
       final s = sessionCubit.state;
+      final ob = onboardingCubit.state;
+
       final isAuthed = s is ValidSessionState;
+      final isOnboarded =
+          ob is UserOnboardingStatusState ? ob.isOnboarded : false;
 
       final loc = state.matchedLocation;
       final isAuthScreen = <String>{
@@ -48,11 +62,19 @@ GoRouter createRouter(BuildContext context) {
         Routes.forgotPassword,
       }.contains(loc);
 
-      if (isAuthed && isAuthScreen) return Routes.dashboard;
+      // Authenticated users should not see auth/onboarding screens
+      if (isAuthed && !isOnboarded && loc != Routes.onboarding) {
+        return Routes.onboarding; // force onboarding if not completed
+      }
 
+      if (isAuthed && isOnboarded && isAuthScreen) {
+        return Routes.dashboard;
+      }
+
+      // Block access to dashboard if not authenticated
       if (!isAuthed && loc == Routes.dashboard) return Routes.signIn;
 
-      return null;
+      return null; // no redirect
     },
     refreshListenable: refresh,
   );
