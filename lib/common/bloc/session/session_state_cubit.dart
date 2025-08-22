@@ -10,8 +10,6 @@ class SessionCubit extends Cubit<SessionState> {
   Future<void> createSession(String token) async {
     emit(SessionLoading());
 
-    logger.log(Level.info, token);
-
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString("auth_token", token);
 
@@ -25,8 +23,6 @@ class SessionCubit extends Cubit<SessionState> {
     final token = prefs.getString("auth_token");
 
     if (token != null && token.isNotEmpty) {
-      logger.log(Level.info, token);
-
       emit(ValidSessionState(token: token));
     } else {
       emit(ExpiredSessionState(reason: "No valid token"));

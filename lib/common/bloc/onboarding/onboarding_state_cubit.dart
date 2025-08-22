@@ -25,8 +25,6 @@ class OnboardingStateCubit extends Cubit<OnboardingState> {
     final prefs = await SharedPreferences.getInstance();
     final isOnboarded = prefs.getBool("is_onboarded") ?? false;
 
-    logger.log(Level.info, isOnboarded);
-
     emit(UserOnboardingStatusState(isOnboarded: isOnboarded));
   }
 

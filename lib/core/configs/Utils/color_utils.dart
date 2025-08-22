@@ -10,7 +10,7 @@ class ColorUtils {
   static const Color lightBackgroundColor = Color(0xFFE2E2E2);
 
   //server down
-  static const Color serverDownColor = Color(0xFFF1F1F1);
+  static const Color serverDownColor = Color(0xFFF44336);
 
   //success
   static const Color successColor = Color(0xFF008800);

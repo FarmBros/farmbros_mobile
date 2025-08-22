@@ -71,7 +71,7 @@ GoRouter createRouter(BuildContext context) {
         return Routes.dashboard;
       }
 
-      // Block access to dashboard if not authenticated
+      // Block access to app if not authenticated
       if (!isAuthed && loc == Routes.dashboard) return Routes.signIn;
 
       return null; // no redirect
