@@ -1,6 +1,7 @@
-import 'package:farmbros_mobile/common/bloc/button/button_state_cubit.dart';
+import 'package:farmbros_mobile/common/bloc/form/combined_form_cubit.dart';
 import 'package:farmbros_mobile/common/bloc/serverStatus/server_status_state.dart';
 import 'package:farmbros_mobile/common/bloc/serverStatus/server_status_state_cubit.dart';
+import 'package:farmbros_mobile/common/bloc/session/session_state_cubit.dart';
 import 'package:farmbros_mobile/common/widgets/server_down_overlay.dart';
 import 'package:farmbros_mobile/domain/usecases/server_status_usecase.dart';
 import 'package:farmbros_mobile/routing/router.dart';
@@ -8,8 +9,13 @@ import 'package:farmbros_mobile/service_locator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
   setupServiceLocator();
+  final sessionCubit = sl<SessionCubit>();
+  await sessionCubit.checkSession();
+
   runApp(const MyApp());
 }
 
@@ -20,7 +26,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => ButtonStateCubit()),
+        BlocProvider(create: (_) => CombinedFormCubit()),
+        BlocProvider(create: (_) => SessionCubit()),
         BlocProvider(
           create: (_) {
             final cubit = ServerStatusStateCubit();

@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
+import 'package:farmbros_mobile/common/bloc/session/session_state_cubit.dart';
 import 'package:farmbros_mobile/core/configs/Utils/app_utils.dart';
 import 'package:farmbros_mobile/core/network/dio_client.dart';
 import 'package:farmbros_mobile/data/models/sign_in_req_params.dart';
@@ -18,12 +19,16 @@ class AuthApiServiceImpl extends AuthApiService {
   @override
   Future<Either> signInRequest(SignInReqParams signInReqParams) async {
     try {
-      logger.log(Level.info, signInReqParams.toMap());
       var response = await sl<DioClient>()
           .post(AppUtils.$login, data: signInReqParams.toMap());
 
       final responseData = response.data;
       if (responseData["status"] == "success") {
+        final token = responseData["data"];
+        logger.log(Level.info, token);
+
+        await sl<SessionCubit>().createSession(token);
+
         return Right(responseData);
       } else {
         return Left(responseData["message"] ?? "Login failed");

@@ -1,3 +1,4 @@
+import 'package:farmbros_mobile/common/bloc/session/session_state_cubit.dart';
 import 'package:farmbros_mobile/core/network/dio_client.dart';
 import 'package:farmbros_mobile/data/repository/auth_repository_impl.dart';
 import 'package:farmbros_mobile/data/repository/server_status_repository_impl.dart';
@@ -13,7 +14,11 @@ import 'package:get_it/get_it.dart';
 final sl = GetIt.instance;
 
 void setupServiceLocator() {
+  // Dio
   sl.registerSingleton<DioClient>(DioClient());
+
+  // blocs
+  sl.registerLazySingleton<SessionCubit>(() => SessionCubit());
 
   // Services
   sl.registerSingleton<AuthApiService>(AuthApiServiceImpl());
@@ -26,6 +31,8 @@ void setupServiceLocator() {
   // Usecases
   sl.registerSingleton<SignInUseCase>(SignInUseCase());
   sl.registerSingleton<SignUpUseCase>(SignUpUseCase());
+
+  // server up usecase
   sl.registerSingleton<ServerStatusUsecase>(
     ServerStatusUsecase(sl<ServerStatusApiService>()),
   );

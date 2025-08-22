@@ -1,6 +1,5 @@
-// import 'package:farmbros_mobile/apis/auth_api.dart';
-import 'package:farmbros_mobile/common/bloc/button/button_state.dart';
-import 'package:farmbros_mobile/common/bloc/button/button_state_cubit.dart';
+import 'package:farmbros_mobile/common/bloc/form/comnined_form_state.dart';
+import 'package:farmbros_mobile/common/bloc/form/combined_form_cubit.dart';
 import 'package:farmbros_mobile/common/widgets/farmbros_notification_banner.dart';
 import 'package:farmbros_mobile/core/configs/Utils/color_utils.dart';
 import 'package:farmbros_mobile/common/widgets/farmbros_button.dart';
@@ -24,8 +23,8 @@ class SignIn extends StatefulWidget {
 
 class _SignInState extends State<SignIn> {
   late TapGestureRecognizer _tapGestureRecognizer;
-  TextEditingController username = TextEditingController();
-  TextEditingController password = TextEditingController();
+  final TextEditingController username = TextEditingController();
+  final TextEditingController password = TextEditingController();
 
   @override
   void initState() {
@@ -46,50 +45,56 @@ class _SignInState extends State<SignIn> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ButtonStateCubit, ButtonState>(
+    return BlocBuilder<CombinedFormCubit, CombinedFormState>(
       builder: (context, state) {
         return Scaffold(
-            body: Stack(
-          children: [
-            Container(
+          body: Stack(
+            children: [
+              Container(
                 height: MediaQuery.of(context).size.height,
                 width: double.infinity,
-                padding: EdgeInsets.symmetric(vertical: 80),
-                decoration: BoxDecoration(
-                    image: DecorationImage(
-                        fit: BoxFit.cover,
-                        image: AssetImage("assets/images/background-two.png"))),
-                child: Column(
+                padding: const EdgeInsets.symmetric(vertical: 80),
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    fit: BoxFit.cover,
+                    image: AssetImage("assets/images/background-two.png"),
+                  ),
+                ),
+                child: const Column(
                   children: [
                     Image(
-                        height: 200,
-                        width: 200,
-                        image: AssetImage("assets/images/farmbros-logo.png"))
+                      height: 200,
+                      width: 200,
+                      image: AssetImage("assets/images/farmbros-logo.png"),
+                    ),
                   ],
-                )),
-            Positioned(
+                ),
+              ),
+              Positioned(
                 bottom: 0,
                 left: 0,
                 right: 0,
                 child: SingleChildScrollView(
-                  physics: AlwaysScrollableScrollPhysics(),
+                  physics: const AlwaysScrollableScrollPhysics(),
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 40),
                     height: MediaQuery.of(context).size.height * 0.6,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.only(
+                      borderRadius: const BorderRadius.only(
                         topLeft: Radius.circular(20),
                         topRight: Radius.circular(20),
                       ),
                       color: ColorUtils.primaryTextColor,
-                      image: DecorationImage(
-                          fit: BoxFit.cover,
-                          image: AssetImage("assets/images/login_bg.png")),
+                      image: const DecorationImage(
+                        fit: BoxFit.cover,
+                        image: AssetImage("assets/images/login_bg.png"),
+                      ),
                     ),
                     child: Column(
                       spacing: 15,
                       children: [
-                        Text(
+                        const Text(
                           "Welcome back, login to continue",
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
@@ -108,104 +113,113 @@ class _SignInState extends State<SignIn> {
                         SizedBox(
                           width: double.infinity,
                           child: InkWell(
-                            onTap: () {
-                              context.go("/forgot_password");
-                            },
+                            onTap: () => context.go("/forgot_password"),
                             child: Text(
                               "Forgot Password?",
                               textAlign: TextAlign.right,
                               style: TextStyle(
-                                  decoration: TextDecoration.underline,
-                                  color: ColorUtils.secondaryTextColor),
+                                decoration: TextDecoration.underline,
+                                color: ColorUtils.secondaryTextColor,
+                              ),
                             ),
                           ),
                         ),
                         FarmbrosButton(
-                            label: state is ButtonLoadingState
-                                ? "Loading..."
-                                : "Login",
-                            buttonColor: ColorUtils.secondaryColor,
-                            textColor: ColorUtils.primaryTextColor,
-                            fontWeight: FontWeight.bold,
-                            onPressed: state is ButtonLoadingState
-                                ? null
-                                : () {
-                                    // Disable when loading
-                                    context.read<ButtonStateCubit>().execute(
+                          label: state is FormLoadingState
+                              ? "Loading..."
+                              : "Login",
+                          buttonColor: ColorUtils.secondaryColor,
+                          textColor: ColorUtils.primaryTextColor,
+                          fontWeight: FontWeight.bold,
+                          onPressed: state is FormLoadingState
+                              ? null
+                              : () {
+                                  context.read<CombinedFormCubit>().execute(
                                         SignInReqParams(
-                                            username: username.text,
-                                            password: password.text),
-                                        sl<SignInUseCase>());
-                                  },
-                            elevation: 4),
+                                          username: username.text,
+                                          password: password.text,
+                                        ),
+                                        sl<SignInUseCase>(),
+                                      );
+                                },
+                          elevation: 4,
+                        ),
+
                         Stack(
                           clipBehavior: Clip.none,
                           children: [
-                            Divider(
-                              color: ColorUtils.secondaryTextColor,
-                            ),
+                            Divider(color: ColorUtils.secondaryTextColor),
                             Positioned(
-                                left: 100,
-                                right: 100,
-                                bottom: -5,
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(
-                                      vertical: 5, horizontal: 10),
-                                  decoration: BoxDecoration(
-                                      color: ColorUtils.primaryTextColor),
-                                  child: Text(
-                                    textAlign: TextAlign.center,
-                                    "or continue with",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
-                                  ),
-                                ))
+                              left: 100,
+                              right: 100,
+                              bottom: -5,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 5, horizontal: 10),
+                                decoration: BoxDecoration(
+                                    color: ColorUtils.primaryTextColor),
+                                child: const Text(
+                                  textAlign: TextAlign.center,
+                                  "or continue with",
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ),
                           ],
                         ),
+
                         InkWell(
                           onTap: () {},
-                          child: Image(
+                          child: const Image(
                             image: AssetImage("assets/images/google_logo.png"),
                           ),
                         ),
+
+                        // Sign up link
                         Text.rich(
                           TextSpan(
                             text: "Do not have an account? ",
                             style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black),
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
                             children: [
                               TextSpan(
-                                  text: "Sign Up",
-                                  style: const TextStyle(
-                                    color: Colors.blue, // link color
-                                    decoration: TextDecoration
-                                        .underline, // underline link
-                                  ),
-                                  recognizer: _tapGestureRecognizer),
+                                text: "Sign Up",
+                                style: const TextStyle(
+                                  color: Colors.blue,
+                                  decoration: TextDecoration.underline,
+                                ),
+                                recognizer: _tapGestureRecognizer,
+                              ),
                             ],
                           ),
                           textAlign: TextAlign.center,
-                        )
+                        ),
                       ],
                     ),
                   ),
-                )),
-            Positioned(
+                ),
+              ),
+              Positioned(
                 top: 50,
                 left: 0,
                 right: 0,
-                child: state is ButtonFailureState
+                child: state is FormErrorState && state.generalError != null
                     ? FarmbrosNotificationBanner(
-                        message: state.errorMessage,
-                        color: ColorUtils.failureColor)
-                    : state is ButtonSuccessState
+                        message: state.generalError!,
+                        color: ColorUtils.failureColor,
+                      )
+                    : state is FormSuccessState
                         ? FarmbrosNotificationBanner(
                             message: "Login successful",
-                            color: ColorUtils.successColor)
-                        : SizedBox.shrink())
-          ],
-        ));
+                            color: ColorUtils.successColor,
+                          )
+                        : const SizedBox.shrink(),
+              ),
+            ],
+          ),
+        );
       },
     );
   }

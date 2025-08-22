@@ -1,11 +1,13 @@
-import 'package:farmbros_mobile/common/bloc/button/button_state.dart';
-import 'package:farmbros_mobile/common/bloc/button/button_state_cubit.dart';
+import 'package:farmbros_mobile/core/configs/Utils/color_utils.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:farmbros_mobile/common/bloc/form/comnined_form_state.dart';
+import 'package:farmbros_mobile/common/bloc/form/combined_form_cubit.dart';
 
 class FarmbrosButton extends StatelessWidget {
   final String label;
-  final void Function()? onPressed;
+  final VoidCallback? onPressed;
   final Color? buttonColor;
   final Color? textColor;
   final double? elevation;
@@ -18,47 +20,60 @@ class FarmbrosButton extends StatelessWidget {
     required this.onPressed,
     this.buttonColor,
     this.textColor,
-    required this.elevation,
+    this.elevation,
     this.textDecoration,
     this.fontWeight,
   });
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ButtonStateCubit, ButtonState>(
+    return BlocBuilder<CombinedFormCubit, CombinedFormState>(
       builder: (context, state) {
         return SizedBox(
           width: double.infinity,
           child: ElevatedButton(
             style: ButtonStyle(
-              elevation: WidgetStatePropertyAll(elevation),
+              elevation: WidgetStatePropertyAll(elevation ?? 2),
               shape: WidgetStatePropertyAll(
                 RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              backgroundColor: WidgetStatePropertyAll(buttonColor),
+              backgroundColor: WidgetStatePropertyAll(state is FormErrorState
+                  ? ColorUtils.failureColor
+                  : buttonColor),
             ),
-            onPressed: onPressed,
-            child: state is ButtonLoadingState
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation(Colors.white),
-                    ),
-                  )
-                : Text(
-                    label,
-                    style: TextStyle(
-                        color: textColor,
-                        decoration: textDecoration,
-                        fontWeight: fontWeight),
-                  ),
+            onPressed: state is FormLoadingState ? null : onPressed,
+            child: _buildChild(state),
           ),
         );
       },
     );
+  }
+
+  Widget _buildChild(CombinedFormState state) {
+    if (state is FormLoadingState) {
+      return const SizedBox(
+        width: 20,
+        height: 20,
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          valueColor: AlwaysStoppedAnimation(Colors.white),
+        ),
+      );
+    } else if (state is FormSuccessState) {
+      return const Icon(FluentIcons.check_24_filled, color: Colors.white);
+    } else if (state is FormErrorState) {
+      return const Icon(FluentIcons.dismiss_24_filled, color: Colors.white);
+    } else {
+      return Text(
+        label,
+        style: TextStyle(
+          color: textColor ?? Colors.white,
+          decoration: textDecoration,
+          fontWeight: fontWeight ?? FontWeight.w600,
+        ),
+      );
+    }
   }
 }
