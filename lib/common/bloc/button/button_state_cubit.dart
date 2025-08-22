@@ -7,16 +7,28 @@ class ButtonStateCubit extends Cubit<ButtonState> {
   ButtonStateCubit() : super(ButtonInitialState());
 
   void execute(dynamic params, Usecases usecases) async {
+    emit(ButtonLoadingState());
+
     try {
       Either result = await usecases.call(param: params);
-
       result.fold((error) {
-        emit(ButtonFailureState(errorMessage: error));
+        emit(ButtonFailureState(errorMessage: error.toString()));
+        _resetToInitialAfterDelay(seconds: 5); // Longer delay for errors
       }, (data) {
         emit(ButtonSuccessState());
+        _resetToInitialAfterDelay(seconds: 2); // Shorter delay for success
       });
     } catch (e) {
       emit(ButtonFailureState(errorMessage: e.toString()));
+      _resetToInitialAfterDelay(seconds: 5);
     }
+  }
+
+  void _resetToInitialAfterDelay({int seconds = 3}) {
+    Future.delayed(Duration(seconds: seconds), () {
+      if (!isClosed) {
+        emit(ButtonInitialState());
+      }
+    });
   }
 }

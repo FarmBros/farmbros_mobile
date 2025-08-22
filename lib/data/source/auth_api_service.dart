@@ -19,12 +19,23 @@ class AuthApiServiceImpl extends AuthApiService {
   Future<Either> signInRequest(SignInReqParams signInReqParams) async {
     try {
       logger.log(Level.info, signInReqParams.toMap());
-      var signInResponse =
-          sl<DioClient>().post(AppUtils.$login, data: signInReqParams.toMap());
+      var response = await sl<DioClient>()
+          .post(AppUtils.$login, data: signInReqParams.toMap());
 
-      return Right(signInResponse);
+      final responseData = response.data;
+      if (responseData["status"] == "success") {
+        return Right(responseData);
+      } else {
+        return Left(responseData["message"] ?? "Login failed");
+      }
     } on DioException catch (e) {
-      return Left(e.response!.data["message"]);
+      String errorMessage = "Login failed";
+      if (e.response?.data != null && e.response!.data["message"] != null) {
+        errorMessage = e.response!.data["message"];
+      }
+      return Left(errorMessage);
+    } catch (e) {
+      return Left("An unexpected error occurred");
     }
   }
 
@@ -32,12 +43,28 @@ class AuthApiServiceImpl extends AuthApiService {
   Future<Either> signUpRequest(SignUpReqParams signUpReqParams) async {
     try {
       logger.log(Level.info, signUpReqParams.toMap());
-      var signUpResponse =
-          sl<DioClient>().post(AppUtils.$register, data: signUpReqParams.toMap());
+      var signUpResponse = await sl<DioClient>()
+          .post(AppUtils.$register, data: signUpReqParams.toMap());
 
-      return Right(signUpResponse);
+      final responseData = signUpResponse.data;
+
+      if (responseData["status"] == "success") {
+        return Right(signUpResponse);
+      } else {
+        return Left(responseData["message"] ?? "Registration failed");
+      }
     } on DioException catch (e) {
-      return Left(e.response!.data["message"]);
+      String errorMessage = "Registration failed";
+      if (e.response?.data != null) {
+        if (e.response!.data is Map && e.response!.data["message"] != null) {
+          errorMessage = e.response!.data["message"];
+        } else if (e.response!.data is String) {
+          errorMessage = e.response!.data;
+        }
+      }
+      return Left(errorMessage);
+    } catch (e) {
+      return Left("An unexpected error occurred: ${e.toString()}");
     }
   }
 }
