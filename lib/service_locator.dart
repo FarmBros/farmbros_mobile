@@ -23,8 +23,10 @@ void setupServiceLocator() {
   sl.registerSingleton<AuthRepository>(AuthRepositoryImpl());
   sl.registerSingleton<ServerStatusRepository>(ServerStatusRepositoryImpl());
 
-  // usecases
+  // Usecases
   sl.registerSingleton<SignInUseCase>(SignInUseCase());
   sl.registerSingleton<SignUpUseCase>(SignUpUseCase());
-  sl.registerSingleton<ServerStatusUsecase>(ServerStatusUsecase());
+  sl.registerSingleton<ServerStatusUsecase>(
+    ServerStatusUsecase(sl<ServerStatusApiService>()),
+  );
 }

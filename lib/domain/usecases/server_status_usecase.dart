@@ -1,11 +1,14 @@
 import 'package:dartz/dartz.dart';
 import 'package:farmbros_mobile/core/usecases/nonparamsusescase.dart';
-import 'package:farmbros_mobile/domain/repository/server_status_repository.dart';
-import 'package:farmbros_mobile/service_locator.dart';
+import 'package:farmbros_mobile/data/source/server_status_api_service.dart';
 
-class ServerStatusUsecase implements Nonparamsusescase<Either> {
+class ServerStatusUsecase extends Nonparamsusescase<Either<String, bool>> {
+  final ServerStatusApiService service;
+
+  ServerStatusUsecase(this.service);
+
   @override
-  Future<Either> call() {
-    return sl<ServerStatusRepository>().checkServerStatus();
+  Future<Either<String, bool>> call() async {
+    return await service.checkServerStatus();
   }
 }

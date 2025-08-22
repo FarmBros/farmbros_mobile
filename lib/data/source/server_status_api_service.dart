@@ -5,18 +5,25 @@ import 'package:farmbros_mobile/core/network/dio_client.dart';
 import 'package:farmbros_mobile/service_locator.dart';
 
 abstract class ServerStatusApiService {
-  Future<Either> checkServerStatus();
+  Future<Either<String, bool>> checkServerStatus();
 }
 
 class ServerStatusApiServiceImpl extends ServerStatusApiService {
   @override
-  Future<Either> checkServerStatus() async {
+  Future<Either<String, bool>> checkServerStatus() async {
     try {
-      var checkServerStatusResponse = sl<DioClient>().post(AppUtils.$baseUrl);
+      final response = await sl<DioClient>().get(AppUtils.$baseUrl);
 
-      return Right(checkServerStatusResponse);
+      if (response.statusCode == 200) {
+        return const Right(true);
+      } else {
+        return Left("Server responded with status: ${response.statusCode}");
+      }
     } on DioException catch (e) {
-      return Left(e.response!.data["message"]);
+      return Left(
+          e.response?.data["message"] ?? "Server unreachable, Try again later");
+    } catch (e) {
+      return Left("Unexpected error: $e");
     }
   }
 }
