@@ -2,6 +2,7 @@ import 'package:farmbros_mobile/presentation/Onboarding/onboarding_congratulatio
 import 'package:farmbros_mobile/presentation/Onboarding/onboarding_farm_page.dart';
 import 'package:farmbros_mobile/presentation/Onboarding/onboarding_landing_page.dart';
 import 'package:farmbros_mobile/presentation/Onboarding/onboarding_logger.dart';
+import 'package:farmbros_mobile/presentation/farm-logger/farm_logger.dart';
 import 'package:flutter/material.dart';
 
 class OnboardingController extends StatelessWidget {
@@ -14,6 +15,7 @@ class OnboardingController extends StatelessWidget {
         OnboardingLandingPage(),
         OnboardingFarmPage(),
         OnboardingLogger(),
+        FarmLogger(),
         OnboardingCongratulations()
       ],
     );
