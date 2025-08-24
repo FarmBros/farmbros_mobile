@@ -68,18 +68,7 @@ class _AppRouterWrapper extends StatelessWidget {
         return BlocBuilder<ServerStatusStateCubit, ServerStatusState>(
           builder: (ctx, state) {
             if (state is ServerStatusLoading) {
-              return Container(
-                decoration: const BoxDecoration(
-                  color: ColorUtils.splashScreenBackground,
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    FarmbrosLoader(),
-                  ],
-                ),
-              );
+              return FarmbrosLoader();
             } else if (state is ServerDownState) {
               // Show splash background + overlay
               return Stack(
@@ -105,9 +94,9 @@ class _AppRouterWrapper extends StatelessWidget {
                 ],
               );
             } else if (state is ServerUpState) {
-              return child!;
+              return FarmbrosLoader();
             }
-            return child!;
+            return FarmbrosLoader();
           },
         );
       },

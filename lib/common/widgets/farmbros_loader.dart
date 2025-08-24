@@ -7,22 +7,32 @@ class FarmbrosLoader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          "Loading . . .",
-          style: TextStyle(
-              fontFamily: "Poppins",
-              decoration: TextDecoration.none,
-              color: ColorUtils.secondaryTextColor,
-              fontSize: 18),
-        ),
-        Lottie.asset("assets/animations/farmbros_loader.json"),
-        Image(
-            height: 100,
-            width: 100,
-            image: AssetImage("assets/images/farmbros-logo-white-outline.png")),
-      ],
+    return Container(
+      height: MediaQuery.of(context).size.height,
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        color: ColorUtils.lightBackgroundColor,
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            "Loading . . .",
+            style: TextStyle(
+                fontFamily: "Poppins",
+                decoration: TextDecoration.none,
+                color: ColorUtils.splashScreenBackground,
+                fontSize: 18),
+          ),
+          Lottie.asset("assets/animations/farmbros_loader.json"),
+          Image(
+              height: 75,
+              width: 75,
+              image:
+                  AssetImage("assets/images/farmbros-logo-green-outline.png")),
+        ],
+      ),
     );
   }
 }
