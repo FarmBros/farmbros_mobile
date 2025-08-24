@@ -77,16 +77,6 @@ class _AppRouterWrapper extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     FarmbrosLoader(),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image(
-                            height: 80,
-                            width: 80,
-                            image:
-                                AssetImage("assets/images/farmbros-logo.png")),
-                      ],
-                    )
                   ],
                 ),
               );

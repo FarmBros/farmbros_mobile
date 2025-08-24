@@ -18,8 +18,8 @@ class ServerStatusStateCubit extends Cubit<ServerStatusState> {
       final result = await nonparamsusescase.call();
       final elapsed = DateTime.now().difference(startTime);
 
-      if (elapsed < const Duration(seconds: 5)) {
-        await Future.delayed(const Duration(seconds: 5) - elapsed);
+      if (elapsed < const Duration(seconds: 6)) {
+        await Future.delayed(const Duration(seconds: 6) - elapsed);
       }
 
       result.fold(
@@ -28,8 +28,8 @@ class ServerStatusStateCubit extends Cubit<ServerStatusState> {
       );
     } catch (e) {
       final elapsed = DateTime.now().difference(startTime);
-      if (elapsed < const Duration(seconds: 5)) {
-        await Future.delayed(const Duration(seconds: 5) - elapsed);
+      if (elapsed < const Duration(seconds: 6)) {
+        await Future.delayed(const Duration(seconds: 6) - elapsed);
       }
 
       emit(ServerDownState(serverDownMessage: e.toString()));
