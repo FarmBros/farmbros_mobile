@@ -1,5 +1,6 @@
 import 'package:farmbros_mobile/common/widgets/farmbros_bottomsheet.dart';
 import 'package:farmbros_mobile/core/configs/Utils/color_utils.dart';
+import 'package:farmbros_mobile/presentation/farm-logger/widgets/empty_collection.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 
@@ -92,107 +93,23 @@ class FarmLogger extends StatelessWidget {
   }
 
   Widget _buildAnimalLogger(BuildContext context) => Column(children: [
-        SizedBox(
-          height: MediaQuery.of(context).size.height / 1.5,
-          width: MediaQuery.of(context).size.width / 1.5,
-          child: Column(
-            spacing: 20,
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                "Ooops!",
-                style: TextStyle(
-                    fontWeight: FontWeight.w900,
-                    color: ColorUtils.secondaryColor,
-                    fontSize: 24),
-              ),
-              Image(image: AssetImage("assets/images/empty.png")),
-              Text(
-                  textAlign: TextAlign.center,
-                  "How Empty, Add some "
-                  "animals to log them on this screen. "
-                  "Use “Drag to Show” below.")
-            ],
-          ),
+        EmptyCollection(
+          collectionName: "Animals",
         )
       ]);
   Widget _buildCropLogger(BuildContext context) => Column(children: [
-        SizedBox(
-          height: MediaQuery.of(context).size.height / 1.5,
-          width: MediaQuery.of(context).size.width / 1.5,
-          child: Column(
-            spacing: 20,
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                "Ooops!",
-                style: TextStyle(
-                    fontWeight: FontWeight.w900,
-                    color: ColorUtils.secondaryColor,
-                    fontSize: 24),
-              ),
-              Image(image: AssetImage("assets/images/empty.png")),
-              Text(
-                  textAlign: TextAlign.center,
-                  "How Empty, Add some "
-                  "animals to log them on this screen. "
-                  "Use “Drag to Show” below.")
-            ],
-          ),
+        EmptyCollection(
+          collectionName: "Crops",
         )
       ]);
   Widget _buildStructureLogger(BuildContext context) => Column(children: [
-        SizedBox(
-          height: MediaQuery.of(context).size.height / 1.5,
-          width: MediaQuery.of(context).size.width / 1.5,
-          child: Column(
-            spacing: 20,
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                "Ooops!",
-                style: TextStyle(
-                    fontWeight: FontWeight.w900,
-                    color: ColorUtils.secondaryColor,
-                    fontSize: 24),
-              ),
-              Image(image: AssetImage("assets/images/empty.png")),
-              Text(
-                  textAlign: TextAlign.center,
-                  "How Empty, Add some "
-                  "animals to log them on this screen. "
-                  "Use “Drag to Show” below.")
-            ],
-          ),
+        EmptyCollection(
+          collectionName: "Equipment",
         )
       ]);
   Widget _buildEquipmentLogger(BuildContext context) => Column(children: [
-        SizedBox(
-          height: MediaQuery.of(context).size.height / 1.5,
-          width: MediaQuery.of(context).size.width / 1.5,
-          child: Column(
-            spacing: 20,
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                "Ooops!",
-                style: TextStyle(
-                    fontWeight: FontWeight.w900,
-                    color: ColorUtils.secondaryColor,
-                    fontSize: 24),
-              ),
-              Image(image: AssetImage("assets/images/empty.png")),
-              Text(
-                  textAlign: TextAlign.center,
-                  "How Empty, Add some "
-                  "animals to log them on this screen. "
-                  "Use “Drag to Show” below.")
-            ],
-          ),
+        EmptyCollection(
+          collectionName: "Structures",
         )
       ]);
 }

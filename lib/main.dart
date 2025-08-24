@@ -3,6 +3,7 @@ import 'package:farmbros_mobile/common/bloc/onboarding/onboarding_state_cubit.da
 import 'package:farmbros_mobile/common/bloc/serverStatus/server_status_state.dart';
 import 'package:farmbros_mobile/common/bloc/serverStatus/server_status_state_cubit.dart';
 import 'package:farmbros_mobile/common/bloc/session/session_state_cubit.dart';
+import 'package:farmbros_mobile/common/widgets/farmbros_loader.dart';
 import 'package:farmbros_mobile/common/widgets/server_down_overlay.dart';
 import 'package:farmbros_mobile/core/configs/Utils/color_utils.dart';
 import 'package:farmbros_mobile/domain/usecases/server_status_usecase.dart';
@@ -75,7 +76,7 @@ class _AppRouterWrapper extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Lottie.asset("assets/animations/farmbros_loader.json"),
+                    FarmbrosLoader(),
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
