@@ -8,6 +8,7 @@ class ColorUtils {
   static const Color secondaryTextColor = Color.fromARGB(255, 0, 0, 0);
   static const Color inActiveColor = Color(0xFF686868);
   static const Color lightBackgroundColor = Color(0xFFE2E2E2);
+  static const Color splashScreenBackground = Color(0XFF62995F);
 
   //server down
   static const Color serverDownColor = Color(0xFFF44336);

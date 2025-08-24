@@ -4,11 +4,13 @@ import 'package:farmbros_mobile/common/bloc/serverStatus/server_status_state.dar
 import 'package:farmbros_mobile/common/bloc/serverStatus/server_status_state_cubit.dart';
 import 'package:farmbros_mobile/common/bloc/session/session_state_cubit.dart';
 import 'package:farmbros_mobile/common/widgets/server_down_overlay.dart';
+import 'package:farmbros_mobile/core/configs/Utils/color_utils.dart';
 import 'package:farmbros_mobile/domain/usecases/server_status_usecase.dart';
 import 'package:farmbros_mobile/routing/router.dart';
 import 'package:farmbros_mobile/service_locator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lottie/lottie.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -64,10 +66,43 @@ class _AppRouterWrapper extends StatelessWidget {
       builder: (context, child) {
         return BlocBuilder<ServerStatusStateCubit, ServerStatusState>(
           builder: (ctx, state) {
-            return Stack(
-              children: [
-                child!, // Your main app
-                if (state is ServerDownState)
+            if (state is ServerStatusLoading) {
+              return Container(
+                decoration: const BoxDecoration(
+                  color: ColorUtils.splashScreenBackground,
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Lottie.asset("assets/animations/farmbros_loader.json"),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image(
+                            height: 80,
+                            width: 80,
+                            image:
+                                AssetImage("assets/images/farmbros-logo.png")),
+                      ],
+                    )
+                  ],
+                ),
+              );
+            } else if (state is ServerDownState) {
+              // Show splash background + overlay
+              return Stack(
+                children: [
+                  Container(
+                    height: MediaQuery.of(context).size.height,
+                    width: double.infinity,
+                    decoration: const BoxDecoration(
+                      image: DecorationImage(
+                        fit: BoxFit.cover,
+                        image: AssetImage("assets/images/splash_screen.png"),
+                      ),
+                    ),
+                  ),
                   ServerDownOverlay(
                     message: state.serverDownMessage,
                     onRetry: () {
@@ -76,8 +111,12 @@ class _AppRouterWrapper extends StatelessWidget {
                           );
                     },
                   ),
-              ],
-            );
+                ],
+              );
+            } else if (state is ServerUpState) {
+              return child!;
+            }
+            return child!;
           },
         );
       },

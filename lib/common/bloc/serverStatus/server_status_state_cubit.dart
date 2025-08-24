@@ -4,12 +4,15 @@ import 'package:farmbros_mobile/core/usecases/nonparamsusescase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ServerStatusStateCubit extends Cubit<ServerStatusState> {
-  ServerStatusStateCubit() : super(ServerUpState());
+  ServerStatusStateCubit() : super(ServerStatusLoading());
 
-  void execute(Nonparamsusescase<Either<String, bool>> nonparamsusescase) async {
+  Future<void> execute(
+    Nonparamsusescase<Either<String, bool>> nonparamsusescase,
+  ) async {
+    emit(ServerStatusLoading());
     try {
-      final Either<String, bool> serverStatus = await nonparamsusescase.call();
-      serverStatus.fold(
+      final result = await nonparamsusescase.call();
+      result.fold(
         (error) => emit(ServerDownState(serverDownMessage: error)),
         (_) => emit(ServerUpState()),
       );
@@ -18,5 +21,3 @@ class ServerStatusStateCubit extends Cubit<ServerStatusState> {
     }
   }
 }
-
-
