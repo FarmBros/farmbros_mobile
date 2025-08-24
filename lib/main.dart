@@ -94,9 +94,9 @@ class _AppRouterWrapper extends StatelessWidget {
                 ],
               );
             } else if (state is ServerUpState) {
-              return FarmbrosLoader();
+              return child!;
             }
-            return FarmbrosLoader();
+            return child!;
           },
         );
       },
