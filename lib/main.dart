@@ -5,13 +5,11 @@ import 'package:farmbros_mobile/common/bloc/serverStatus/server_status_state_cub
 import 'package:farmbros_mobile/common/bloc/session/session_state_cubit.dart';
 import 'package:farmbros_mobile/common/widgets/farmbros_loader.dart';
 import 'package:farmbros_mobile/common/widgets/server_down_overlay.dart';
-import 'package:farmbros_mobile/core/configs/Utils/color_utils.dart';
 import 'package:farmbros_mobile/domain/usecases/server_status_usecase.dart';
 import 'package:farmbros_mobile/routing/router.dart';
 import 'package:farmbros_mobile/service_locator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lottie/lottie.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -73,16 +71,7 @@ class _AppRouterWrapper extends StatelessWidget {
               // Show splash background + overlay
               return Stack(
                 children: [
-                  Container(
-                    height: MediaQuery.of(context).size.height,
-                    width: double.infinity,
-                    decoration: const BoxDecoration(
-                      image: DecorationImage(
-                        fit: BoxFit.cover,
-                        image: AssetImage("assets/images/splash_screen.png"),
-                      ),
-                    ),
-                  ),
+                  FarmbrosLoader(),
                   ServerDownOverlay(
                     message: state.serverDownMessage,
                     onRetry: () {
