@@ -1,0 +1,21 @@
+target 'Runner' do
+    use_frameworkd!
+    use_modular_headers!
+
+    flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
+    target 'RunnerTests' do
+        inherit! :search_paths
+    end
+end
+
+post_install do |installer|
+    installer.pods_project.targets.each do |target|
+        flutter_install_all_ios_pods
+       
+        if target.name == "geolocator_apple"
+            target.build_configurations.each do |config|
+            config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)', 'BYPASS_PERMISSION_LOCATION_ALWAYS=1']
+            end
+        end
+    end
+end
