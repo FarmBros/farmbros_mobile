@@ -9,14 +9,15 @@ class FarmbrosInput extends StatelessWidget {
   final IconData icon;
   final bool isPassword;
   final TextEditingController controller;
+  final bool isTextArea;
 
-  const FarmbrosInput({
-    super.key,
-    required this.label,
-    required this.icon,
-    required this.isPassword,
-    required this.controller,
-  });
+  const FarmbrosInput(
+      {super.key,
+      required this.label,
+      required this.icon,
+      required this.isPassword,
+      required this.controller,
+      required this.isTextArea});
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +46,10 @@ class FarmbrosInput extends StatelessWidget {
             controller: controller,
             enabled: isEnabled,
             obscureText: isPassword,
+            maxLines: isTextArea ? 3 : 1,
             decoration: InputDecoration(
+              alignLabelWithHint: true,
+              
               filled: true,
               fillColor: fillColor,
               labelText: label,

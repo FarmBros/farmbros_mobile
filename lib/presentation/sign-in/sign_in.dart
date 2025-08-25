@@ -103,12 +103,14 @@ class _SignInState extends State<SignIn> {
                           controller: username,
                           icon: FluentIcons.mail_48_regular,
                           isPassword: false,
+                          isTextArea: false,
                         ),
                         FarmbrosInput(
                           label: "Password",
                           controller: password,
                           icon: FluentIcons.key_32_regular,
                           isPassword: true,
+                          isTextArea: false,
                         ),
                         SizedBox(
                           width: double.infinity,

@@ -13,17 +13,20 @@ class FarmbrosButton extends StatelessWidget {
   final double? elevation;
   final TextDecoration? textDecoration;
   final FontWeight? fontWeight;
+  final IconData? icon;
+  final Color? iconColor;
 
-  const FarmbrosButton({
-    super.key,
-    required this.label,
-    required this.onPressed,
-    this.buttonColor,
-    this.textColor,
-    this.elevation,
-    this.textDecoration,
-    this.fontWeight,
-  });
+  const FarmbrosButton(
+      {super.key,
+      required this.label,
+      required this.onPressed,
+      this.buttonColor,
+      this.textColor,
+      this.elevation,
+      this.textDecoration,
+      this.fontWeight,
+      this.icon,
+      this.iconColor});
 
   @override
   Widget build(BuildContext context) {
@@ -66,13 +69,24 @@ class FarmbrosButton extends StatelessWidget {
     } else if (state is FormErrorState) {
       return const Icon(FluentIcons.dismiss_24_filled, color: Colors.white);
     } else {
-      return Text(
-        label,
-        style: TextStyle(
-          color: textColor ?? Colors.white,
-          decoration: textDecoration,
-          fontWeight: fontWeight ?? FontWeight.w600,
-        ),
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        spacing: 10,
+        children: [
+          if (icon != null)
+            Icon(
+              icon,
+              color: iconColor,
+            ),
+          Text(
+            label,
+            style: TextStyle(
+              color: textColor ?? Colors.white,
+              decoration: textDecoration,
+              fontWeight: fontWeight ?? FontWeight.w600,
+            ),
+          ),
+        ],
       );
     }
   }

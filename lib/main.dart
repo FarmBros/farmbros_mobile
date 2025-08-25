@@ -10,11 +10,14 @@ import 'package:farmbros_mobile/domain/usecases/server_status_usecase.dart';
 import 'package:farmbros_mobile/routing/router.dart';
 import 'package:farmbros_mobile/service_locator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  SystemChannels.platform
+      .invokeMethod('SystemNavigator.selectHybridComposition');
 
   await dotenv.load(fileName: "assets/config/.env");
 

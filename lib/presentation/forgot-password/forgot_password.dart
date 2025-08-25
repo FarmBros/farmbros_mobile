@@ -47,9 +47,11 @@ class ForgotPassword extends StatelessWidget {
                       FarmbrosPininput(),
                       FarmbrosInput(
                         controller: newPassword,
-                          label: "New Password",
-                          icon: FluentIcons.key_32_regular,
-                          isPassword: true),
+                        label: "New Password",
+                        icon: FluentIcons.key_32_regular,
+                        isPassword: true,
+                        isTextArea: false,
+                      ),
                       FarmbrosButton(
                           label: "Reset Password",
                           onPressed: () {},

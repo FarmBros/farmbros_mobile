@@ -7,6 +7,7 @@ import 'package:farmbros_mobile/core/configs/Helpers/go_stream.dart';
 import 'package:farmbros_mobile/presentation/Onboarding/onboarding_controller.dart';
 import 'package:farmbros_mobile/presentation/dashboard/ui/dashboard.dart';
 import 'package:farmbros_mobile/presentation/forgot-password/forgot_password.dart';
+import 'package:farmbros_mobile/presentation/map/farmbros_map.dart';
 import 'package:farmbros_mobile/presentation/sign-in/sign_in.dart';
 import 'package:farmbros_mobile/presentation/sign-up/sign_up.dart';
 import 'package:farmbros_mobile/presentation/verify-email/verify_email.dart';
@@ -43,7 +44,9 @@ GoRouter createRouter(BuildContext context) {
           builder: (context, state) => const ForgotPassword()),
       GoRoute(
           path: Routes.onboarding,
-          builder: (context, state) => const OnboardingController())
+          builder: (context, state) => const OnboardingController()),
+      GoRoute(
+          path: Routes.map, builder: (context, state) => const FarmbrosMap())
     ],
     redirect: (context, state) {
       final s = sessionCubit.state;
@@ -54,25 +57,39 @@ GoRouter createRouter(BuildContext context) {
           ob is UserOnboardingStatusState ? ob.isOnboarded : false;
 
       final loc = state.matchedLocation;
-      final isAuthScreen = <String>{
+
+      // --- Group routes by category ---
+      const authScreens = {
         Routes.welcome,
         Routes.signIn,
         Routes.signUp,
         Routes.verifyEmail,
         Routes.forgotPassword,
-      }.contains(loc);
+      };
 
-      // Authenticated users should not see auth/onboarding screens
+      const openScreens = {
+        Routes.map, 
+      };
+
+      const protectedScreens = {
+        Routes.dashboard,
+        // add others here if you want them locked
+      };
+
+      // --- Rules ---
+      if (openScreens.contains(loc)) return null;
+
       if (isAuthed && !isOnboarded && loc != Routes.onboarding) {
-        return Routes.onboarding; // force onboarding if not completed
+        return Routes.onboarding;
       }
 
-      if (isAuthed && isOnboarded && isAuthScreen) {
+      if (isAuthed && isOnboarded && authScreens.contains(loc)) {
         return Routes.dashboard;
       }
 
-      // Block access to app if not authenticated
-      if (!isAuthed && loc == Routes.dashboard) return Routes.signIn;
+      if (!isAuthed && protectedScreens.contains(loc)) {
+        return Routes.signIn;
+      }
 
       return null; // no redirect
     },

@@ -8,4 +8,5 @@ class Routes {
   static const String verifyEmail = '/verify_email';
   static const String forgotPassword = '/forgot_password';
   static const String onboarding = '/onboarding';
+  static const String map = '/map';
 }
