@@ -1,4 +1,5 @@
 import 'package:farmbros_mobile/common/bloc/form/combined_form_cubit.dart';
+import 'package:farmbros_mobile/common/bloc/mapbox/map_box_state_cubit.dart';
 import 'package:farmbros_mobile/common/bloc/onboarding/onboarding_state_cubit.dart';
 import 'package:farmbros_mobile/common/bloc/serverStatus/server_status_state.dart';
 import 'package:farmbros_mobile/common/bloc/serverStatus/server_status_state_cubit.dart';
@@ -10,15 +11,20 @@ import 'package:farmbros_mobile/routing/router.dart';
 import 'package:farmbros_mobile/service_locator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  await dotenv.load(fileName: "assets/config/.env");
+
   setupServiceLocator();
   final sessionCubit = sl<SessionCubit>();
   final onboardingCubit = sl<OnboardingStateCubit>();
+  final mapboxInitCubit = sl<MapBoxStateCubit>();
   await sessionCubit.checkSession();
   await onboardingCubit.verifyOnboardingStatus();
+  await mapboxInitCubit.initializeMapBoxInstance();
 
   runApp(const MyApp());
 }
@@ -33,6 +39,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => CombinedFormCubit()),
         BlocProvider(create: (_) => SessionCubit()),
         BlocProvider(create: (_) => OnboardingStateCubit()),
+        BlocProvider(create: (_) => MapBoxStateCubit()),
         BlocProvider(
           create: (_) {
             final cubit = ServerStatusStateCubit();

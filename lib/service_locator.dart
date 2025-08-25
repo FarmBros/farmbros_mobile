@@ -1,3 +1,4 @@
+import 'package:farmbros_mobile/common/bloc/mapbox/map_box_state_cubit.dart';
 import 'package:farmbros_mobile/common/bloc/onboarding/onboarding_state_cubit.dart';
 import 'package:farmbros_mobile/common/bloc/session/session_state_cubit.dart';
 import 'package:farmbros_mobile/core/network/dio_client.dart';
@@ -21,6 +22,7 @@ void setupServiceLocator() {
   // blocs
   sl.registerLazySingleton<SessionCubit>(() => SessionCubit());
   sl.registerLazySingleton<OnboardingStateCubit>(() => OnboardingStateCubit());
+  sl.registerLazySingleton<MapBoxStateCubit>(() => MapBoxStateCubit());
 
   // Services
   sl.registerSingleton<AuthApiService>(AuthApiServiceImpl());

@@ -85,6 +85,7 @@ class OnboardingFarmPage extends StatelessWidget {
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
                               color: ColorUtils.secondaryBackgroundColor),
+                          // child: Maps
                         ),
                       ],
                     )
