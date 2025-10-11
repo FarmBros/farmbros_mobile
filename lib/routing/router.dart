@@ -79,11 +79,11 @@ GoRouter createRouter(BuildContext context) {
       // --- Rules ---
       if (openScreens.contains(loc)) return null;
 
-      if (isAuthed && !isOnboarded && loc != Routes.onboarding) {
-        return Routes.onboarding;
-      }
+      // if (isAuthed && !isOnboarded && loc != Routes.onboarding) {
+      //   return Routes.onboarding;
+      // }
 
-      if (isAuthed && isOnboarded && authScreens.contains(loc)) {
+      if (isAuthed && authScreens.contains(loc)) {
         return Routes.dashboard;
       }
 

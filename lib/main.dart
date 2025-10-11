@@ -1,5 +1,5 @@
+import 'package:farmbros_mobile/common/bloc/farm_bros_map/farm_bros_state_cubit.dart';
 import 'package:farmbros_mobile/common/bloc/form/combined_form_cubit.dart';
-import 'package:farmbros_mobile/common/bloc/mapbox/map_box_state_cubit.dart';
 import 'package:farmbros_mobile/common/bloc/onboarding/onboarding_state_cubit.dart';
 import 'package:farmbros_mobile/common/bloc/serverStatus/server_status_state.dart';
 import 'package:farmbros_mobile/common/bloc/serverStatus/server_status_state_cubit.dart';
@@ -24,10 +24,8 @@ void main() async {
   setupServiceLocator();
   final sessionCubit = sl<SessionCubit>();
   final onboardingCubit = sl<OnboardingStateCubit>();
-  final mapboxInitCubit = sl<MapBoxStateCubit>();
   await sessionCubit.checkSession();
   await onboardingCubit.verifyOnboardingStatus();
-  await mapboxInitCubit.initializeMapBoxInstance();
 
   runApp(const MyApp());
 }
@@ -42,7 +40,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => CombinedFormCubit()),
         BlocProvider(create: (_) => SessionCubit()),
         BlocProvider(create: (_) => OnboardingStateCubit()),
-        BlocProvider(create: (_) => MapBoxStateCubit()),
+        BlocProvider(create: (_) => FarmBrosStateCubit()),
         BlocProvider(
           create: (_) {
             final cubit = ServerStatusStateCubit();

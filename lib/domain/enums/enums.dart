@@ -1,0 +1,50 @@
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+import 'package:flutter/material.dart';
+
+enum StructureType {
+  farm(
+      'Farm',
+      'The farm is the main area where all your crop/animal farming take place. It is the larger area surrounding everything in your farm',
+      Colors.purple,
+      Icons.agriculture),
+  plot(
+      'Plot',
+      'A plot is a section of your farm that is under use for planting or animal keeping. It is located anywhere around your farm',
+      Colors.cyan,
+      Icons.grid_on),
+  greenhouse(
+      'Green House',
+      'A green house is a structure on your farm that you use to grow crops/plants under. It is located anywhere on the farm',
+      Colors.green,
+      Icons.home_outlined),
+  barn(
+      'Barn/Store/Structure',
+      'A barn/store is a structure on your farm that is used to store your animals or produces. It is denoted by this symbol. The color can be customized for different crops/animals',
+      Colors.red,
+      Icons.warehouse_outlined),
+  chickenPen(
+      'Chicken Pen',
+      'A chicken pen is a structure for housing poultry. It is located anywhere on the farm',
+      Colors.orange,
+      Icons.egg_outlined),
+  waterSource(
+      'Water Source',
+      'Water sources like ponds, wells, or irrigation systems on your farm',
+      Colors.blue,
+      Icons.water_drop_outlined),
+  fishPond(
+      'Fish Pond',
+      'A fish pond is an artificial water body you setup to breed fish for consumption/sale',
+      Colors.cyan,
+      FluentIcons.food_fish_20_filled),
+  silo('Silo', 'Storage structure for grain, feed, or other bulk materials',
+      Colors.brown, Icons.circle_outlined);
+
+  final String displayName;
+  final String description;
+  final Color color;
+  final IconData icon;
+
+  const StructureType(
+      this.displayName, this.description, this.color, this.icon);
+}

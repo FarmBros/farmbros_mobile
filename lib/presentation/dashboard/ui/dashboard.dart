@@ -1,3 +1,5 @@
+import 'package:farmbros_mobile/common/widgets/farmbros_appbar.dart';
+import 'package:farmbros_mobile/common/widgets/farmbros_navigation.dart';
 import 'package:flutter/material.dart';
 
 class Dashboard extends StatelessWidget {
@@ -5,11 +7,22 @@ class Dashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: SafeArea(
-          child: Center(
-        child: Text("Dashboard"),
-      )),
+    return Scaffold(
+      body: Builder(builder: (BuildContext context) {
+        return SingleChildScrollView(
+          child: Column(
+            children: [
+              FarmbrosAppbar(
+                appBarTitle: "Welcome Back [Farmer]",
+                openSideBar: () {
+                  Scaffold.of(context).openDrawer();
+                },
+              )
+            ],
+          ),
+        );
+      }),
+      drawer: FarmbrosNavigation(),
     );
   }
 }

@@ -6,7 +6,6 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
 class OnboardingFarmPage extends StatelessWidget {
   const OnboardingFarmPage({super.key});
@@ -99,9 +98,7 @@ class OnboardingFarmPage extends StatelessWidget {
                               color: ColorUtils.secondaryBackgroundColor),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(10),
-                            child: MapWidget(
-                              key: ValueKey("mapbox-map"),
-                            ),
+                            child: SizedBox()
                           ),
                           // child: Maps
                         ),

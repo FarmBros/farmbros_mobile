@@ -1,33 +1,75 @@
 import 'dart:convert';
+import 'package:farmbros_mobile/common/bloc/farm_bros_map/farm_bros_state_cubit.dart';
 import 'package:farmbros_mobile/core/configs/Utils/color_utils.dart';
+import 'package:farmbros_mobile/data/models/farm_details_params.dart';
+import 'package:farmbros_mobile/domain/enums/enums.dart';
+import 'package:farmbros_mobile/domain/usecases/save_farm_use_case.dart';
+import 'package:farmbros_mobile/presentation/map/widgets/farmbros_map_search_bar.dart';
+import 'package:farmbros_mobile/presentation/map/widgets/structure_editor.dart';
+import 'package:farmbros_mobile/presentation/map/widgets/structure_selector.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
-import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+import 'package:farmbros_mobile/service_locator.dart';
 
 class FarmbrosMap extends StatefulWidget {
   const FarmbrosMap({super.key});
+
   @override
   State<FarmbrosMap> createState() => _FarmbrosMapState();
 }
 
 class _FarmbrosMapState extends State<FarmbrosMap> {
-  MapboxMap? mapBoxMapController;
-  final List<Position> _polylinePoints = [];
+  GoogleMapController? _mapController;
+  MapType _currentMapType = MapType.hybrid;
+  final Map<String, List<LatLng>> _structures = {}; // Store multiple structures
+  final Set<Polygon> _polygons = {};
+  final Set<Marker> _markers = {};
   final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
+
+  List<Map<String, dynamic>> _searchSuggestions = [];
+  bool _showSuggestions = false;
+
+  StructureType? _selectedStructureType;
+  bool _isDrawingMode = false;
+  bool _showStructureSelection = false;
+  bool _isDrawingCardMinimized = false;
+  List<LatLng> currentDrawingPoints = [];
+  String? _currentStructureName;
+
+  TextEditingController farmName = TextEditingController();
+  TextEditingController farmDescription = TextEditingController();
 
   Logger logger = Logger();
-  bool _hasAddedSource = false;
 
-  final String? _mapboxAccessToken = dotenv.env["MAPBOX_ACCESS_TOKEN"];
+  final String? _googleMapsApiKey = dotenv.env["GOOGLE_MAPS_API_KEY"];
+
+  static const CameraPosition _initialPosition = CameraPosition(
+    target: LatLng(-1.2921, 36.8219),
+    zoom: 10.0,
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _searchFocusNode.addListener(() {
+      if (!_searchFocusNode.hasFocus) {
+        setState(() => _showSuggestions = false);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        actionsPadding: EdgeInsetsGeometry.directional(end: 20),
         leading: GestureDetector(
           onTap: () => context.pop(),
           child: Icon(
@@ -40,321 +82,448 @@ class _FarmbrosMapState extends State<FarmbrosMap> {
           style: TextStyle(color: ColorUtils.secondaryTextColor, fontSize: 14),
         ),
         actions: [
-          TextButton(
-              onPressed: () {},
-              child: Text(
-                "Save Sketch",
-                style: TextStyle(fontSize: 12),
-              ))
+          ElevatedButton(
+            onPressed: _saveAllStructures,
+            style: ButtonStyle(
+                backgroundColor:
+                    WidgetStatePropertyAll(ColorUtils.successColor)),
+            child: Text(
+              "Save Farm",
+              style:
+                  TextStyle(fontSize: 12, color: ColorUtils.primaryTextColor),
+            ),
+          )
         ],
       ),
       body: SafeArea(
         child: Stack(
           children: [
-            // Map
-            SizedBox.expand(
-              child: MapWidget(
-                onMapCreated: (controller) {
-                  _onMapCreated(controller);
-                },
-                onTapListener: _onTap,
-              ),
+            // Google Map
+            GoogleMap(
+              initialCameraPosition: _initialPosition,
+              onMapCreated: _onMapCreated,
+              onTap: _isDrawingMode ? _onTap : null,
+              polygons: _polygons,
+              markers: _markers,
+              mapType: _currentMapType,
+              myLocationEnabled: true,
+              myLocationButtonEnabled: false,
+              zoomControlsEnabled: false,
+              mapToolbarEnabled: false,
             ),
-            // Search Bar
+
+            // Structure Selection Card (when not drawing)
+            if (_showStructureSelection && !_isDrawingMode)
+              Positioned(
+                left: 20,
+                bottom: 80,
+                child: StructureSelector(
+                    onPressed: () {
+                      setState(() {
+                        _showStructureSelection = false;
+                      });
+                    },
+                    startDrawing: _startDrawing),
+              ),
+
+            // Active Drawing Card (Minimized/Expanded)
+            if (_isDrawingMode && _selectedStructureType != null)
+              Positioned(
+                left: 20,
+                bottom: 80,
+                child: StructureEditor(
+                    structureType: _selectedStructureType,
+                    toggleDrawingCardMinimize: () {
+                      setState(() {
+                        _isDrawingCardMinimized = !_isDrawingCardMinimized;
+                      });
+                    },
+                    isDrawingCardMinimized: _isDrawingCardMinimized,
+                    currentDrawingPoints: currentDrawingPoints,
+                    undoLastPoint: _undoLastPoint,
+                    clearCurrentDrawing: _clearCurrentDrawing,
+                    finishDrawing: _finishDrawing,
+                    cancelDrawing: _cancelDrawing),
+              ),
+
+            // Search Bar with Map Type Toggle
             Positioned(
               bottom: 15,
               left: 20,
-              right: 90,
-              child: Material(
-                elevation: 4,
-                borderRadius: BorderRadius.circular(20),
-                child: TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    hintText: "Search location...",
-                    prefixIcon: Icon(Icons.search),
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.all(20),
-                  ),
-                  onSubmitted: (value) {
-                    if (value.isNotEmpty) {
-                      _searchLocation(value);
-                    }
+              right: 20,
+              child: FarmbrosMapSearchBar(
+                  selectStructure: () {
+                    setState(() {
+                      _showStructureSelection = true;
+                    });
                   },
-                ),
-              ),
+                  showSuggestions: _showSuggestions,
+                  searchSuggestions: _searchSuggestions,
+                  selectSuggestion: _selectSuggestion,
+                  searchController: _searchController,
+                  searchFocusNode: _searchFocusNode,
+                  searchLocation: (String query) {
+                    _searchLocation(query);
+                  },
+                  onSearchChanged: _onSearchChanged,
+                  showStructureSelection: _showStructureSelection,
+                  isDrawingMode: _isDrawingMode,
+                  clearSearch: () {
+                    _searchController.clear();
+                    setState(() {
+                      _searchSuggestions.clear();
+                      _showSuggestions = false;
+                    });
+                  },
+                  changeMapLayer: () {
+                    setState(() {
+                      _currentMapType = _currentMapType == MapType.hybrid
+                          ? MapType.satellite
+                          : MapType.hybrid;
+                    });
+                  }),
             ),
           ],
         ),
       ),
-      floatingActionButton: Column(
-        spacing: 10,
-        mainAxisAlignment: MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          FloatingActionButton(
-            onPressed: _clearPolyline,
-            backgroundColor: ColorUtils.secondaryBackgroundColor,
-            child:
-                Icon(CupertinoIcons.clear_fill, color: ColorUtils.failureColor),
-          ),
-          FloatingActionButton(
-            onPressed: _undoLastPoint,
-            backgroundColor: ColorUtils.secondaryBackgroundColor,
-            child: Icon(CupertinoIcons.arrow_uturn_left,
-                color: ColorUtils.secondaryColor),
-          ),
-          SizedBox(
-            width: 60,
-            height: 60,
-            child: Material(
-              elevation: 4,
-              borderRadius: BorderRadius.circular(20),
-              child: Center(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      textAlign: TextAlign.center,
-                      '${_polylinePoints.length}',
-                      style: TextStyle(
-                        color: ColorUtils.secondaryColor,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      textAlign: TextAlign.center,
-                      'points',
-                      style: TextStyle(
-                        color: ColorUtils.secondaryColor,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
-  void _onMapCreated(MapboxMap controller) async {
+  void _onMapCreated(GoogleMapController controller) {
     setState(() {
-      mapBoxMapController = controller;
+      _mapController = controller;
     });
-
-    // mapBoxMapController!.setStyleGlyphURL(MapboxStyles.SATELLITE_STREETS);
-
-    // Enable location
-    mapBoxMapController!.location.updateSettings(
-      LocationComponentSettings(enabled: true),
-    );
-
-    // Fly to Nairobi by default
-    await mapBoxMapController!.flyTo(
-      CameraOptions(
-        center: Point(coordinates: Position(36.8219, -1.2921)),
-        zoom: 10.0,
-      ),
-      MapAnimationOptions(duration: 1000),
-    );
   }
 
-  _onTap(MapContentGestureContext context) async {
-    logger.i(
-        "OnTap coordinate: {${context.point.coordinates.lng}, ${context.point.coordinates.lat}}");
+  void _startDrawing(StructureType type) {
+    setState(() {
+      _selectedStructureType = type;
+      _isDrawingMode = true;
+      _showStructureSelection = false;
+      _isDrawingCardMinimized = true; // Start minimized
+      currentDrawingPoints.clear();
+    });
+  }
+
+  void _onTap(LatLng position) {
+    if (!_isDrawingMode) return;
 
     setState(() {
-      _polylinePoints.add(context.point.coordinates);
+      currentDrawingPoints.add(position);
+      _updateCurrentPolygon();
     });
-
-    await _drawPolyline();
-
-    await _addPointMarker(
-        context.point.coordinates, _polylinePoints.length - 1);
-    logger.i(_polylinePoints);
   }
 
-  // 🔎 Search Location
-  Future<void> _searchLocation(String query) async {
-    final url =
-        "https://api.mapbox.com/geocoding/v5/mapbox.places/$query.json?access_token=$_mapboxAccessToken&limit=1";
-
-    final response = await http.get(Uri.parse(url));
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      if (data["features"].isNotEmpty) {
-        final coords = data["features"][0]["center"]; // [lng, lat]
-        final double lng = coords[0];
-        final double lat = coords[1];
-
-        // Move map to searched location
-        await mapBoxMapController!.flyTo(
-          CameraOptions(
-            center: Point(coordinates: Position(lng, lat)),
-            zoom: 13.0,
-          ),
-          MapAnimationOptions(duration: 1500),
-        );
-
-        // Drop a marker at searched location
-        await _addPointMarker(Position(lng, lat), _polylinePoints.length);
-      }
-    }
-  }
-
-  Future<void> _drawPolyline() async {
-    if (_polylinePoints.length < 2) {
-      if (_hasAddedSource) {
-        await _removeExistingPolyline();
-        _hasAddedSource = false;
-      }
+  void _updateCurrentPolygon() {
+    if (currentDrawingPoints.length < 3 || _selectedStructureType == null) {
       return;
     }
 
-    try {
-      if (_hasAddedSource) {
-        await _removeExistingPolyline();
-      }
+    setState(() {
+      _polygons.clear();
 
-      await mapBoxMapController!.style.addSource(
-        GeoJsonSource(
-          id: "line-source",
-          data: _buildLineGeoJson(),
+      // Add all saved structures
+      _structures.forEach((key, points) {
+        final typeIndex = int.parse(key.split('_')[0]);
+        final type = StructureType.values[typeIndex];
+        _polygons.add(
+          Polygon(
+            polygonId: PolygonId(key),
+            points: points,
+            strokeColor: type.color,
+            strokeWidth: 3,
+            fillColor: type.color.withOpacity(0.2),
+            geodesic: true,
+          ),
+        );
+      });
+
+      // Add current drawing
+      _polygons.add(
+        Polygon(
+          polygonId: PolygonId('current_drawing'),
+          points: currentDrawingPoints,
+          strokeColor: _selectedStructureType!.color,
+          strokeWidth: 4,
+          fillColor: _selectedStructureType!.color.withOpacity(0.2),
+          geodesic: true,
         ),
       );
-
-      await mapBoxMapController!.style.addLayer(
-        LineLayer(
-          id: "line-layer",
-          sourceId: "line-source",
-          lineColor: Colors.red.value,
-          lineWidth: 4.0,
-        ),
-      );
-
-      _hasAddedSource = true;
-    } catch (e) {
-      logger.e("Error drawing polyline: $e");
-    }
+    });
   }
 
-  Future<void> _removeExistingPolyline() async {
-    try {
-      await mapBoxMapController!.style.removeStyleLayer("line-layer");
-      await mapBoxMapController!.style.removeStyleSource("line-source");
-    } catch (e) {
-      logger.w("Error removing existing polyline: $e");
-    }
-  }
-
-  Future<void> _addPointMarker(Position position, int index) async {
-    try {
-      await mapBoxMapController!.style.addSource(
-        GeoJsonSource(
-          id: "point-source-$index",
-          data: _buildPointGeoJson(position),
-        ),
-      );
-
-      await mapBoxMapController!.style.addLayer(
-        CircleLayer(
-          id: "point-layer-$index",
-          sourceId: "point-source-$index",
-          circleRadius: 6.0,
-          circleColor: Colors.blue.value,
-          circleStrokeColor: Colors.white.value,
-          circleStrokeWidth: 2.0,
-        ),
-      );
-    } catch (e) {
-      logger.w("Error adding point marker: $e");
-    }
-  }
-
-  String _buildPointGeoJson(Position position) {
-    return '''
-    {
-      "type": "FeatureCollection",
-      "features": [
-        {
-          "type": "Feature",
-          "geometry": {
-            "type": "Point",
-            "coordinates": [${position.lng}, ${position.lat}]
-          }
-        }
-      ]
-    }
-    ''';
-  }
-
-  String _buildLineGeoJson() {
-    final coordinates =
-        _polylinePoints.map((pos) => [pos.lng, pos.lat]).toList();
-    return '''
-    {
-      "type": "FeatureCollection",
-      "features": [
-        {
-          "type": "Feature",
-          "geometry": {
-            "type": "LineString",
-            "coordinates": $coordinates
-          }
-        }
-      ]
-    }
-    ''';
-  }
-
-  void _undoLastPoint() async {
-    if (_polylinePoints.isEmpty) return;
-
-    final lastIndex = _polylinePoints.length - 1;
-
-    try {
-      await mapBoxMapController!.style
-          .removeStyleLayer("point-layer-$lastIndex");
-      await mapBoxMapController!.style
-          .removeStyleSource("point-source-$lastIndex");
-    } catch (e) {
-      logger.w("Error removing last point marker: $e");
-    }
+  void _undoLastPoint() {
+    if (currentDrawingPoints.isEmpty) return;
 
     setState(() {
-      _polylinePoints.removeLast();
+      currentDrawingPoints.removeLast();
+      _updateCurrentPolygon();
     });
-
-    await _drawPolyline();
   }
 
-  void _clearPolyline() async {
-    if (_hasAddedSource) {
-      await _removeExistingPolyline();
-      _hasAddedSource = false;
-    }
+  void _clearCurrentDrawing() {
+    setState(() {
+      currentDrawingPoints.clear();
+      _updateCurrentPolygon();
+    });
+  }
 
-    for (int i = 0; i < _polylinePoints.length; i++) {
-      try {
-        await mapBoxMapController!.style.removeStyleLayer("point-layer-$i");
-        await mapBoxMapController!.style.removeStyleSource("point-source-$i");
-      } catch (e) {
-        logger.w("Error removing point marker $i: $e");
-      }
-    }
+  void _finishDrawing() {
+    if (currentDrawingPoints.length < 3 || _selectedStructureType == null)
+      return;
+
+    final structureKey =
+        '${_selectedStructureType!.index}_${DateTime.now().millisecondsSinceEpoch}';
 
     setState(() {
-      _polylinePoints.clear();
+      _structures[structureKey] = List.from(currentDrawingPoints);
+      currentDrawingPoints.clear();
+      _isDrawingMode = false;
+      _selectedStructureType = null;
+      _isDrawingCardMinimized = false;
+      _updateAllPolygons();
     });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Structure added successfully!'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  void _cancelDrawing() {
+    setState(() {
+      currentDrawingPoints.clear();
+      _isDrawingMode = false;
+      _selectedStructureType = null;
+      _isDrawingCardMinimized = false;
+      _updateAllPolygons();
+    });
+  }
+
+  void _updateAllPolygons() {
+    setState(() {
+      _polygons.clear();
+      _structures.forEach((key, points) {
+        final typeIndex = int.parse(key.split('_')[0]);
+        final type = StructureType.values[typeIndex];
+        _polygons.add(
+          Polygon(
+            polygonId: PolygonId(key),
+            points: points,
+            strokeColor: type.color,
+            strokeWidth: 3,
+            fillColor: type.color.withOpacity(0.2),
+            geodesic: true,
+          ),
+        );
+      });
+    });
+  }
+
+  void _onSearchChanged(String query) {
+    logger.log(Level.info, _searchSuggestions);
+    if (query.isEmpty) {
+      setState(() {
+        _searchSuggestions.clear();
+        _showSuggestions = false;
+      });
+      return;
+    }
+
+    _fetchSearchSuggestions(query);
+  }
+
+  Future<void> _fetchSearchSuggestions(String query) async {
+    final url =
+        "https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$query&key=$_googleMapsApiKey&components=country:ke";
+
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data["predictions"] != null) {
+          setState(() {
+            _searchSuggestions = (data["predictions"] as List)
+                .map((prediction) => {
+                      'name': prediction['structured_formatting']['main_text'],
+                      'address': prediction['description'],
+                      'place_id': prediction['place_id'],
+                    })
+                .toList();
+            _showSuggestions = true;
+          });
+        }
+      }
+    } catch (e) {
+      logger.e("Error fetching suggestions: $e");
+    }
+  }
+
+  void _selectSuggestion(Map<String, dynamic> suggestion) {
+    _searchController.text = suggestion['name'];
+    setState(() => _showSuggestions = false);
+    _searchFocusNode.unfocus();
+    _searchLocation(suggestion['address']);
+  }
+
+  Future<void> _searchLocation(String query) async {
+    final url =
+        "https://maps.googleapis.com/maps/api/geocode/json?address=$query&key=$_googleMapsApiKey";
+
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        logger.log(Level.info, data);
+        if (data["results"].isNotEmpty) {
+          final location = data["results"][0]["geometry"]["location"];
+          final double lat = location["lat"];
+          final double lng = location["lng"];
+
+          await _mapController?.animateCamera(
+            CameraUpdate.newCameraPosition(
+              CameraPosition(
+                target: LatLng(lat, lng),
+                zoom: 15.0,
+              ),
+            ),
+          );
+
+          setState(() {
+            _markers.removeWhere((m) => m.markerId.value == 'search_result');
+            _markers.add(
+              Marker(
+                markerId: MarkerId('search_result'),
+                position: LatLng(lat, lng),
+                icon: BitmapDescriptor.defaultMarkerWithHue(
+                  BitmapDescriptor.hueGreen,
+                ),
+                infoWindow: InfoWindow(title: query),
+              ),
+            );
+          });
+        }
+      }
+    } catch (e) {
+      logger.e("Error searching location: $e");
+    }
+  }
+
+  void _saveAllStructures() {
+    if (_structures.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('No structures to save!'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    // Convert structures to GeoJSON format
+    List<Map<String, dynamic>> structuresGeoJSON = [];
+
+    _structures.forEach((key, points) {
+      final typeIndex = int.parse(key.split('_')[0]);
+      final type = StructureType.values[typeIndex];
+
+      // Convert List<LatLng> to GeoJSON Polygon format
+      Map<String, dynamic> geoJSON = _convertToGeoJSON(points, type);
+      structuresGeoJSON.add(geoJSON);
+    });
+
+    logger.i("Structures to save (GeoJSON format):");
+    logger.i(json.encode(structuresGeoJSON));
+
+    // TODO: Send to backend
+
+    final farmDetailsParams = FarmDetailsParams(
+        name: farmName.text,
+        description: farmDescription.text,
+        geoJson: structuresGeoJSON[0]);
+
+    context
+        .read<FarmBrosStateCubit>()
+        .execute(farmDetailsParams, sl<SaveFarmUseCase>());
+
+    // Example payload structure:
+    // {
+    //   "name": "My Farm",
+    //   "description": "Farm description",
+    //   "geojson": { "type": "Polygon", "coordinates": [...] }
+    // }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Farm map saved successfully!'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  // Convert List<LatLng> to GeoJSON Polygon format
+  Map<String, dynamic> _convertToGeoJSON(
+      List<LatLng> points, StructureType type) {
+    // GeoJSON uses [longitude, latitude] order (opposite of LatLng)
+    // Also need to close the polygon by adding first point at the end
+    List<List<double>> coordinates = points.map((point) {
+      return [point.longitude, point.latitude];
+    }).toList();
+
+    // Close the polygon if not already closed
+    if (coordinates.first[0] != coordinates.last[0] ||
+        coordinates.first[1] != coordinates.last[1]) {
+      coordinates.add([points.first.longitude, points.first.latitude]);
+    }
+
+    return {
+      "type": "Polygon",
+      "coordinates": [coordinates], // Wrapped in array for exterior ring
+      "properties": {
+        "structureType": type.displayName,
+        "color": type.color.value.toRadixString(16),
+      }
+    };
+  }
+
+  // Get GeoJSON for a specific structure (e.g., Farm boundary)
+  Map<String, dynamic>? getFarmBoundaryGeoJSON() {
+    // Find the farm structure (assuming it's the first one or has specific identifier)
+    String? farmKey = _structures.keys.firstWhere(
+      (key) => key.startsWith('${StructureType.farm.index}_'),
+      orElse: () => '',
+    );
+
+    if (farmKey.isEmpty || !_structures.containsKey(farmKey)) {
+      return null;
+    }
+
+    List<LatLng> farmPoints = _structures[farmKey]!;
+
+    // Convert to GeoJSON coordinates: [longitude, latitude]
+    List<List<double>> coordinates = farmPoints.map((point) {
+      return [point.longitude, point.latitude];
+    }).toList();
+
+    // Close the polygon
+    if (coordinates.first[0] != coordinates.last[0] ||
+        coordinates.first[1] != coordinates.last[1]) {
+      coordinates.add([farmPoints.first.longitude, farmPoints.first.latitude]);
+    }
+
+    return {
+      "type": "Polygon",
+      "coordinates": [coordinates]
+    };
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _searchFocusNode.dispose();
+    _mapController?.dispose();
     super.dispose();
   }
 }
