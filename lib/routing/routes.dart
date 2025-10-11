@@ -9,4 +9,8 @@ class Routes {
   static const String forgotPassword = '/forgot_password';
   static const String onboarding = '/onboarding';
   static const String map = '/map';
+  static const String farms = '/farms';
+  static const String createFarm = '/create_farm';
+  static const String farmProfile = '/farm_profile';
+  static const String cropsAndAnimals = '/crops_and_animals';
 }

@@ -5,7 +5,11 @@ import 'package:farmbros_mobile/common/bloc/session/session_state.dart';
 import 'package:farmbros_mobile/common/bloc/session/session_state_cubit.dart';
 import 'package:farmbros_mobile/core/configs/Helpers/go_stream.dart';
 import 'package:farmbros_mobile/presentation/Onboarding/onboarding_controller.dart';
+import 'package:farmbros_mobile/presentation/create-farm/create_farm.dart';
 import 'package:farmbros_mobile/presentation/dashboard/ui/dashboard.dart';
+import 'package:farmbros_mobile/presentation/farm-logger/farm_logger.dart';
+import 'package:farmbros_mobile/presentation/farm-profile/farm_profile.dart';
+import 'package:farmbros_mobile/presentation/farms/farms.dart';
 import 'package:farmbros_mobile/presentation/forgot-password/forgot_password.dart';
 import 'package:farmbros_mobile/presentation/map/farmbros_map.dart';
 import 'package:farmbros_mobile/presentation/sign-in/sign_in.dart';
@@ -32,6 +36,25 @@ GoRouter createRouter(BuildContext context) {
           path: Routes.dashboard,
           builder: (context, state) => const Dashboard()),
       GoRoute(
+          path: Routes.farms,
+          builder: (context, state) => const Farms(),
+          routes: [
+            GoRoute(
+                path: Routes.createFarm,
+                builder: (context, state) => const CreateFarm(),
+                routes: [
+                  GoRoute(
+                      path: Routes.map,
+                      builder: (context, state) => const FarmbrosMap())
+                ]),
+            GoRoute(
+                path: Routes.farmProfile,
+                builder: (context, state) => const FarmProfile())
+          ]),
+      GoRoute(
+          path: Routes.cropsAndAnimals,
+          builder: (context, state) => const FarmLogger()),
+      GoRoute(
           path: Routes.welcome,
           builder: (context, state) => const WelcomeScreen()),
       GoRoute(path: Routes.signIn, builder: (context, state) => const SignIn()),
@@ -45,8 +68,6 @@ GoRouter createRouter(BuildContext context) {
       GoRoute(
           path: Routes.onboarding,
           builder: (context, state) => const OnboardingController()),
-      GoRoute(
-          path: Routes.map, builder: (context, state) => const FarmbrosMap())
     ],
     redirect: (context, state) {
       final s = sessionCubit.state;
@@ -68,11 +89,15 @@ GoRouter createRouter(BuildContext context) {
       };
 
       const openScreens = {
-        Routes.map, 
+        Routes.map,
       };
 
       const protectedScreens = {
         Routes.dashboard,
+        Routes.farms,
+        Routes.createFarm,
+        Routes.farmProfile,
+        Routes.cropsAndAnimals
         // add others here if you want them locked
       };
 

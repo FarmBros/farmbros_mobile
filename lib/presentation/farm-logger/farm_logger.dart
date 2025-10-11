@@ -1,4 +1,6 @@
+import 'package:farmbros_mobile/common/widgets/farmbros_appbar.dart';
 import 'package:farmbros_mobile/common/widgets/farmbros_bottomsheet.dart';
+import 'package:farmbros_mobile/common/widgets/farmbros_navigation.dart';
 import 'package:farmbros_mobile/core/configs/Utils/color_utils.dart';
 import 'package:farmbros_mobile/presentation/farm-logger/widgets/empty_collection.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
@@ -19,72 +21,73 @@ class FarmLogger extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: GestureDetector(
-          onTap: () {},
-          child: Icon(
-            FluentIcons.ios_arrow_24_regular,
-            color: ColorUtils.secondaryColor,
-          ),
-        ),
-        title: Text(
-          "Farm Logger",
-          style: TextStyle(
-            color: ColorUtils.secondaryTextColor,
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-      body: Container(
-        padding: const EdgeInsets.all(20),
-        height: MediaQuery.of(context).size.height,
-        width: MediaQuery.of(context).size.width,
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            fit: BoxFit.cover,
-            image: AssetImage("assets/images/alt_background.png"),
-          ),
-        ),
-        child: Container(
-          height: MediaQuery.of(context).size.height / 3,
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: ColorUtils.secondaryBackgroundColor,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: DefaultTabController(
-            length: 4,
-            child: Column(
-              children: [
-                TabBar(
-                  indicatorColor: ColorUtils.secondaryColor,
-                  labelStyle:
-                      TextStyle(color: ColorUtils.secondaryColor, fontSize: 14),
-                  unselectedLabelStyle:
-                      TextStyle(color: ColorUtils.inActiveColor, fontSize: 12),
-                  tabs: const [
-                    Tab(text: "Animals"),
-                    Tab(text: "Crops"),
-                    Tab(text: "Equipment"),
-                    Tab(text: "Structures"),
-                  ],
-                ),
-                Expanded(
-                  child: TabBarView(
-                    children: [
-                      _buildAnimalLogger(context),
-                      _buildCropLogger(context),
-                      _buildEquipmentLogger(context),
-                      _buildStructureLogger(context),
-                    ],
-                  ),
-                ),
-              ],
+      body: Builder(builder: (context) {
+        return Container(
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              fit: BoxFit.cover,
+              image: AssetImage("assets/images/alt_background.png"),
             ),
           ),
-        ),
-      ),
+          child: Column(
+            children: [
+              FarmbrosAppbar(
+                icon: FluentIcons.re_order_16_regular,
+                appBarTitle: "Farm Logger",
+                openSideBar: () {
+                  Scaffold.of(context).openDrawer();
+                },
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Container(
+                    // height: MediaQuery.of(context).size.height / 3,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: ColorUtils.secondaryBackgroundColor,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: DefaultTabController(
+                      length: 4,
+                      child: Column(
+                        children: [
+                          TabBar(
+                            indicatorColor: ColorUtils.secondaryColor,
+                            labelStyle: TextStyle(
+                                color: ColorUtils.secondaryColor, fontSize: 14),
+                            unselectedLabelStyle: TextStyle(
+                                color: ColorUtils.inActiveColor, fontSize: 12),
+                            tabs: const [
+                              Tab(text: "Animals"),
+                              Tab(text: "Crops"),
+                              Tab(text: "Equipment"),
+                              Tab(text: "Structures"),
+                            ],
+                          ),
+                          Expanded(
+                            child: TabBarView(
+                              children: [
+                                _buildAnimalLogger(context),
+                                _buildCropLogger(context),
+                                _buildEquipmentLogger(context),
+                                _buildStructureLogger(context),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      }),
+      drawer: FarmbrosNavigation(),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _openBottomsheet(context),
         child: const Icon(FluentIcons.filter_24_regular),
@@ -97,16 +100,19 @@ class FarmLogger extends StatelessWidget {
           collectionName: "Animals",
         )
       ]);
+
   Widget _buildCropLogger(BuildContext context) => Column(children: [
         EmptyCollection(
           collectionName: "Crops",
         )
       ]);
+
   Widget _buildStructureLogger(BuildContext context) => Column(children: [
         EmptyCollection(
           collectionName: "Equipment",
         )
       ]);
+
   Widget _buildEquipmentLogger(BuildContext context) => Column(children: [
         EmptyCollection(
           collectionName: "Structures",

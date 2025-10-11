@@ -1,5 +1,6 @@
 import 'package:farmbros_mobile/common/widgets/farmbros_appbar.dart';
 import 'package:farmbros_mobile/common/widgets/farmbros_navigation.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 
 class Dashboard extends StatelessWidget {
@@ -13,6 +14,7 @@ class Dashboard extends StatelessWidget {
           child: Column(
             children: [
               FarmbrosAppbar(
+                icon: FluentIcons.re_order_16_regular,
                 appBarTitle: "Welcome Back [Farmer]",
                 openSideBar: () {
                   Scaffold.of(context).openDrawer();

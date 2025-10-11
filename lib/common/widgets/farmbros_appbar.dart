@@ -5,9 +5,13 @@ import 'package:flutter/cupertino.dart';
 class FarmbrosAppbar extends StatelessWidget {
   final String appBarTitle;
   final GestureTapCallback? openSideBar;
+  final IconData icon;
 
   const FarmbrosAppbar(
-      {super.key, required this.appBarTitle, required this.openSideBar});
+      {super.key,
+      required this.appBarTitle,
+      required this.openSideBar,
+      required this.icon});
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +30,7 @@ class FarmbrosAppbar extends StatelessWidget {
           GestureDetector(
               onTap: openSideBar,
               child: Icon(
-                FluentIcons.re_order_16_regular,
+                icon,
                 color: ColorUtils.secondaryBackgroundColor,
               )),
           Text(

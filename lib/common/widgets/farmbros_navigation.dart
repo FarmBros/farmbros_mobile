@@ -2,6 +2,7 @@ import 'package:farmbros_mobile/core/configs/Utils/color_utils.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class FarmbrosNavigation extends StatelessWidget {
   const FarmbrosNavigation({super.key});
@@ -17,53 +18,53 @@ class FarmbrosNavigation extends StatelessWidget {
         "type": "main"
       },
       {
-        "nav_label": "Task Manager",
-        "nav_icon": FluentIcons.clipboard_24_regular,
-        "nav_icon_active": FluentIcons.clipboard_24_filled,
-        "route": "/task_manager",
-        "type": "main"
-      },
-      {
-        "nav_label": "Staff Manager",
-        "nav_icon": FluentIcons.badge_24_regular,
-        "nav_icon_active": FluentIcons.badge_24_filled,
-        "route": "/staff_manager",
-        "type": "main"
-      },
-      {
-        "nav_label": "Inventory",
-        "nav_icon": FluentIcons.archive_24_regular,
-        "nav_icon_active": FluentIcons.archive_24_filled,
-        "route": "/inventory",
-        "type": "main"
-      },
-      {
-        "nav_label": "My Farm",
+        "nav_label": "Farms",
         "nav_icon": FluentIcons.leaf_three_24_regular,
         "nav_icon_active": FluentIcons.leaf_three_24_filled,
-        "route": "/farm",
+        "route": "/farms",
         "type": "farm"
       },
       {
         "nav_label": "Plots",
         "nav_icon": FluentIcons.location_24_regular,
         "nav_icon_active": FluentIcons.location_24_filled,
-        "route": "/farm",
+        "route": "/plots",
         "type": "farm"
       },
       {
         "nav_label": "Crops/Animals",
         "nav_icon": FluentIcons.animal_rabbit_24_regular,
         "nav_icon_active": FluentIcons.animal_rabbit_24_filled,
-        "route": "/farm",
+        "route": "/crops_and_animals",
         "type": "farm"
       },
       {
         "nav_label": "Farmer Account",
         "nav_icon": FluentIcons.person_24_regular,
         "nav_icon_active": FluentIcons.person_24_filled,
-        "route": "/farm",
+        "route": "/account",
         "type": "farm"
+      },
+      {
+        "nav_label": "Task Manager",
+        "nav_icon": FluentIcons.clipboard_24_regular,
+        "nav_icon_active": FluentIcons.clipboard_24_filled,
+        "route": "/task_manager",
+        "type": "manager"
+      },
+      {
+        "nav_label": "Staff Manager",
+        "nav_icon": FluentIcons.badge_24_regular,
+        "nav_icon_active": FluentIcons.badge_24_filled,
+        "route": "/staff_manager",
+        "type": "manager"
+      },
+      {
+        "nav_label": "Inventory",
+        "nav_icon": FluentIcons.archive_24_regular,
+        "nav_icon_active": FluentIcons.archive_24_filled,
+        "route": "/inventory",
+        "type": "manager"
       },
       {
         "nav_label": "Settings",
@@ -153,7 +154,8 @@ class FarmbrosNavigation extends StatelessWidget {
                                     : navItem["nav_icon"],
                                 navItem["nav_label"],
                                 navItem["route"],
-                                isActive);
+                                isActive,
+                                context);
                           }).toList(),
                         )
                       ],
@@ -204,11 +206,11 @@ class FarmbrosNavigation extends StatelessWidget {
     );
   }
 
-  Widget _buildNavigationItem(
-      IconData icon, String navigationLabel, String route, bool isActive) {
+  Widget _buildNavigationItem(IconData icon, String navigationLabel,
+      String route, bool isActive, BuildContext context) {
     return GestureDetector(
       onTap: () {
-
+        context.go(route);
       },
       child: Container(
         width: double.infinity,
