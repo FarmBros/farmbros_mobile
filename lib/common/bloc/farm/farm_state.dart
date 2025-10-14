@@ -18,7 +18,12 @@ class FarmStateLoadGeoJSON extends FarmState {
 
 class FarmStateLoading extends FarmState {}
 
-class FarmStateSuccess extends FarmState {}
+class FarmStateSuccess extends FarmState {
+  final List<dynamic>? farms;
+  final Map? farm;
+
+  FarmStateSuccess({this.farms, this.farm});
+}
 
 class FarmStateError extends FarmState {
   final String errorMessage;

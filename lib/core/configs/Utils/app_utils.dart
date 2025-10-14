@@ -8,4 +8,6 @@ class AppUtils {
 
   // farm routes
   static const String $saveFarm = "${$baseUrl}/farms/create";
+  static const String $getMyFarms = "${$baseUrl}/farms/get_user_farms";
+  static const String $getFarm = "${$baseUrl}/farms/get_farm";
 }

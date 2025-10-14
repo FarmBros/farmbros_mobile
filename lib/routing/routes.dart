@@ -11,6 +11,6 @@ class Routes {
   static const String map = '/map';
   static const String farms = '/farms';
   static const String createFarm = '/create_farm';
-  static const String farmProfile = '/farm_profile';
+  static const String farmProfile = '/:farm_id';
   static const String farmLogger = '/farm_logger';
 }

@@ -50,7 +50,10 @@ GoRouter createRouter(BuildContext context) {
                 ]),
             GoRoute(
                 path: Routes.farmProfile,
-                builder: (context, state) => const FarmProfile())
+                builder: (context, state) {
+                  final farmId = state.pathParameters['farm_id'];
+                  return FarmProfile(farmId: farmId!);
+                })
           ]),
       GoRoute(
           path: Routes.farmLogger,

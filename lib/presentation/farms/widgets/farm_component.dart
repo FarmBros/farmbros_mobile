@@ -4,12 +4,18 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:logger/logger.dart';
 
 class FarmComponent extends StatelessWidget {
-  const FarmComponent({super.key});
+  final Map farm;
+
+  const FarmComponent({super.key, required this.farm});
 
   @override
   Widget build(BuildContext context) {
+    Logger logger = Logger();
+    logger.log(Logger.level, "${Routes.farms}/${farm['uuid']}");
+
     return Container(
       decoration: BoxDecoration(
           border: Border.all(color: ColorUtils.primaryBorderColor),
@@ -38,7 +44,7 @@ class FarmComponent extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "FarmName",
+                        farm["name"] ?? "FarmName",
                         style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -48,13 +54,13 @@ class FarmComponent extends StatelessWidget {
                       Row(
                         children: [
                           Icon(
-                            FluentIcons.location_16_regular,
+                            FluentIcons.space_3d_20_regular,
                             size: 16,
                             color: ColorUtils.inActiveColor,
                           ),
                           SizedBox(width: 4),
                           Text(
-                            "Location",
+                             "Area ${double.parse(farm["area_sqm"].toString()).floor().toString()} (Sq km)",
                             style: TextStyle(
                               fontSize: 14,
                               color: ColorUtils.inActiveColor,
@@ -70,7 +76,7 @@ class FarmComponent extends StatelessWidget {
             SizedBox(height: 16),
             GestureDetector(
               onTap: () {
-                context.go("${Routes.farms}${Routes.farmProfile}");
+                context.go("${Routes.farms}/${farm['uuid']}");
               },
               child: Container(
                 width: double.infinity,

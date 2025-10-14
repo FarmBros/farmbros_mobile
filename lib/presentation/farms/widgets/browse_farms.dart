@@ -11,7 +11,7 @@ class BrowseFarms extends StatelessWidget {
       width: double.infinity,
       child: Column(
         spacing: 5,
-        children: [FarmComponent(), FarmComponent(), FarmComponent()],
+        children: [],
       ),
     );
   }
