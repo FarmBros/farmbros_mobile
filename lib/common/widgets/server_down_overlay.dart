@@ -1,5 +1,6 @@
 import 'package:farmbros_mobile/common/widgets/farmbros_button.dart';
 import 'package:farmbros_mobile/core/configs/Utils/color_utils.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 
 class ServerDownOverlay extends StatelessWidget {
@@ -25,7 +26,7 @@ class ServerDownOverlay extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Icon(
-                  Icons.wifi_off,
+                  FluentIcons.plug_disconnected_24_regular,
                   size: 64,
                   color: ColorUtils.serverDownColor,
                 ),

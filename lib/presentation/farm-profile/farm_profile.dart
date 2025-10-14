@@ -30,6 +30,7 @@ class FarmProfile extends StatelessWidget {
                   openSideBar: () {
                     context.pop();
                   },
+                  hasAction: false,
                 ),
                 Gap(10),
                 Padding(

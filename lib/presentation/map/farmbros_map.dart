@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'package:farmbros_mobile/common/bloc/farm/farm_state_cubit.dart';
 import 'package:farmbros_mobile/common/bloc/farm_bros_map/farm_bros_state_cubit.dart';
+import 'package:farmbros_mobile/common/widgets/farmbros_appbar.dart';
 import 'package:farmbros_mobile/core/configs/Utils/color_utils.dart';
 import 'package:farmbros_mobile/data/models/farm_details_params.dart';
 import 'package:farmbros_mobile/domain/enums/enums.dart';
@@ -7,6 +9,7 @@ import 'package:farmbros_mobile/domain/usecases/save_farm_use_case.dart';
 import 'package:farmbros_mobile/presentation/map/widgets/farmbros_map_search_bar.dart';
 import 'package:farmbros_mobile/presentation/map/widgets/structure_editor.dart';
 import 'package:farmbros_mobile/presentation/map/widgets/structure_selector.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -27,7 +30,7 @@ class FarmbrosMap extends StatefulWidget {
 class _FarmbrosMapState extends State<FarmbrosMap> {
   GoogleMapController? _mapController;
   MapType _currentMapType = MapType.hybrid;
-  final Map<String, List<LatLng>> _structures = {}; // Store multiple structures
+  final Map<String, List<LatLng>> _structures = {};
   final Set<Polygon> _polygons = {};
   final Set<Marker> _markers = {};
   final TextEditingController _searchController = TextEditingController();
@@ -67,124 +70,120 @@ class _FarmbrosMapState extends State<FarmbrosMap> {
 
   @override
   Widget build(BuildContext context) {
+    final RouteSettings? currentPath = ModalRoute.of(context)!.settings;
+    final bool isCreatingFarm =
+        currentPath?.name?.contains('/farms/create_farm/map') ?? false;
+
     return Scaffold(
-      appBar: AppBar(
-        actionsPadding: EdgeInsetsGeometry.directional(end: 20),
-        leading: GestureDetector(
-          onTap: () => context.pop(),
-          child: Icon(
-            CupertinoIcons.chevron_back,
-            color: ColorUtils.secondaryColor,
+      body: Stack(
+        children: [
+          // Google Map
+          GoogleMap(
+            initialCameraPosition: _initialPosition,
+            onMapCreated: _onMapCreated,
+            onTap: _isDrawingMode ? _onTap : null,
+            polygons: _polygons,
+            markers: _markers,
+            mapType: _currentMapType,
+            myLocationEnabled: true,
+            myLocationButtonEnabled: false,
+            zoomControlsEnabled: false,
+            mapToolbarEnabled: false,
           ),
-        ),
-        title: Text(
-          "Map your farm",
-          style: TextStyle(color: ColorUtils.secondaryTextColor, fontSize: 14),
-        ),
-        actions: [
-          ElevatedButton(
-            onPressed: _saveAllStructures,
-            style: ButtonStyle(
-                backgroundColor:
-                    WidgetStatePropertyAll(ColorUtils.successColor)),
-            child: Text(
-              "Save Farm",
-              style:
-                  TextStyle(fontSize: 12, color: ColorUtils.primaryTextColor),
-            ),
-          )
-        ],
-      ),
-      body: SafeArea(
-        child: Stack(
-          children: [
-            // Google Map
-            GoogleMap(
-              initialCameraPosition: _initialPosition,
-              onMapCreated: _onMapCreated,
-              onTap: _isDrawingMode ? _onTap : null,
-              polygons: _polygons,
-              markers: _markers,
-              mapType: _currentMapType,
-              myLocationEnabled: true,
-              myLocationButtonEnabled: false,
-              zoomControlsEnabled: false,
-              mapToolbarEnabled: false,
-            ),
 
-            // Structure Selection Card (when not drawing)
-            if (_showStructureSelection && !_isDrawingMode)
-              Positioned(
-                left: 20,
-                bottom: 80,
-                child: StructureSelector(
-                    onPressed: () {
-                      setState(() {
-                        _showStructureSelection = false;
-                      });
-                    },
-                    startDrawing: _startDrawing),
-              ),
+          Positioned(
+              top: 0,
+              left: 0,
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width,
+                child: FarmbrosAppbar(
+                  appBarTitle: isCreatingFarm
+                      ? "Map your Farm"
+                      : "Map your Plots & Structures",
+                  openSideBar: () {
+                    context.pop();
+                  },
+                  icon: FluentIcons.ios_arrow_24_regular,
+                  hasAction: true,
+                  appBarAction: _saveAllStructures,
+                  actionText:
+                      isCreatingFarm ? "Save Farm" : "Save Plot/Structure",
+                ),
+              )),
 
-            // Active Drawing Card (Minimized/Expanded)
-            if (_isDrawingMode && _selectedStructureType != null)
-              Positioned(
-                left: 20,
-                bottom: 80,
-                child: StructureEditor(
-                    structureType: _selectedStructureType,
-                    toggleDrawingCardMinimize: () {
-                      setState(() {
-                        _isDrawingCardMinimized = !_isDrawingCardMinimized;
-                      });
-                    },
-                    isDrawingCardMinimized: _isDrawingCardMinimized,
-                    currentDrawingPoints: currentDrawingPoints,
-                    undoLastPoint: _undoLastPoint,
-                    clearCurrentDrawing: _clearCurrentDrawing,
-                    finishDrawing: _finishDrawing,
-                    cancelDrawing: _cancelDrawing),
-              ),
-
-            // Search Bar with Map Type Toggle
+          // Structure Selection Card (when not drawing)
+          if (_showStructureSelection && !_isDrawingMode)
             Positioned(
-              bottom: 15,
               left: 20,
-              right: 20,
-              child: FarmbrosMapSearchBar(
-                  selectStructure: () {
+              bottom: 80,
+              child: StructureSelector(
+                  onPressed: () {
                     setState(() {
-                      _showStructureSelection = true;
+                      _showStructureSelection = false;
                     });
                   },
-                  showSuggestions: _showSuggestions,
-                  searchSuggestions: _searchSuggestions,
-                  selectSuggestion: _selectSuggestion,
-                  searchController: _searchController,
-                  searchFocusNode: _searchFocusNode,
-                  searchLocation: (String query) {
-                    _searchLocation(query);
-                  },
-                  onSearchChanged: _onSearchChanged,
-                  showStructureSelection: _showStructureSelection,
-                  isDrawingMode: _isDrawingMode,
-                  clearSearch: () {
-                    _searchController.clear();
-                    setState(() {
-                      _searchSuggestions.clear();
-                      _showSuggestions = false;
-                    });
-                  },
-                  changeMapLayer: () {
-                    setState(() {
-                      _currentMapType = _currentMapType == MapType.hybrid
-                          ? MapType.satellite
-                          : MapType.hybrid;
-                    });
-                  }),
+                  isCreatingFarm: isCreatingFarm,
+                  startDrawing: _startDrawing),
             ),
-          ],
-        ),
+
+          // Active Drawing Card (Minimized/Expanded)
+          if (_isDrawingMode && _selectedStructureType != null)
+            Positioned(
+              left: 20,
+              bottom: 80,
+              child: StructureEditor(
+                  structureType: _selectedStructureType,
+                  toggleDrawingCardMinimize: () {
+                    setState(() {
+                      _isDrawingCardMinimized = !_isDrawingCardMinimized;
+                    });
+                  },
+                  isDrawingCardMinimized: _isDrawingCardMinimized,
+                  currentDrawingPoints: currentDrawingPoints,
+                  undoLastPoint: _undoLastPoint,
+                  clearCurrentDrawing: _clearCurrentDrawing,
+                  finishDrawing: _finishDrawing,
+                  cancelDrawing: _cancelDrawing),
+            ),
+
+          // Search Bar with Map Type Toggle
+          Positioned(
+            bottom: 15,
+            left: 20,
+            right: 20,
+            child: FarmbrosMapSearchBar(
+                selectStructure: () {
+                  setState(() {
+                    _showStructureSelection = true;
+                  });
+                },
+                showSuggestions: _showSuggestions,
+                searchSuggestions: _searchSuggestions,
+                selectSuggestion: _selectSuggestion,
+                searchController: _searchController,
+                searchFocusNode: _searchFocusNode,
+                searchLocation: (String query) {
+                  _searchLocation(query);
+                },
+                onSearchChanged: _onSearchChanged,
+                showStructureSelection: _showStructureSelection,
+                isDrawingMode: _isDrawingMode,
+                clearSearch: () {
+                  _searchController.clear();
+                  setState(() {
+                    _searchSuggestions.clear();
+                    _showSuggestions = false;
+                  });
+                },
+                changeMapLayer: () {
+                  setState(() {
+                    _currentMapType = _currentMapType == MapType.hybrid
+                        ? MapType.satellite
+                        : MapType.hybrid;
+                  });
+                }),
+          ),
+        ],
       ),
     );
   }
@@ -412,6 +411,10 @@ class _FarmbrosMapState extends State<FarmbrosMap> {
   }
 
   void _saveAllStructures() {
+    final RouteSettings? currentPath = ModalRoute.of(context)!.settings;
+    final bool isCreatingFarm =
+        currentPath?.name?.contains('/farms/create_farm/map') ?? false;
+
     if (_structures.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -422,57 +425,69 @@ class _FarmbrosMapState extends State<FarmbrosMap> {
       return;
     }
 
-    // Convert structures to GeoJSON format
-    List<Map<String, dynamic>> structuresGeoJSON = [];
+    if (isCreatingFarm) {
+      // Get the farm boundary GeoJSON
+      Map<String, dynamic>? farmGeoJSON = getFarmBoundaryGeoJSON();
 
-    _structures.forEach((key, points) {
-      final typeIndex = int.parse(key.split('_')[0]);
-      final type = StructureType.values[typeIndex];
+      if (farmGeoJSON == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Please draw the farm boundary first!'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+        return;
+      }
 
-      // Convert List<LatLng> to GeoJSON Polygon format
-      Map<String, dynamic> geoJSON = _convertToGeoJSON(points, type);
-      structuresGeoJSON.add(geoJSON);
-    });
+      // Save to Cubit state
+      context.read<FarmStateCubit>().setFarmGeoJson(farmGeoJSON);
 
-    logger.i("Structures to save (GeoJSON format):");
-    logger.i(json.encode(structuresGeoJSON));
+      logger.i("Farm boundary saved (GeoJSON format):");
+      logger.i(json.encode(farmGeoJSON));
 
-    // TODO: Send to backend
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Farm boundary saved successfully!'),
+          duration: Duration(seconds: 2),
+        ),
+      );
 
-    final farmDetailsParams = FarmDetailsParams(
-        name: farmName.text,
-        description: farmDescription.text,
-        geoJson: structuresGeoJSON[0]);
+      // Navigate back to create farm page
+      context.pop();
+    } else {
+      // For plots/structures, convert all to GeoJSON format
+      List<Map<String, dynamic>> structuresGeoJSON = [];
 
-    context
-        .read<FarmBrosStateCubit>()
-        .execute(farmDetailsParams, sl<SaveFarmUseCase>());
+      _structures.forEach((key, points) {
+        final typeIndex = int.parse(key.split('_')[0]);
+        final type = StructureType.values[typeIndex];
+        Map<String, dynamic> geoJSON = _convertToGeoJSON(points, type);
+        structuresGeoJSON.add(geoJSON);
+      });
 
-    // Example payload structure:
-    // {
-    //   "name": "My Farm",
-    //   "description": "Farm description",
-    //   "geojson": { "type": "Polygon", "coordinates": [...] }
-    // }
+      logger.i("Structures to save (GeoJSON format):");
+      logger.i(json.encode(structuresGeoJSON));
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Farm map saved successfully!'),
-        duration: Duration(seconds: 2),
-      ),
-    );
+      // TODO: Send to backend for plots/structures
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Structures saved successfully!'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+
+      context.pop();
+    }
   }
 
   // Convert List<LatLng> to GeoJSON Polygon format
   Map<String, dynamic> _convertToGeoJSON(
       List<LatLng> points, StructureType type) {
-    // GeoJSON uses [longitude, latitude] order (opposite of LatLng)
-    // Also need to close the polygon by adding first point at the end
     List<List<double>> coordinates = points.map((point) {
       return [point.longitude, point.latitude];
     }).toList();
 
-    // Close the polygon if not already closed
     if (coordinates.first[0] != coordinates.last[0] ||
         coordinates.first[1] != coordinates.last[1]) {
       coordinates.add([points.first.longitude, points.first.latitude]);
@@ -490,7 +505,7 @@ class _FarmbrosMapState extends State<FarmbrosMap> {
 
   // Get GeoJSON for a specific structure (e.g., Farm boundary)
   Map<String, dynamic>? getFarmBoundaryGeoJSON() {
-    // Find the farm structure (assuming it's the first one or has specific identifier)
+    // Find the farm structure key
     String? farmKey = _structures.keys.firstWhere(
       (key) => key.startsWith('${StructureType.farm.index}_'),
       orElse: () => '',
@@ -500,14 +515,16 @@ class _FarmbrosMapState extends State<FarmbrosMap> {
       return null;
     }
 
+    // Extract structure type from key prefix
+    final typeIndex = int.parse(farmKey.split('_')[0]);
+    final type = StructureType.values[typeIndex];
+
     List<LatLng> farmPoints = _structures[farmKey]!;
 
-    // Convert to GeoJSON coordinates: [longitude, latitude]
     List<List<double>> coordinates = farmPoints.map((point) {
       return [point.longitude, point.latitude];
     }).toList();
 
-    // Close the polygon
     if (coordinates.first[0] != coordinates.last[0] ||
         coordinates.first[1] != coordinates.last[1]) {
       coordinates.add([farmPoints.first.longitude, farmPoints.first.latitude]);
@@ -515,7 +532,11 @@ class _FarmbrosMapState extends State<FarmbrosMap> {
 
     return {
       "type": "Polygon",
-      "coordinates": [coordinates]
+      "coordinates": [coordinates],
+      "properties": {
+        "structureType": type.displayName,
+        "color": type.color.value.toRadixString(16),
+      }
     };
   }
 

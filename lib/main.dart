@@ -1,4 +1,4 @@
-import 'package:farmbros_mobile/common/bloc/farm_bros_map/farm_bros_state_cubit.dart';
+import 'package:farmbros_mobile/common/bloc/farm/farm_state_cubit.dart';
 import 'package:farmbros_mobile/common/bloc/form/combined_form_cubit.dart';
 import 'package:farmbros_mobile/common/bloc/onboarding/onboarding_state_cubit.dart';
 import 'package:farmbros_mobile/common/bloc/serverStatus/server_status_state.dart';
@@ -40,7 +40,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => CombinedFormCubit()),
         BlocProvider(create: (_) => SessionCubit()),
         BlocProvider(create: (_) => OnboardingStateCubit()),
-        BlocProvider(create: (_) => FarmBrosStateCubit()),
+        BlocProvider(create: (_) => FarmStateCubit()),
         BlocProvider(
           create: (_) {
             final cubit = ServerStatusStateCubit();

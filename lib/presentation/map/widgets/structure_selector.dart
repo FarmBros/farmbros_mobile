@@ -2,61 +2,83 @@ import 'package:farmbros_mobile/core/configs/Utils/color_utils.dart';
 import 'package:farmbros_mobile/domain/enums/enums.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 
 class StructureSelector extends StatelessWidget {
   final Function onPressed;
   final Function startDrawing;
+  final bool isCreatingFarm;
 
-  const StructureSelector({
-    super.key,
-    required this.onPressed,
-    required this.startDrawing
-  });
+  const StructureSelector(
+      {super.key,
+      required this.onPressed,
+      required this.startDrawing,
+      required this.isCreatingFarm});
 
   @override
   Widget build(BuildContext context) {
-   return Material(
-     elevation: 4,
-     borderRadius: BorderRadius.circular(12),
-     child: Container(
-       width: 320,
-       padding: EdgeInsets.all(16),
-       child: Column(
-         crossAxisAlignment: CrossAxisAlignment.start,
-         mainAxisSize: MainAxisSize.min,
-         children: [
-           Row(
-             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-             children: [
-               Text(
-                 "Select Structure to Draw",
-                 style: TextStyle(
-                   fontSize: 16,
-                   fontWeight: FontWeight.bold,
-                   color: ColorUtils.secondaryColor,
-                 ),
-               ),
-               IconButton(
-                 icon: Icon(Icons.close),
-                 onPressed: () {
+    final logger = Logger();
 
-                 },
-                 padding: EdgeInsets.zero,
-                 constraints: BoxConstraints(),
-               ),
-             ],
-           ),
-           SizedBox(height: 12),
-           ...StructureType.values.map((type) {
-             return Padding(
-               padding: EdgeInsets.only(bottom: 8),
-               child: _buildStructureOption(type),
-             );
-           }).toList(),
-         ],
-       ),
-     ),
-   );
+    final List<StructureType> availableStructures = isCreatingFarm
+        ? [StructureType.farm] // Only farm option
+        : StructureType.values.toList(); // All options
+
+    return Material(
+      elevation: 4,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        width: 320,
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height / 1.75,
+        ),
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  isCreatingFarm
+                      ? "Draw Your Farm"
+                      : "Select Structure to Draw",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: ColorUtils.secondaryColor,
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.close),
+                  onPressed: () {},
+                  padding: EdgeInsets.zero,
+                  constraints: BoxConstraints(),
+                ),
+              ],
+            ),
+            SizedBox(height: 12),
+            Flexible(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ...availableStructures.map((type) {
+                      logger.log(Level.info, type);
+                      return Padding(
+                        padding: EdgeInsets.only(bottom: 8),
+                        child: _buildStructureOption(type),
+                      );
+                    }).toList(),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildStructureOption(StructureType type) {

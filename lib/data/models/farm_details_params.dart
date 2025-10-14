@@ -12,6 +12,6 @@ class FarmDetailsParams {
   Map<String, dynamic> toJson() => {
     "name": name,
     "description": description ?? "",
-    "geo_json": geoJson,
+    "geojson": geoJson,
   };
 }

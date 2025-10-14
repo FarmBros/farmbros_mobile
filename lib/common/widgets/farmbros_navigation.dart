@@ -32,10 +32,10 @@ class FarmbrosNavigation extends StatelessWidget {
         "type": "farm"
       },
       {
-        "nav_label": "Crops/Animals",
+        "nav_label": "Farm Logger",
         "nav_icon": FluentIcons.animal_rabbit_24_regular,
         "nav_icon_active": FluentIcons.animal_rabbit_24_filled,
-        "route": "/crops_and_animals",
+        "route": "/farm_logger",
         "type": "farm"
       },
       {

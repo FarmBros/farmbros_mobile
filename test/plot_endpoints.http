@@ -1,0 +1,590 @@
+### Plot CRUD Operations Testing
+
+### Variables
+@baseUrl = http://localhost:8000
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNzU4MTg4NGUtOTA4NC00M2I2LWJhMmItMDFmNGEyZThjNzczIiwicm9sZSI6InVzZXIiLCJleHAiOjE3NjA5OTUyNTd9.LtXZNcRXkkqf1VbzhQPPDD7ummVm7RqAhN7wvT2syHg
+@farmId = ed444d9a-6d56-482f-8a99-2d61da3f433e
+@plotId = a86a110f-9ca0-4f32-86de-aa09acc77145
+
+### 1. Create Plot (within farm boundary) - Using center coordinates
+POST {{baseUrl}}/plots/create
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "name": "North Field",
+  "farm_id": "{{farmId}}",
+  "plot_number": "A1",
+  "plot_type": "field",
+  "notes": "Main crop field for corn - using coordinates well within farm center",
+  "geojson": {
+        "coordinates": [
+          [
+            [
+              37.425124684515964,
+              -1.232514272059234
+            ],
+            [
+              37.425124684515964,
+              -1.2336789304658708
+            ],
+            [
+              37.42739157178829,
+              -1.2336789304658708
+            ],
+            [
+              37.42739157178829,
+              -1.232514272059234
+            ],
+            [
+              37.425124684515964,
+              -1.232514272059234
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+  "plot_type_data": {
+    "name": "Main Corn Field",
+    "notes": "Primary field for corn cultivation",
+    "soil_type": "Loamy",
+    "irrigation_system": "Drip irrigation"
+  }
+}
+
+### 2. Get Single Plot
+POST {{baseUrl}}/plots/get_plot
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "plot_id": "{{plotId}}",
+  "include_geojson": true
+}
+
+### 3. Get Plots by Farm
+POST {{baseUrl}}/plots/get_plots_by_farm
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "farm_id": "{{farmId}}",
+  "include_geojson": true,
+  "skip": 0,
+  "limit": 10
+}
+
+### 4. Get User's All Plots
+POST {{baseUrl}}/plots/get_user_plots
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "include_geojson": true,
+  "skip": 0,
+  "limit": 20
+}
+
+### 5. Get Plots by Type
+POST {{baseUrl}}/plots/get_plots_by_type
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "plot_type": "field",
+  "include_geojson": true,
+  "skip": 0,
+  "limit": 10
+}
+
+### 6. Update Plot with Type Data
+POST {{baseUrl}}/plots/update_plot
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "plot_id": "{{plotId}}",
+  "name": "North Field - Updated to Pasture",
+  "plot_number": "A1-PASTURE",
+  "plot_type": "pasture",
+  "notes": "Changed to pasture for livestock",
+  "boundary_geojson": {
+    "type": "Polygon",
+    "coordinates": [[
+      [37.431, -1.225],
+      [37.433, -1.225],
+      [37.433, -1.227],
+      [37.431, -1.227],
+      [37.431, -1.225]
+    ]]
+  },
+  "plot_type_data": {
+    "name": "Cattle Grazing Pasture",
+    "notes": "Converted field to pasture for cattle grazing",
+    "status": "Active"
+  }
+}
+
+### 7. Delete Plot
+POST {{baseUrl}}/plots/delete_plot
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "plot_id": "{{plotId}}"
+}
+
+### 8. Count Plots by Farm
+POST {{baseUrl}}/plots/count_plots_by_farm
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "farm_id": "{{farmId}}"
+}
+
+### 9. Get Total Plot Area by Farm
+POST {{baseUrl}}/plots/get_plot_area_by_farm
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "farm_id": "{{farmId}}"
+}
+
+### 10. Get Plot Statistics for User
+POST {{baseUrl}}/plots/get_plot_stats
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "user_id": "current_user"
+}
+
+### 11. Get Plot Statistics for Specific Farm
+POST {{baseUrl}}/plots/get_plot_stats
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "farm_id": "{{farmId}}"
+}
+
+###############################################
+### Test Scenarios with Different Plot Types
+###############################################
+
+### Create Barn Plot with Type Data
+POST {{baseUrl}}/plots/create
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "name": "Main Barn",
+  "farm_id": "{{farmId}}",
+  "plot_number": "B1",
+  "plot_type": "barn",
+  "notes": "Equipment storage and livestock shelter",
+  "geojson": {
+    "type": "Polygon",
+    "coordinates": [[
+      [37.428, -1.230],
+      [37.429, -1.230],
+      [37.429, -1.231],
+      [37.428, -1.231],
+      [37.428, -1.230]
+    ]]
+  },
+  "plot_type_data": {
+    "name": "Equipment Storage Barn",
+    "notes": "Main barn for storing farm equipment and providing livestock shelter",
+    "structure_type": "Traditional timber frame barn"
+  }
+}
+
+### Create Greenhouse Plot with Type Data
+POST {{baseUrl}}/plots/create
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "name": "Vegetable Greenhouse",
+  "farm_id": "{{farmId}}",
+  "plot_number": "GH1",
+  "plot_type": "green-house",
+  "notes": "Climate controlled for year-round vegetables",
+  "geojson": {
+    "type": "Polygon",
+    "coordinates": [[
+      [37.425, -1.235],
+      [37.426, -1.235],
+      [37.426, -1.236],
+      [37.425, -1.236],
+      [37.425, -1.235]
+    ]]
+  },
+  "plot_type_data": {
+    "name": "High-Tech Vegetable Greenhouse",
+    "notes": "Climate controlled facility for premium vegetable production",
+    "greenhouse_type": "Hydroponic greenhouse"
+  }
+}
+
+### Create Pasture Plot
+POST {{baseUrl}}/plots/create
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "name": "South Pasture",
+  "farm_id": "{{farmId}}",
+  "plot_number": "P1",
+  "plot_type": "pasture",
+  "notes": "Grazing area for cattle",
+  "geojson": {
+    "type": "Polygon",
+    "coordinates": [[
+      [37.432, -1.232],
+      [37.434, -1.232],
+      [37.434, -1.234],
+      [37.432, -1.234],
+      [37.432, -1.232]
+    ]]
+  },
+  "plot_type_data": {
+    "name": "South Cattle Pasture",
+    "notes": "Main grazing area for cattle",
+    "status": "Active"
+  }
+}
+
+### Get All Pasture Plots
+POST {{baseUrl}}/plots/get_plots_by_type
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "plot_type": "pasture",
+  "include_geojson": false,
+  "skip": 0,
+  "limit": 100
+}
+
+### Get All Barn Plots
+POST {{baseUrl}}/plots/get_plots_by_type
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "plot_type": "barn",
+  "include_geojson": true,
+  "skip": 0,
+  "limit": 100
+}
+
+### Create Chicken Pen Plot
+POST {{baseUrl}}/plots/create
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "name": "Chicken Coop Area",
+  "farm_id": "{{farmId}}",
+  "plot_number": "CP1",
+  "plot_type": "chicken-pen",
+  "notes": "Free-range chicken area",
+  "geojson": {
+    "type": "Polygon",
+    "coordinates": [[
+      [37.426, -1.232],
+      [37.427, -1.232],
+      [37.427, -1.233],
+      [37.426, -1.233],
+      [37.426, -1.232]
+    ]]
+  },
+  "plot_type_data": {
+    "name": "Free Range Chicken Area",
+    "notes": "Outdoor chicken pen with coop",
+    "chicken_capacity": 50,
+    "coop_type": "Traditional wooden coop",
+    "nesting_boxes": 12,
+    "run_area_covered": "partially",
+    "feeding_system": "Automatic feeders"
+  }
+}
+
+### Create Water Source Plot
+POST {{baseUrl}}/plots/create
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "name": "Farm Well",
+  "farm_id": "{{farmId}}",
+  "plot_number": "WS1",
+  "plot_type": "water-source",
+  "notes": "Primary water source for irrigation",
+  "geojson": {
+    "type": "Polygon",
+    "coordinates": [[
+      [37.430, -1.230],
+      [37.4301, -1.230],
+      [37.4301, -1.2301],
+      [37.430, -1.2301],
+      [37.430, -1.230]
+    ]]
+  },
+  "plot_type_data": {
+    "name": "Main Farm Well",
+    "notes": "Deep well for irrigation water",
+    "source_type": "Borehole well",
+    "depth": "150 feet"
+  }
+}
+
+### Create Natural Area Plot
+POST {{baseUrl}}/plots/create
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "name": "Forest Conservation Area",
+  "farm_id": "{{farmId}}",
+  "plot_number": "NA1",
+  "plot_type": "natural-area",
+  "notes": "Protected forest area",
+  "geojson": {
+    "type": "Polygon",
+    "coordinates": [[
+      [37.433, -1.235],
+      [37.435, -1.235],
+      [37.435, -1.237],
+      [37.433, -1.237],
+      [37.433, -1.235]
+    ]]
+  },
+  "plot_type_data": {
+    "name": "Forest Conservation Zone",
+    "notes": "Natural forest area for wildlife conservation",
+    "ecosystem_type": "Tropical forest"
+  }
+}
+
+### Create Fish Pond Plot
+POST {{baseUrl}}/plots/create
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "name": "Fish Pond",
+  "farm_id": "{{farmId}}",
+  "plot_number": "FP1",
+  "plot_type": "fish-pond",
+  "notes": "Tilapia farming pond",
+  "geojson": {
+    "type": "Polygon",
+    "coordinates": [[
+      [37.427, -1.234],
+      [37.429, -1.234],
+      [37.429, -1.236],
+      [37.427, -1.236],
+      [37.427, -1.234]
+    ]]
+  },
+  "plot_type_data": {
+    "name": "Tilapia Farming Pond",
+    "notes": "Commercial fish farming pond",
+    "pond_depth": "6 feet",
+    "filtration_system": "Biological filtration",
+    "aeration_system": "Paddle wheel aerators"
+  }
+}
+
+### Create Residence Plot
+POST {{baseUrl}}/plots/create
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "name": "Farmhouse",
+  "farm_id": "{{farmId}}",
+  "plot_number": "R1",
+  "plot_type": "residence",
+  "notes": "Main farmhouse and family residence",
+  "geojson": {
+    "type": "Polygon",
+    "coordinates": [[
+      [37.425, -1.230],
+      [37.426, -1.230],
+      [37.426, -1.231],
+      [37.425, -1.231],
+      [37.425, -1.230]
+    ]]
+  },
+  "plot_type_data": {
+    "name": "Main Farmhouse",
+    "notes": "Family residence on the farm",
+    "building_type": "Single-family home"
+  }
+}
+
+### Create Cow Shed Plot
+POST {{baseUrl}}/plots/create
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "name": "Dairy Cow Shed",
+  "farm_id": "{{farmId}}",
+  "plot_number": "CS1",
+  "plot_type": "cow-shed",
+  "notes": "Housing for dairy cattle",
+  "geojson": {
+    "type": "Polygon",
+    "coordinates": [[
+      [37.431, -1.233],
+      [37.432, -1.233],
+      [37.432, -1.234],
+      [37.431, -1.234],
+      [37.431, -1.233]
+    ]]
+  },
+  "plot_type_data": {
+    "name": "Dairy Cattle Housing",
+    "notes": "Modern dairy cow shed with milking facility",
+    "cow_capacity": 30,
+    "milking_system": "Automated milking parlor",
+    "feeding_system": "TMR feeding system",
+    "bedding_type": "Sand bedding",
+    "waste_management": "Liquid manure system"
+  }
+}
+
+###############################################
+### Error Testing Scenarios
+###############################################
+
+### Test Invalid Plot Type
+POST {{baseUrl}}/plots/create
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "name": "Invalid Plot",
+  "farm_id": "{{farmId}}",
+  "plot_type": "invalid-type",
+  "geojson": {
+    "type": "Polygon",
+    "coordinates": [[
+      [-74.0059, 40.7128],
+      [-74.0049, 40.7128],
+      [-74.0049, 40.7138],
+      [-74.0059, 40.7138],
+      [-74.0059, 40.7128]
+    ]]
+  }
+}
+
+### Test Invalid Farm ID
+POST {{baseUrl}}/plots/create
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "name": "Test Plot",
+  "farm_id": "invalid-farm-id",
+  "plot_type": "field",
+  "geojson": {
+    "type": "Polygon",
+    "coordinates": [[
+      [37.431, -1.225],
+      [37.432, -1.225],
+      [37.432, -1.226],
+      [37.431, -1.226],
+      [37.431, -1.225]
+    ]]
+  }
+}
+
+### Test Plot Outside Farm Boundary (should fail boundary validation)
+POST {{baseUrl}}/plots/create
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "name": "Outside Plot",
+  "farm_id": "{{farmId}}",
+  "plot_type": "field",
+  "notes": "This plot should be rejected as it's outside farm boundary",
+  "geojson": {
+    "type": "Polygon",
+    "coordinates": [[
+      [37.500, -1.500],
+      [37.501, -1.500],
+      [37.501, -1.501],
+      [37.500, -1.501],
+      [37.500, -1.500]
+    ]]
+  }
+}
+
+### Test Missing Required Fields
+POST {{baseUrl}}/plots/get_plot
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "include_geojson": true
+}
+
+###############################################
+### Available Plot Types and Fields Reference
+###############################################
+# 
+# field:
+#   - soil_type (string)
+#   - irrigation_system (string)
+#
+# barn:
+#   - structure_type (string)
+#
+# pasture:
+#   - status (string)
+#
+# green-house:
+#   - greenhouse_type (string)
+#
+# chicken-pen:
+#   - chicken_capacity (integer)
+#   - coop_type (string)
+#   - nesting_boxes (integer)
+#   - run_area_covered (string)
+#   - feeding_system (string)
+#
+# cow-shed:
+#   - cow_capacity (integer)
+#   - milking_system (string)
+#   - feeding_system (string)
+#   - bedding_type (string)
+#   - waste_management (string)
+#
+# fish-pond:
+#   - pond_depth (string)
+#   - filtration_system (string)
+#   - aeration_system (string)
+#
+# residence:
+#   - building_type (string)
+#
+# natural-area:
+#   - ecosystem_type (string, default: 'Wild')
+#
+# water-source:
+#   - source_type (string)
+#   - depth (string)
+#
+# All plot types also have base fields:
+#   - name (string)
+#   - notes (string)
+#   - id, uuid, plot_id, created_at, updated_at (auto-managed)

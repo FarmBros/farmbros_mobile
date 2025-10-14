@@ -1,17 +1,24 @@
 import 'package:farmbros_mobile/core/configs/Utils/color_utils.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class FarmbrosAppbar extends StatelessWidget {
   final String appBarTitle;
   final GestureTapCallback? openSideBar;
   final IconData icon;
+  final bool hasAction;
+  final VoidCallback? appBarAction;
+  final String? actionText;
 
   const FarmbrosAppbar(
       {super.key,
       required this.appBarTitle,
       required this.openSideBar,
-      required this.icon});
+      required this.icon,
+      required this.hasAction,
+      this.appBarAction,
+      this.actionText});
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +45,20 @@ class FarmbrosAppbar extends StatelessWidget {
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           Spacer(),
-          Icon(FluentIcons.alert_24_regular)
+          if (hasAction)
+            ElevatedButton(
+              onPressed: appBarAction,
+              style: ButtonStyle(
+                  backgroundColor:
+                      WidgetStatePropertyAll(ColorUtils.successColor)),
+              child: Text(
+                actionText!,
+                style:
+                    TextStyle(fontSize: 12, color: ColorUtils.primaryTextColor),
+              ),
+            )
+          else
+            Icon(FluentIcons.alert_24_regular)
         ],
       ),
     );

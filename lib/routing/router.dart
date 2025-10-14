@@ -45,6 +45,7 @@ GoRouter createRouter(BuildContext context) {
                 routes: [
                   GoRoute(
                       path: Routes.map,
+                      name: "/farms/create_farm/map",
                       builder: (context, state) => const FarmbrosMap())
                 ]),
             GoRoute(
@@ -52,7 +53,7 @@ GoRouter createRouter(BuildContext context) {
                 builder: (context, state) => const FarmProfile())
           ]),
       GoRoute(
-          path: Routes.cropsAndAnimals,
+          path: Routes.farmLogger,
           builder: (context, state) => const FarmLogger()),
       GoRoute(
           path: Routes.welcome,
@@ -97,7 +98,7 @@ GoRouter createRouter(BuildContext context) {
         Routes.farms,
         Routes.createFarm,
         Routes.farmProfile,
-        Routes.cropsAndAnimals
+        Routes.farmLogger
         // add others here if you want them locked
       };
 

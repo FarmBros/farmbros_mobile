@@ -53,6 +53,7 @@ class _FarmsState extends State<Farms> with SingleTickerProviderStateMixin {
                   openSideBar: () {
                     Scaffold.of(context).openDrawer();
                   },
+                  hasAction: false,
                 ),
                 Positioned(
                     top: 100,

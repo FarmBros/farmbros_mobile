@@ -1,13 +1,21 @@
+import 'package:farmbros_mobile/common/bloc/farm/farm_state.dart';
+import 'package:farmbros_mobile/common/bloc/farm/farm_state_cubit.dart';
+import 'package:farmbros_mobile/common/bloc/farm_bros_map/farm_bros_state_cubit.dart';
+import 'package:farmbros_mobile/service_locator.dart';
 import 'package:farmbros_mobile/common/widgets/farmbros_appbar.dart';
 import 'package:farmbros_mobile/common/widgets/farmbros_button.dart';
 import 'package:farmbros_mobile/common/widgets/farmbros_input.dart';
 import 'package:farmbros_mobile/common/widgets/farmbros_navigation.dart';
 import 'package:farmbros_mobile/core/configs/Utils/color_utils.dart';
+import 'package:farmbros_mobile/data/models/farm_details_params.dart';
+import 'package:farmbros_mobile/domain/usecases/save_farm_use_case.dart';
 import 'package:farmbros_mobile/routing/routes.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:logger/logger.dart';
 
 class CreateFarm extends StatefulWidget {
   const CreateFarm({super.key});
@@ -19,27 +27,20 @@ class CreateFarm extends StatefulWidget {
 class _CreateFarmState extends State<CreateFarm> {
   late TextEditingController _farmNameController;
   late TextEditingController _farmDescriptionController;
-  late TextEditingController _farmSizeController;
-  late TextEditingController _farmLocationController;
-  late TextEditingController _numberOfPlotsController;
+
+  Logger logger = Logger();
 
   @override
   void initState() {
     super.initState();
     _farmNameController = TextEditingController();
     _farmDescriptionController = TextEditingController();
-    _farmSizeController = TextEditingController();
-    _farmLocationController = TextEditingController();
-    _numberOfPlotsController = TextEditingController();
   }
 
   @override
   void dispose() {
     _farmNameController.dispose();
     _farmDescriptionController.dispose();
-    _farmSizeController.dispose();
-    _farmLocationController.dispose();
-    _numberOfPlotsController.dispose();
     super.dispose();
   }
 
@@ -47,8 +48,11 @@ class _CreateFarmState extends State<CreateFarm> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ColorUtils.lightBackgroundColor,
-      body: Builder(
-        builder: (BuildContext context) {
+      body: BlocBuilder<FarmStateCubit, FarmState>(
+        builder: (context, state) {
+          final bool hasMapData =
+              state is FarmStateLoadGeoJSON && state.farmGeoJson.isNotEmpty;
+
           return Column(
             children: [
               FarmbrosAppbar(
@@ -57,6 +61,7 @@ class _CreateFarmState extends State<CreateFarm> {
                 openSideBar: () {
                   context.pop();
                 },
+                hasAction: false,
               ),
               Gap(20),
               Expanded(
@@ -139,15 +144,21 @@ class _CreateFarmState extends State<CreateFarm> {
                       Expanded(
                         child: GestureDetector(
                           onTap: () {
-                            context.go("${Routes.farms}${Routes.createFarm}${Routes.map}");
+                            context.go(
+                              "${Routes.farms}${Routes.createFarm}${Routes.map}",
+                            );
                           },
                           child: Container(
                             width: double.infinity,
                             decoration: BoxDecoration(
-                              color: ColorUtils.secondaryBackgroundColor,
+                              color: hasMapData
+                                  ? ColorUtils.successColor.withOpacity(0.1)
+                                  : ColorUtils.secondaryBackgroundColor,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: ColorUtils.primaryBorderColor,
+                                color: hasMapData
+                                    ? ColorUtils.successColor
+                                    : ColorUtils.primaryBorderColor,
                                 width: 2,
                                 style: BorderStyle.solid,
                               ),
@@ -156,18 +167,37 @@ class _CreateFarmState extends State<CreateFarm> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(
-                                  FluentIcons.map_24_regular,
+                                  hasMapData
+                                      ? FluentIcons.checkmark_circle_24_filled
+                                      : FluentIcons.map_24_regular,
                                   size: 48,
-                                  color: ColorUtils.inActiveColor,
+                                  color: hasMapData
+                                      ? ColorUtils.successColor
+                                      : ColorUtils.inActiveColor,
                                 ),
                                 Gap(10),
                                 Text(
-                                  "Tap to set location",
+                                  hasMapData
+                                      ? "Farm boundary mapped"
+                                      : "Tap to set location",
                                   style: TextStyle(
-                                    color: ColorUtils.inActiveColor,
+                                    color: hasMapData
+                                        ? ColorUtils.successColor
+                                        : ColorUtils.inActiveColor,
                                     fontSize: 16,
                                   ),
                                 ),
+                                if (hasMapData)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 5),
+                                    child: Text(
+                                      "Tap to edit",
+                                      style: TextStyle(
+                                        color: ColorUtils.inActiveColor,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ),
                               ],
                             ),
                           ),
@@ -182,6 +212,10 @@ class _CreateFarmState extends State<CreateFarm> {
                             child: FarmbrosButton(
                               label: "Cancel",
                               onPressed: () {
+                                // Clear the saved GeoJSON when canceling
+                                context
+                                    .read<FarmStateCubit>()
+                                    .clearFarmGeoJson();
                                 Navigator.pop(context);
                               },
                               buttonColor: ColorUtils.secondaryBackgroundColor,
@@ -193,10 +227,15 @@ class _CreateFarmState extends State<CreateFarm> {
                           Expanded(
                             child: FarmbrosButton(
                               label: "Create Farm",
-                              onPressed: () {
-                                // Handle farm creation
-                              },
-                              buttonColor: ColorUtils.successColor,
+                              onPressed: hasMapData
+                                  ? () {
+                                      _createFarm(state.farmGeoJson, state);
+                                    }
+                                  : null,
+                              // Disable if no map data
+                              buttonColor: hasMapData
+                                  ? ColorUtils.successColor
+                                  : ColorUtils.inActiveColor,
                               icon: FluentIcons.checkmark_24_regular,
                               iconColor: ColorUtils.successColor,
                             ),
@@ -214,5 +253,72 @@ class _CreateFarmState extends State<CreateFarm> {
       ),
       drawer: FarmbrosNavigation(),
     );
+  }
+
+  void _createFarm(Map<String, dynamic> farmGeoJson, FarmState state) async {
+    // Validate inputs
+    if (_farmNameController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please enter a farm name'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    if (farmGeoJson.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please map your farm boundary'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    try {
+      final farmDetailsParams = FarmDetailsParams(
+        name: _farmNameController.text,
+        description: _farmDescriptionController.text,
+        geoJson: farmGeoJson,
+      );
+
+      logger.log(Logger.level, farmDetailsParams);
+
+      // Execute the API call
+      context
+          .read<FarmStateCubit>()
+          .execute(farmDetailsParams, sl<SaveFarmUseCase>());
+
+      if (state is FarmStateSuccess) {
+        // Clear the saved GeoJSON after successful creation
+        context.read<FarmStateCubit>().clearFarmGeoJson();
+
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Farm created successfully!'),
+            duration: Duration(seconds: 2),
+            backgroundColor: ColorUtils.successColor,
+          ),
+        );
+
+        Future.delayed(const Duration(seconds: 2), () {
+          // Navigate back or to farm list
+          if (mounted) {
+            context.pop();
+          }
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to create farm: $e'),
+          duration: Duration(seconds: 3),
+          backgroundColor: ColorUtils.failureColor,
+        ),
+      );
+    }
   }
 }

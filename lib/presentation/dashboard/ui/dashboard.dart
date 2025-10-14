@@ -19,6 +19,7 @@ class Dashboard extends StatelessWidget {
                 openSideBar: () {
                   Scaffold.of(context).openDrawer();
                 },
+                hasAction: false,
               )
             ],
           ),
