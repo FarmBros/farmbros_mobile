@@ -12,6 +12,7 @@ import 'package:farmbros_mobile/presentation/farm-profile/farm_profile.dart';
 import 'package:farmbros_mobile/presentation/farms/farms.dart';
 import 'package:farmbros_mobile/presentation/forgot-password/forgot_password.dart';
 import 'package:farmbros_mobile/presentation/map/farmbros_map.dart';
+import 'package:farmbros_mobile/presentation/plots/plots.dart';
 import 'package:farmbros_mobile/presentation/sign-in/sign_in.dart';
 import 'package:farmbros_mobile/presentation/sign-up/sign_up.dart';
 import 'package:farmbros_mobile/presentation/verify-email/verify_email.dart';
@@ -52,9 +53,12 @@ GoRouter createRouter(BuildContext context) {
                 path: Routes.farmProfile,
                 builder: (context, state) {
                   final farmId = state.pathParameters['farm_id'];
+                  final extra = state.extra as Map<String, dynamic>?;
+                  final coordinates = extra?['coordinates'];
                   return FarmProfile(farmId: farmId!);
                 })
           ]),
+      GoRoute(path: Routes.plots, builder: (context, state) => const Plots()),
       GoRoute(
           path: Routes.farmLogger,
           builder: (context, state) => const FarmLogger()),

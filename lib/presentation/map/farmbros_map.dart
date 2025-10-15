@@ -455,7 +455,7 @@ class _FarmbrosMapState extends State<FarmbrosMap> {
       // Navigate back to create farm page
       context.pop();
     } else {
-      // For plots/structures, convert all to GeoJSON format
+      // For plots.dart/structures, convert all to GeoJSON format
       List<Map<String, dynamic>> structuresGeoJSON = [];
 
       _structures.forEach((key, points) {
@@ -468,7 +468,7 @@ class _FarmbrosMapState extends State<FarmbrosMap> {
       logger.i("Structures to save (GeoJSON format):");
       logger.i(json.encode(structuresGeoJSON));
 
-      // TODO: Send to backend for plots/structures
+      // TODO: Send to backend for plots.dart/structures
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

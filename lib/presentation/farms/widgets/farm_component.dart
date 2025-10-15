@@ -60,7 +60,7 @@ class FarmComponent extends StatelessWidget {
                           ),
                           SizedBox(width: 4),
                           Text(
-                             "Area ${double.parse(farm["area_sqm"].toString()).floor().toString()} (Sq km)",
+                            "Area ${double.parse(farm["area_sqm"].toString()).floor().toString()} (Sq km)",
                             style: TextStyle(
                               fontSize: 14,
                               color: ColorUtils.inActiveColor,
@@ -76,7 +76,8 @@ class FarmComponent extends StatelessWidget {
             SizedBox(height: 16),
             GestureDetector(
               onTap: () {
-                context.go("${Routes.farms}/${farm['uuid']}");
+                context.go("${Routes.farms}/${farm['uuid']}",
+                    extra: {"coordinates": farm["boundary"]["coordinates"]});
               },
               child: Container(
                 width: double.infinity,

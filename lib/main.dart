@@ -6,7 +6,9 @@ import 'package:farmbros_mobile/common/bloc/serverStatus/server_status_state_cub
 import 'package:farmbros_mobile/common/bloc/session/session_state_cubit.dart';
 import 'package:farmbros_mobile/common/widgets/farmbros_loader.dart';
 import 'package:farmbros_mobile/common/widgets/server_down_overlay.dart';
+import 'package:farmbros_mobile/domain/usecases/fetch_farms_use_case.dart';
 import 'package:farmbros_mobile/domain/usecases/server_status_usecase.dart';
+import 'package:farmbros_mobile/presentation/farms/farms.dart';
 import 'package:farmbros_mobile/routing/router.dart';
 import 'package:farmbros_mobile/service_locator.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +42,11 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => CombinedFormCubit()),
         BlocProvider(create: (_) => SessionCubit()),
         BlocProvider(create: (_) => OnboardingStateCubit()),
-        BlocProvider(create: (_) => FarmStateCubit()),
+        BlocProvider(
+          create: (context) =>
+              sl<FarmStateCubit>()..fetch(sl<FetchFarmsUsecase>()),
+          child: Farms(),
+        ),
         BlocProvider(
           create: (_) {
             final cubit = ServerStatusStateCubit();

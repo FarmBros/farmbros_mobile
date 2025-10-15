@@ -1,6 +1,7 @@
 import 'package:farmbros_mobile/common/bloc/farm/farm_state.dart';
 import 'package:farmbros_mobile/common/bloc/farm/farm_state_cubit.dart';
 import 'package:farmbros_mobile/common/widgets/farmbros_appbar.dart';
+import 'package:farmbros_mobile/common/widgets/farmbros_loading_state.dart';
 import 'package:farmbros_mobile/common/widgets/farmbros_navigation.dart';
 import 'package:farmbros_mobile/common/widgets/farmbros_search_bar.dart';
 import 'package:farmbros_mobile/core/configs/Utils/color_utils.dart';
@@ -32,11 +33,19 @@ class _FarmsState extends State<Farms> with SingleTickerProviderStateMixin {
 
   Logger logger = Logger();
 
+  Future<void> _onRefresh() async {
+    await context.read<FarmStateCubit>().fetch(sl<FetchFarmsUsecase>());
+  }
+
   @override
   void initState() {
     super.initState();
     _searchController = TextEditingController();
     _farmTabController = TabController(length: 2, vsync: this);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<FarmStateCubit>().fetch(sl<FetchFarmsUsecase>());
+    });
   }
 
   @override
@@ -48,123 +57,178 @@ class _FarmsState extends State<Farms> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => sl<FarmStateCubit>()..fetch(sl<FetchFarmsUsecase>()),
-      child: Scaffold(
-        backgroundColor: ColorUtils.lightBackgroundColor,
-        body: BlocBuilder<FarmStateCubit, FarmState>(
-            builder: (BuildContext context, state) {
-          return Column(
-            spacing: 5,
-            children: [
-              Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  FarmbrosAppbar(
-                    icon: FluentIcons.re_order_16_regular,
-                    appBarTitle: "farms",
-                    openSideBar: () {
-                      Scaffold.of(context).openDrawer();
-                    },
-                    hasAction: false,
-                  ),
-                  Positioned(
-                      top: 100,
-                      left: 20,
-                      right: 20,
-                      child: FarmbrosSearchBar(
-                        searchQuery: _searchController,
-                        searchResults: [],
-                        hintText: "Enter Farm Name",
-                      ))
-                ],
-              ),
-              Gap(60),
-              if (state is FarmStateSuccess)
-                Expanded(
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(left: 20, right: 20),
-                        child: TabBar(
-                          indicatorColor: ColorUtils.secondaryColor,
-                          unselectedLabelColor: ColorUtils.inActiveColor,
-                          labelColor: ColorUtils.secondaryColor,
-                          dividerColor: Colors.transparent,
-                          indicatorSize: TabBarIndicatorSize.tab,
-                          controller: _farmTabController,
-                          tabs: [
-                            Tab(
-                              child: Row(
-                                spacing: 5,
-                                children: [
-                                  Icon(FluentIcons.leaf_three_20_regular),
-                                  Text("My farms")
-                                ],
-                              ),
-                            ),
-                            Tab(
-                              child: Row(
-                                spacing: 5,
-                                children: [
-                                  Icon(FluentIcons.sparkle_24_regular),
-                                  Text("Browse farms")
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      // Wrap TabBarView with Expanded to give it remaining height
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.only(
-                              left: 20, right: 20, bottom: 20),
-                          child: TabBarView(
-                            controller: _farmTabController,
+    return BlocBuilder<FarmStateCubit, FarmState>(
+        builder: (BuildContext context, state) {
+      if (state is FarmStateLoading) {
+        return FarmBrosLoadingState();
+      } else if (state is FarmStateSuccess) {
+        final farms = state.farms ?? [];
+
+        return Scaffold(
+          backgroundColor: ColorUtils.lightBackgroundColor,
+          body: Builder(
+            builder: (context) {
+              return RefreshIndicator(
+                onRefresh: _onRefresh,
+                child: CustomScrollView(
+                  slivers: [
+                    SliverToBoxAdapter(
+                      child: Column(
+                        children: [
+                          Stack(
+                            clipBehavior: Clip.none,
                             children: [
-                              MyFarmsTab(farms: state.farms!),
-                              // Pass the actual farms data
-                              BrowseFarms()
+                              FarmbrosAppbar(
+                                icon: FluentIcons.re_order_16_regular,
+                                appBarTitle: "farms",
+                                openSideBar: () {
+                                  Scaffold.of(context).openDrawer();
+                                },
+                                hasAction: false,
+                              ),
+                              Positioned(
+                                top: 100,
+                                left: 20,
+                                right: 20,
+                                child: FarmbrosSearchBar(
+                                  searchQuery: _searchController,
+                                  searchResults: [],
+                                  hintText: "Enter Farm Name",
+                                ),
+                              )
                             ],
                           ),
-                        ),
+                          Gap(60),
+                        ],
                       ),
-                    ],
-                  ),
-                )
-            ],
-          );
-        }),
-        floatingActionButton: SizedBox(
-          width: 130,
-          child: ElevatedButton(
+                    ),
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(
+                                top: 20, left: 20, right: 20),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Icon(FluentIcons.leaf_three_20_regular),
+                                Gap(5),
+                                Text("My farms"),
+                              ],
+                            ),
+                          ),
+                          Gap(10),
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              left: 20,
+                              right: 20,
+                              bottom: 20,
+                            ),
+                            child: MyFarmsTab(farms: farms),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+          ),
+          floatingActionButton: SizedBox(
+            width: 130,
+            child: ElevatedButton(
               style: ButtonStyle(
-                  backgroundColor:
-                      WidgetStatePropertyAll(ColorUtils.secondaryColor),
-                  shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)))),
+                backgroundColor:
+                    WidgetStatePropertyAll(ColorUtils.secondaryColor),
+                shape: WidgetStatePropertyAll(
+                  RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                ),
+              ),
               onPressed: () {
                 context.go("${Routes.farms}${Routes.createFarm}");
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                spacing: 5,
                 children: [
                   Text(
                     "Add Farm",
                     style:
                         TextStyle(color: ColorUtils.secondaryBackgroundColor),
                   ),
+                  Gap(5),
                   Icon(
                     FluentIcons.add_24_regular,
                     color: ColorUtils.secondaryBackgroundColor,
                   ),
                 ],
-              )),
-        ),
-        drawer: FarmbrosNavigation(),
-      ),
-    );
+              ),
+            ),
+          ),
+          drawer: FarmbrosNavigation(),
+        );
+      } else if (state is FarmStateError) {
+        // Handle error state
+        return RefreshIndicator(
+          onRefresh: _onRefresh,
+          child: CustomScrollView(
+            slivers: [
+              SliverToBoxAdapter(
+                child: Column(
+                  children: [
+                    FarmbrosAppbar(
+                      icon: FluentIcons.re_order_16_regular,
+                      appBarTitle: "farms",
+                      openSideBar: () {
+                        Scaffold.of(context).openDrawer();
+                      },
+                      hasAction: false,
+                    ),
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.7,
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              FluentIcons.error_circle_24_regular,
+                              size: 64,
+                              color: Colors.red,
+                            ),
+                            Gap(16),
+                            Text(
+                              "Error loading farms",
+                              style: TextStyle(fontSize: 18),
+                            ),
+                            Gap(8),
+                            Text(
+                              "Something went wrong",
+                              textAlign: TextAlign.center,
+                            ),
+                            Gap(16),
+                            ElevatedButton(
+                              onPressed: () {
+                                context
+                                    .read<FarmStateCubit>()
+                                    .fetch(sl<FetchFarmsUsecase>());
+                              },
+                              child: Text("Retry"),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      } else {
+        // Initial state or unknown state - show loading
+        return FarmBrosLoadingState();
+      }
+    });
   }
 }
