@@ -31,7 +31,7 @@ class PlotComponent extends StatelessWidget {
             width: 40,
             height: 40,
             child: Material(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(5),
               elevation: 0,
               color: structure.color.withOpacity(0.3),
               child: Icon(

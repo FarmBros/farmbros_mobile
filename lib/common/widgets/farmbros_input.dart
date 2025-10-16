@@ -10,14 +10,31 @@ class FarmbrosInput extends StatelessWidget {
   final bool isPassword;
   final TextEditingController controller;
   final bool isTextArea;
+  final bool isDropDownField;
+  final IconData? suffixIcon;
+  final List<String>? dropDownItems;
+  final ValueNotifier<String?>? dropdownController;
+  final String? dropdownHint;
+  final Function(String?)? onDropdownChanged;
 
-  const FarmbrosInput(
-      {super.key,
-      required this.label,
-      required this.icon,
-      required this.isPassword,
-      required this.controller,
-      required this.isTextArea});
+  const FarmbrosInput({
+    super.key,
+    required this.label,
+    required this.icon,
+    required this.isPassword,
+    required this.controller,
+    this.isTextArea = false,
+    this.isDropDownField = false,
+    this.suffixIcon,
+    this.dropDownItems,
+    this.dropdownController,
+    this.dropdownHint,
+    this.onDropdownChanged,
+  }) : assert(
+          !isDropDownField ||
+              (dropDownItems != null && dropdownController != null),
+          'dropDownItems and dropdownController are required when isDropDownField is true',
+        );
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +57,88 @@ class FarmbrosInput extends StatelessWidget {
           iconColor = ColorUtils.failureColor;
         }
 
+        // Render dropdown if isDropDownField is true
+        if (isDropDownField) {
+          return SizedBox(
+            width: double.infinity,
+            child: ValueListenableBuilder<String?>(
+              valueListenable: dropdownController!,
+              builder: (context, selectedValue, child) {
+                return DropdownButtonFormField<String>(
+                  value: selectedValue,
+                  isExpanded: true,
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: fillColor,
+                    labelText: label,
+                    labelStyle: TextStyle(
+                      fontSize: 14,
+                      color: isEnabled
+                          ? ColorUtils.secondaryTextColor
+                          : Colors.grey,
+                    ),
+                    prefixIcon: Icon(icon, color: iconColor),
+                    suffixIcon: suffixIcon != null
+                        ? Icon(suffixIcon, color: iconColor)
+                        : null,
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: borderColor, width: 1.5),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: state is FormErrorState && selectedValue == null
+                            ? ColorUtils.failureColor
+                            : ColorUtils.secondaryColor,
+                        width: 2,
+                      ),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: ColorUtils.failureColor,
+                        width: 1.5,
+                      ),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: ColorUtils.failureColor,
+                        width: 2,
+                      ),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    disabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.grey, width: 1.5),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide(color: borderColor, width: 1.5),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  hint: dropdownHint != null ? Text(dropdownHint!) : null,
+                  items: dropDownItems!.map((String item) {
+                    return DropdownMenuItem<String>(
+                      value: item,
+                      child: Text(item),
+                    );
+                  }).toList(),
+                  onChanged: isEnabled
+                      ? (String? newValue) {
+                          dropdownController!.value = newValue;
+                          if (onDropdownChanged != null) {
+                            onDropdownChanged!(newValue);
+                          }
+                        }
+                      : null,
+                );
+              },
+            ),
+          );
+        }
+
+        // Render regular TextField
         return SizedBox(
           width: double.infinity,
           child: TextField(
@@ -49,7 +148,6 @@ class FarmbrosInput extends StatelessWidget {
             maxLines: isTextArea ? 3 : 1,
             decoration: InputDecoration(
               alignLabelWithHint: true,
-              
               filled: true,
               fillColor: fillColor,
               labelText: label,
@@ -58,8 +156,11 @@ class FarmbrosInput extends StatelessWidget {
                 color: isEnabled ? ColorUtils.secondaryTextColor : Colors.grey,
               ),
               prefixIcon: Icon(icon, color: iconColor),
-              suffixIcon:
-                  isPassword ? Icon(Icons.visibility, color: iconColor) : null,
+              suffixIcon: isPassword
+                  ? Icon(Icons.visibility, color: iconColor)
+                  : (suffixIcon != null
+                      ? Icon(suffixIcon, color: iconColor)
+                      : null),
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: borderColor, width: 1.5),
                 borderRadius: BorderRadius.circular(8),

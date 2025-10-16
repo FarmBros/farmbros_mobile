@@ -60,3 +60,38 @@ enum StructureType {
   const StructureType(
       this.displayName, this.description, this.color, this.icon);
 }
+
+enum SummaryStripType {
+  activePlots("Active Plots", Colors.green, FluentIcons.live_24_regular),
+  inActivePlots(
+      "In-active Plots", Colors.orange, FluentIcons.open_off_24_regular),
+  riskPlots("Risk Plots", Colors.purple, FluentIcons.warning_24_regular);
+
+  final String stripText;
+  final Color stripColor;
+  final IconData stripIcon;
+
+  const SummaryStripType(this.stripText, this.stripColor, this.stripIcon);
+}
+
+enum CreatePlotInputType {
+  plotName("Plot Name", FluentIcons.location_24_filled, false, false, false),
+  plotNumber("Plot Number", FluentIcons.number_circle_0_24_regular, false,
+      false, false),
+  notes("Plot Notes", FluentIcons.note_24_regular, false, true, false),
+  plotType("Plot Type", FluentIcons.grid_24_filled, false, false, true);
+
+  final String inputLabel;
+  final IconData inputIcon;
+  final bool isPassword;
+  final bool isTextArea;
+  final bool isDropDownField;
+
+  const CreatePlotInputType(
+    this.inputLabel,
+    this.inputIcon,
+    this.isPassword,
+    this.isTextArea,
+    this.isDropDownField,
+  );
+}

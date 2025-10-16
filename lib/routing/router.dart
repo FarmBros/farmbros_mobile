@@ -6,6 +6,7 @@ import 'package:farmbros_mobile/common/bloc/session/session_state_cubit.dart';
 import 'package:farmbros_mobile/core/configs/Helpers/go_stream.dart';
 import 'package:farmbros_mobile/presentation/Onboarding/onboarding_controller.dart';
 import 'package:farmbros_mobile/presentation/create-farm/create_farm.dart';
+import 'package:farmbros_mobile/presentation/create-plot/create_plot.dart';
 import 'package:farmbros_mobile/presentation/dashboard/ui/dashboard.dart';
 import 'package:farmbros_mobile/presentation/farm-logger/farm_logger.dart';
 import 'package:farmbros_mobile/presentation/farm-profile/farm_profile.dart';
@@ -58,7 +59,20 @@ GoRouter createRouter(BuildContext context) {
                   return FarmProfile(farmId: farmId!);
                 })
           ]),
-      GoRoute(path: Routes.plots, builder: (context, state) => const Plots()),
+      GoRoute(
+          path: Routes.plots,
+          builder: (context, state) => const Plots(),
+          routes: [
+            GoRoute(
+                path: Routes.createPlot,
+                builder: (context, state) => const CreatePlot(),
+                routes: [
+                  GoRoute(
+                      path: Routes.map,
+                      name: "/plots/create_plot/map",
+                      builder: (context, state) => const FarmbrosMap())
+                ])
+          ]),
       GoRoute(
           path: Routes.farmLogger,
           builder: (context, state) => const FarmLogger()),
@@ -105,7 +119,9 @@ GoRouter createRouter(BuildContext context) {
         Routes.farms,
         Routes.createFarm,
         Routes.farmProfile,
-        Routes.farmLogger
+        Routes.farmLogger,
+        Routes.plots,
+        Routes.createPlot
         // add others here if you want them locked
       };
 
