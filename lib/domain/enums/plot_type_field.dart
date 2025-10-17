@@ -1,80 +1,84 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 
+enum FieldValueType { string, integer }
+
 enum PlotTypeField {
   // Field plot type fields
   soilType("Soil Type", FluentIcons.weather_partly_cloudy_day_24_filled, false,
-      false, false),
-  irrigationSystem(
-      "Irrigation System", FluentIcons.water_24_filled, false, false, false),
+      false, false, FieldValueType.string),
+  irrigationSystem("Irrigation System", FluentIcons.water_24_filled, false,
+      false, false, FieldValueType.string),
 
-  // Barn plot type fields
-  structureType(
-      "Structure Type", FluentIcons.building_24_filled, false, false, false),
+// Barn plot type fields
+  structureType("Structure Type", FluentIcons.building_24_filled, false, false,
+      false, FieldValueType.string),
 
-  // Pasture plot type fields
-  status("Status", FluentIcons.status_24_filled, false, false, false),
+// Pasture plot type fields
+  status("Status", FluentIcons.status_24_filled, false, false, false,
+      FieldValueType.string),
 
-  // Greenhouse plot type fields
+// Greenhouse plot type fields
   greenhouseType("Greenhouse Type", FluentIcons.plant_cattail_24_regular, false,
-      false, false),
+      false, false, FieldValueType.string),
 
-  // Chicken pen plot type fields
+// Chicken pen plot type fields
   chickenCapacity("Chicken Capacity", FluentIcons.number_symbol_24_filled,
-      false, false, false),
-  coopType(
-      "Coop Type", FluentIcons.building_home_24_filled, false, false, false),
-  nestingBoxes("Nesting Boxes", FluentIcons.box_24_filled, false, false, false),
-  runAreaCovered(
-      "Run Area Covered", FluentIcons.ruler_24_filled, false, false, false),
+      false, false, false, FieldValueType.integer),
+  coopType("Coop Type", FluentIcons.building_home_24_filled, false, false,
+      false, FieldValueType.string),
+  nestingBoxes("Nesting Boxes", FluentIcons.box_24_filled, false, false, false,
+      FieldValueType.integer),
+  runAreaCovered("Run Area Covered", FluentIcons.ruler_24_filled, false, false,
+      false, FieldValueType.string),
 
-  // Cow shed plot type fields
-  cowCapacity(
-      "Cow Capacity", FluentIcons.number_symbol_24_filled, false, false, false),
-  milkingSystem(
-      "Milking System", FluentIcons.beaker_24_filled, false, false, false),
-  beddingType("Bedding Type", FluentIcons.bed_24_filled, false, false, false),
-  wasteManagement(
-      "Waste Management", FluentIcons.delete_24_filled, false, false, false),
+// Cow shed plot type fields
+  cowCapacity("Cow Capacity", FluentIcons.number_symbol_24_filled, false, false,
+      false, FieldValueType.integer),
+  milkingSystem("Milking System", FluentIcons.beaker_24_filled, false, false,
+      false, FieldValueType.string),
+  beddingType("Bedding Type", FluentIcons.bed_24_filled, false, false, false,
+      FieldValueType.string),
+  wasteManagement("Waste Management", FluentIcons.delete_24_filled, false,
+      false, false, FieldValueType.string),
 
-  // Fish pond plot type fields
-  pondDepth(
-      "Pond Depth", FluentIcons.arrow_down_24_filled, false, false, false),
-  filtrationSystem(
-      "Filtration System", FluentIcons.filter_24_filled, false, false, false),
+// Fish pond plot type fields
+  pondDepth("Pond Depth", FluentIcons.arrow_down_24_filled, false, false, false,
+      FieldValueType.integer),
+  filtrationSystem("Filtration System", FluentIcons.filter_24_filled, false,
+      false, false, FieldValueType.string),
   aerationSystem("Aeration System", FluentIcons.weather_blowing_snow_24_filled,
-      false, false, false),
+      false, false, false, FieldValueType.string),
 
-  // Residence plot type fields
-  buildingType(
-      "Building Type", FluentIcons.home_24_filled, false, false, false),
+// Residence plot type fields
+  buildingType("Building Type", FluentIcons.home_24_filled, false, false, false,
+      FieldValueType.string),
 
-  // Natural area plot type fields
-  ecosystemType(
-      "Ecosystem Type", FluentIcons.leaf_two_48_regular, false, false, false),
+// Natural area plot type fields
+  ecosystemType("Ecosystem Type", FluentIcons.leaf_two_48_regular, false, false,
+      false, FieldValueType.string),
 
-  // Water source plot type fields
-  sourceType("Source Type", FluentIcons.water_24_filled, false, false, false),
-  depth("Depth", FluentIcons.arrow_down_24_filled, false, false, false),
+// Water source plot type fields
+  sourceType("Source Type", FluentIcons.water_24_filled, false, false, false,
+      FieldValueType.string),
+  depth("Depth", FluentIcons.arrow_down_24_filled, false, false, false,
+      FieldValueType.integer),
 
-  // Shared fields
-  feedingSystem(
-      "Feeding System", FluentIcons.food_24_filled, false, false, false),
-  notes("Notes", FluentIcons.note_24_filled, false, true, false);
+// Shared fields
+  feedingSystem("Feeding System", FluentIcons.food_24_filled, false, false,
+      false, FieldValueType.string),
+  notes("Notes", FluentIcons.note_24_filled, false, true, false,
+      FieldValueType.string);
 
   final String label;
   final IconData icon;
   final bool isPassword;
   final bool isTextArea;
   final bool isDropDownField;
+  final FieldValueType valueType;
 
-  const PlotTypeField(
-    this.label,
-    this.icon,
-    this.isPassword,
-    this.isTextArea,
-    this.isDropDownField,
-  );
+  const PlotTypeField(this.label, this.icon, this.isPassword, this.isTextArea,
+      this.isDropDownField, this.valueType);
 
   // Convert to API-compatible field name
   String toApiFieldName() {

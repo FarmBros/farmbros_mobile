@@ -8,20 +8,26 @@ class StructureSelector extends StatelessWidget {
   final Function onPressed;
   final Function startDrawing;
   final bool isCreatingFarm;
+  final bool isCreatingPlot;
 
   const StructureSelector(
       {super.key,
       required this.onPressed,
       required this.startDrawing,
-      required this.isCreatingFarm});
+      required this.isCreatingFarm,
+      required this.isCreatingPlot});
 
   @override
   Widget build(BuildContext context) {
     final logger = Logger();
 
     final List<StructureType> availableStructures = isCreatingFarm
-        ? [StructureType.farm] // Only farm option
-        : StructureType.values.toList(); // All options
+        ? [StructureType.farm]
+        : isCreatingPlot
+            ? StructureType.values
+                .where((structure) => structure != StructureType.farm)
+                .toList()
+            : StructureType.values;
 
     return Material(
       elevation: 4,

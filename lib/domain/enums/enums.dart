@@ -17,10 +17,10 @@ enum StructureType {
       'A green house is a structure on your farm that you use to grow crops/plants under. It is located anywhere on the farm',
       Colors.green,
       Icons.home_outlined),
-  cowShed(
+  cowshed(
       'Cow Shed',
       'A cow shed is a structure on your farm that is used to store your cows or produces. It is denoted by this symbol.',
-      Colors.red,
+      Colors.brown,
       Icons.warehouse_outlined),
   barn(
       'Barn/Store/Structure',
@@ -30,19 +30,19 @@ enum StructureType {
   pasture(
       'Pasture',
       'A pasture is a structure on your farm that is used to store your animals or produces. It is denoted by this symbol. The color can be customized for different crops/animals',
-      Colors.red,
+      Colors.lightGreenAccent,
       Icons.grass_outlined),
-  chickenPen(
+  chickenpen(
       'Chicken Pen',
       'A chicken pen is a structure for housing poultry. It is located anywhere on the farm',
       Colors.orange,
       Icons.egg_outlined),
-  waterSource(
+  watersource(
       'Water Source',
       'Water sources like ponds, wells, or irrigation systems on your farm',
       Colors.blue,
       Icons.water_drop_outlined),
-  fishPond(
+  fishpond(
       'Fish Pond',
       'A fish pond is an artificial water body you setup to breed fish for consumption/sale',
       Colors.cyan,
@@ -60,6 +60,26 @@ enum StructureType {
   const StructureType(
       this.displayName, this.description, this.color, this.icon);
 }
+
+extension StructureTypeParser on String {
+  StructureType toStructureType() {
+    switch (this) {
+      case 'farm': return StructureType.farm;
+      case 'field': return StructureType.field;
+      case 'greenhouse': return StructureType.greenhouse;
+      case 'barn': return StructureType.barn;
+      case 'pasture': return StructureType.pasture;
+      case 'cow-shed': return StructureType.cowshed;
+      case 'residence': return StructureType.residence;
+      case 'chicken-pen': return StructureType.chickenpen;
+      case 'water-source': return StructureType.watersource;
+      case 'fishpond': return StructureType.fishpond;
+      case 'naturalArea': return StructureType.naturalArea;
+      default: return StructureType.field; // fallback
+    }
+  }
+}
+
 
 enum SummaryStripType {
   activePlots("Active Plots", Colors.green, FluentIcons.live_24_regular),

@@ -27,8 +27,6 @@ class FarmApiServiceImpl extends FarmApiService {
 
       final responseData = response.data;
 
-      logger.log(Level.info, responseData);
-
       if (responseData["status"] == "success") {
         return Right(responseData);
       } else {
@@ -52,8 +50,6 @@ class FarmApiServiceImpl extends FarmApiService {
       var response = await sl<DioClient>().post(AppUtils.$getMyFarms);
 
       final responseData = response.data;
-
-      logger.log(Level.info, responseData);
 
       if (responseData["status"] == "success") {
         return Right(responseData);
@@ -80,8 +76,6 @@ class FarmApiServiceImpl extends FarmApiService {
           .post(AppUtils.$getFarm, data: fetchFarmDetailsParams.toJson());
 
       final responseData = response.data;
-
-      logger.log(Level.info, responseData);
 
       if (responseData["status"] == "success") {
         return Right(responseData);

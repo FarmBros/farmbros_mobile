@@ -10,4 +10,9 @@ class AppUtils {
   static const String $saveFarm = "${$baseUrl}/farms/create";
   static const String $getMyFarms = "${$baseUrl}/farms/get_user_farms";
   static const String $getFarm = "${$baseUrl}/farms/get_farm";
+
+  // plot routes
+  static const String $savePlot = "${$baseUrl}/plots/create";
+  static const String $getPlot = "${$baseUrl}/plots/get_plot";
+  static const String $getFarmPlots = "${$baseUrl}/plots/get_plots_by_farm";
 }

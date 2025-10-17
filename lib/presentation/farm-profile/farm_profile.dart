@@ -121,13 +121,6 @@ class _FarmProfileState extends State<FarmProfile> {
 
             logger.log(Level.info, farm);
 
-            // Load boundary when farm data is available
-            if (farm['boundary'] != null) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                _loadFarmBoundary(farm['boundary'], widget.farmId);
-              });
-            }
-
             return SingleChildScrollView(
               child: Column(
                 children: [
@@ -326,7 +319,7 @@ class _FarmProfileState extends State<FarmProfile> {
                                       farm["centroid"]["coordinates"][1],
                                       farm["centroid"]["coordinates"][0],
                                     ),
-                                    zoom: 17.25,
+                                    zoom: 50,
                                   ),
                                   polygons: _polygons,
                                   mapType: MapType.hybrid,

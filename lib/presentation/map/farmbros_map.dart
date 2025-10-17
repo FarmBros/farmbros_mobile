@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:farmbros_mobile/common/bloc/farm/farm_state_cubit.dart';
 import 'package:farmbros_mobile/common/bloc/farm_bros_map/farm_bros_state_cubit.dart';
+import 'package:farmbros_mobile/common/bloc/plot/plot_state_cubit.dart';
 import 'package:farmbros_mobile/common/widgets/farmbros_appbar.dart';
 import 'package:farmbros_mobile/core/configs/Utils/color_utils.dart';
 import 'package:farmbros_mobile/data/models/farm_details_params.dart';
@@ -58,6 +59,66 @@ class _FarmbrosMapState extends State<FarmbrosMap> {
     zoom: 10.0,
   );
 
+  void _loadFarmBoundary(Map<String, dynamic> boundary, String farmId) {
+    if (boundary['type'] != 'Polygon' || boundary['coordinates'] == null) {
+      return;
+    }
+
+    // Extract coordinates from GeoJSON format [[[lng, lat], [lng, lat], ...]]
+    List<dynamic> coordinatesArray = boundary['coordinates'][0];
+
+    // Convert to List<LatLng> - NOTE: GeoJSON is [lng, lat] but LatLng is (lat, lng)
+    List<LatLng> polygonPoints = coordinatesArray.map((coord) {
+      double longitude = coord[0].toDouble();
+      double latitude = coord[1].toDouble();
+      return LatLng(latitude, longitude); // Swap order!
+    }).toList();
+
+    setState(() {
+      _polygons.clear();
+      _polygons.add(
+        Polygon(
+          polygonId: PolygonId('farm_$farmId'),
+          points: polygonPoints,
+          strokeColor: ColorUtils.successColor,
+          strokeWidth: 3,
+          fillColor: ColorUtils.successColor.withOpacity(0.2),
+          geodesic: true,
+        ),
+      );
+    });
+
+    // Center camera on the farm boundary
+    if (polygonPoints.isNotEmpty && _mapController != null) {
+      _centerMapOnPolygon(polygonPoints);
+    }
+  }
+
+  void _centerMapOnPolygon(List<LatLng> points) {
+    if (points.isEmpty) return;
+
+    double minLat = points.first.latitude;
+    double maxLat = points.first.latitude;
+    double minLng = points.first.longitude;
+    double maxLng = points.first.longitude;
+
+    for (var point in points) {
+      if (point.latitude < minLat) minLat = point.latitude;
+      if (point.latitude > maxLat) maxLat = point.latitude;
+      if (point.longitude < minLng) minLng = point.longitude;
+      if (point.longitude > maxLng) maxLng = point.longitude;
+    }
+
+    LatLngBounds bounds = LatLngBounds(
+      southwest: LatLng(minLat, minLng),
+      northeast: LatLng(maxLat, maxLng),
+    );
+
+    _mapController?.animateCamera(
+      CameraUpdate.newLatLngBounds(bounds, 50),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -74,13 +135,29 @@ class _FarmbrosMapState extends State<FarmbrosMap> {
     final bool isCreatingFarm =
         currentPath?.name?.contains('/farms/create_farm/map') ?? false;
 
+    final bool isCreatingPlot =
+        currentPath?.name?.contains('/plots/create_plot/map') ?? false;
+
+    final extra = GoRouterState.of(context).extra as Map<String, dynamic>?;
+
+    logger.log(Level.info, currentPath!.name);
+
     return Scaffold(
       body: Stack(
         children: [
           // Google Map
           GoogleMap(
             initialCameraPosition: _initialPosition,
-            onMapCreated: _onMapCreated,
+            onMapCreated: extra != null
+                ? (controller) {
+                    _mapController = controller;
+                    // Reload boundary after map is ready
+                    if (extra['farm_boundary'] != null) {
+                      _loadFarmBoundary(
+                          extra['farm_boundary'], extra["farm_id"]);
+                    }
+                  }
+                : _onMapCreated,
             onTap: _isDrawingMode ? _onTap : null,
             polygons: _polygons,
             markers: _markers,
@@ -123,6 +200,7 @@ class _FarmbrosMapState extends State<FarmbrosMap> {
                     });
                   },
                   isCreatingFarm: isCreatingFarm,
+                  isCreatingPlot: isCreatingPlot,
                   startDrawing: _startDrawing),
             ),
 
@@ -218,8 +296,14 @@ class _FarmbrosMapState extends State<FarmbrosMap> {
       return;
     }
 
+    final RouteSettings? currentPath = ModalRoute.of(context)!.settings;
+    final bool isCreatingFarm =
+        currentPath?.name?.contains('/farms/create_farm/map') ?? false;
+
     setState(() {
-      _polygons.clear();
+      if (isCreatingFarm) {
+        _polygons.clear();
+      }
 
       // Add all saved structures
       _structures.forEach((key, points) {
@@ -302,8 +386,14 @@ class _FarmbrosMapState extends State<FarmbrosMap> {
   }
 
   void _updateAllPolygons() {
+    final RouteSettings? currentPath = ModalRoute.of(context)!.settings;
+    final bool isCreatingFarm =
+        currentPath?.name?.contains('/farms/create_farm/map') ?? false;
+
     setState(() {
-      _polygons.clear();
+      if (isCreatingFarm) {
+        _polygons.clear();
+      }
       _structures.forEach((key, points) {
         final typeIndex = int.parse(key.split('_')[0]);
         final type = StructureType.values[typeIndex];
@@ -456,19 +546,18 @@ class _FarmbrosMapState extends State<FarmbrosMap> {
       context.pop();
     } else {
       // For plots.dart/structures, convert all to GeoJSON format
-      List<Map<String, dynamic>> structuresGeoJSON = [];
+      Map<String, dynamic> geoJSON = {};
 
       _structures.forEach((key, points) {
         final typeIndex = int.parse(key.split('_')[0]);
         final type = StructureType.values[typeIndex];
-        Map<String, dynamic> geoJSON = _convertToGeoJSON(points, type);
-        structuresGeoJSON.add(geoJSON);
+        geoJSON = _convertToGeoJSON(points, type);
       });
 
       logger.i("Structures to save (GeoJSON format):");
-      logger.i(json.encode(structuresGeoJSON));
+      logger.i(json.encode(geoJSON));
 
-      // TODO: Send to backend for plots.dart/structures
+      context.read<PlotStateCubit>().setPlotGeoJson(geoJSON);
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

@@ -14,5 +14,5 @@ class Routes {
   static const String farmProfile = '/:farm_id';
   static const String farmLogger = '/farm_logger';
   static const String plots = '/plots';
-  static const String createPlot = '/create_plot';
+  static const String createPlot = '/create_plot/:farm_id';
 }
