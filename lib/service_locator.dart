@@ -1,5 +1,6 @@
 import 'package:farmbros_mobile/common/bloc/farm/farm_state_cubit.dart';
 import 'package:farmbros_mobile/common/bloc/onboarding/onboarding_state_cubit.dart';
+import 'package:farmbros_mobile/common/bloc/plot/plot_profile_state_cubit.dart';
 import 'package:farmbros_mobile/common/bloc/plot/plot_state_cubit.dart';
 import 'package:farmbros_mobile/common/bloc/session/session_state_cubit.dart';
 import 'package:farmbros_mobile/core/network/dio_client.dart';
@@ -18,6 +19,7 @@ import 'package:farmbros_mobile/domain/repository/server_status_repository.dart'
 import 'package:farmbros_mobile/domain/usecases/fetch_farm_plots_use_case.dart';
 import 'package:farmbros_mobile/domain/usecases/fetch_farm_usecase.dart';
 import 'package:farmbros_mobile/domain/usecases/fetch_farms_use_case.dart';
+import 'package:farmbros_mobile/domain/usecases/plot_profile_use__case.dart';
 import 'package:farmbros_mobile/domain/usecases/save_farm_use_case.dart';
 import 'package:farmbros_mobile/domain/usecases/save_plot_use_case.dart';
 import 'package:farmbros_mobile/domain/usecases/server_status_usecase.dart';
@@ -36,6 +38,7 @@ void setupServiceLocator() {
   sl.registerLazySingleton<OnboardingStateCubit>(() => OnboardingStateCubit());
   sl.registerLazySingleton<FarmStateCubit>(() => FarmStateCubit());
   sl.registerLazySingleton<PlotStateCubit>(() => PlotStateCubit());
+  sl.registerLazySingleton<PlotProfileStateCubit>(() => PlotProfileStateCubit());
 
   // Services
   sl.registerSingleton<AuthApiService>(AuthApiServiceImpl());
@@ -75,5 +78,9 @@ void setupServiceLocator() {
 
   sl.registerSingleton<FetchFarmPlotsUsecase>(
     FetchFarmPlotsUsecase(),
+  );
+
+  sl.registerSingleton<PlotProfileUseCase>(
+    PlotProfileUseCase(sl<PlotApiService>()),
   );
 }

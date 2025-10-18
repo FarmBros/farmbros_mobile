@@ -1,7 +1,14 @@
+import 'package:farmbros_mobile/domain/enums/plot_type_enum.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 
 enum FieldValueType { string, integer }
+
+extension StringToPlotType on String {
+  PlotType? toPlotType() {
+    return PlotType.fromApiString(this);
+  }
+}
 
 enum PlotTypeField {
   // Field plot type fields

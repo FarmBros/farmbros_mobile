@@ -11,15 +11,15 @@ enum PlotType {
       FluentIcons.plant_grass_24_filled, Colors.green),
   greenhouse("Green House", "Greenhouse for controlled environment cultivation",
       FluentIcons.plant_cattail_24_regular, Colors.lightGreen),
-  chickenPen("Chicken Pen", "Chicken pen for poultry farming",
+  chickenpen("Chicken Pen", "Chicken pen for poultry farming",
       FluentIcons.food_egg_24_filled, Colors.orange),
-  cowShed("Cow Shed", "Cow shed for cattle housing",
+  cowshed("Cow Shed", "Cow shed for cattle housing",
       FluentIcons.building_home_24_filled, Colors.red),
-  fishPond("Fish Pond", "Fish pond for aquaculture",
+  fishpond("Fish Pond", "Fish pond for aquaculture",
       FluentIcons.food_fish_24_filled, Colors.blue),
   residence("Residence", "Residence for housing", FluentIcons.home_24_filled,
       Colors.deepOrange),
-  naturalArea("Natural Area", "Natural area for conservation",
+  naturalarea("Natural Area", "Natural area for conservation",
       FluentIcons.leaf_two_48_regular, Colors.teal),
   waterSource("Water Source", "Water source for wells, springs, etc.",
       FluentIcons.water_24_filled, Colors.lightBlue);
@@ -42,15 +42,15 @@ enum PlotType {
         return "pasture";
       case PlotType.greenhouse:
         return "green-house";
-      case PlotType.chickenPen:
+      case PlotType.chickenpen:
         return "chicken-pen";
-      case PlotType.cowShed:
+      case PlotType.cowshed:
         return "cow-shed";
-      case PlotType.fishPond:
+      case PlotType.fishpond:
         return "fish-pond";
       case PlotType.residence:
         return "residence";
-      case PlotType.naturalArea:
+      case PlotType.naturalarea:
         return "natural-area";
       case PlotType.waterSource:
         return "water-source";
@@ -69,15 +69,15 @@ enum PlotType {
       case "green-house":
         return PlotType.greenhouse;
       case "chicken-pen":
-        return PlotType.chickenPen;
+        return PlotType.chickenpen;
       case "cow-shed":
-        return PlotType.cowShed;
+        return PlotType.cowshed;
       case "fish-pond":
-        return PlotType.fishPond;
+        return PlotType.fishpond;
       case "residence":
         return PlotType.residence;
       case "natural-area":
-        return PlotType.naturalArea;
+        return PlotType.naturalarea;
       case "water-source":
         return PlotType.waterSource;
       default:
@@ -105,7 +105,7 @@ enum PlotType {
         return [
           PlotTypeField.greenhouseType,
         ];
-      case PlotType.chickenPen:
+      case PlotType.chickenpen:
         return [
           PlotTypeField.chickenCapacity,
           PlotTypeField.coopType,
@@ -113,7 +113,7 @@ enum PlotType {
           PlotTypeField.runAreaCovered,
           PlotTypeField.feedingSystem,
         ];
-      case PlotType.cowShed:
+      case PlotType.cowshed:
         return [
           PlotTypeField.cowCapacity,
           PlotTypeField.milkingSystem,
@@ -121,7 +121,7 @@ enum PlotType {
           PlotTypeField.beddingType,
           PlotTypeField.wasteManagement,
         ];
-      case PlotType.fishPond:
+      case PlotType.fishpond:
         return [
           PlotTypeField.pondDepth,
           PlotTypeField.filtrationSystem,
@@ -131,7 +131,7 @@ enum PlotType {
         return [
           PlotTypeField.buildingType,
         ];
-      case PlotType.naturalArea:
+      case PlotType.naturalarea:
         return [
           PlotTypeField.ecosystemType,
         ];

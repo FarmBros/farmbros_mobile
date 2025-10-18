@@ -13,6 +13,7 @@ import 'package:farmbros_mobile/presentation/farm-profile/farm_profile.dart';
 import 'package:farmbros_mobile/presentation/farms/farms.dart';
 import 'package:farmbros_mobile/presentation/forgot-password/forgot_password.dart';
 import 'package:farmbros_mobile/presentation/map/farmbros_map.dart';
+import 'package:farmbros_mobile/presentation/plot-profile/plot_profile.dart';
 import 'package:farmbros_mobile/presentation/plots/plots.dart';
 import 'package:farmbros_mobile/presentation/sign-in/sign_in.dart';
 import 'package:farmbros_mobile/presentation/sign-up/sign_up.dart';
@@ -71,7 +72,13 @@ GoRouter createRouter(BuildContext context) {
                       path: Routes.map,
                       name: "/plots/create_plot/map",
                       builder: (context, state) => const FarmbrosMap())
-                ])
+                ]),
+            GoRoute(
+                path: Routes.plotProfile,
+                builder: (context, state) {
+                  final plotId = state.pathParameters['plot_id'];
+                  return PlotProfile(plotId: plotId!);
+                })
           ]),
       GoRoute(
           path: Routes.farmLogger,
