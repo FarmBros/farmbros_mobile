@@ -1,5 +1,7 @@
 import 'package:farmbros_mobile/common/bloc/farm/farm_state.dart';
 import 'package:farmbros_mobile/common/bloc/farm/farm_state_cubit.dart';
+import 'package:farmbros_mobile/common/bloc/farm/farms_state.dart';
+import 'package:farmbros_mobile/common/bloc/farm/farms_state_cubit.dart';
 import 'package:farmbros_mobile/common/widgets/farmbros_appbar.dart';
 import 'package:farmbros_mobile/common/widgets/farmbros_loading_state.dart';
 import 'package:farmbros_mobile/common/widgets/farmbros_navigation.dart';
@@ -34,7 +36,7 @@ class _FarmsState extends State<Farms> with SingleTickerProviderStateMixin {
   Logger logger = Logger();
 
   Future<void> _onRefresh() async {
-    await context.read<FarmStateCubit>().fetch(sl<FetchFarmsUsecase>());
+    await context.read<FarmsStateCubit>().fetch(sl<FetchFarmsUsecase>());
   }
 
   @override
@@ -44,7 +46,7 @@ class _FarmsState extends State<Farms> with SingleTickerProviderStateMixin {
     _farmTabController = TabController(length: 2, vsync: this);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<FarmStateCubit>().fetch(sl<FetchFarmsUsecase>());
+      context.read<FarmsStateCubit>().fetch(sl<FetchFarmsUsecase>());
     });
   }
 
@@ -57,11 +59,11 @@ class _FarmsState extends State<Farms> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<FarmStateCubit, FarmState>(
+    return BlocBuilder<FarmsStateCubit, FarmsState>(
         builder: (BuildContext context, state) {
-      if (state is FarmStateLoading) {
+      if (state is FarmsStateLoading) {
         return FarmBrosLoadingState();
-      } else if (state is FarmStateSuccess) {
+      } else if (state is FarmsStateSuccess) {
         final farms = state.farms ?? [];
 
         return Scaffold(

@@ -1,4 +1,5 @@
 import 'package:farmbros_mobile/common/bloc/farm/farm_state_cubit.dart';
+import 'package:farmbros_mobile/common/bloc/farm/farms_state_cubit.dart';
 import 'package:farmbros_mobile/common/bloc/onboarding/onboarding_state_cubit.dart';
 import 'package:farmbros_mobile/common/bloc/plot/plot_profile_state_cubit.dart';
 import 'package:farmbros_mobile/common/bloc/plot/plot_state_cubit.dart';
@@ -36,6 +37,7 @@ void setupServiceLocator() {
   // blocs
   sl.registerLazySingleton<SessionCubit>(() => SessionCubit());
   sl.registerLazySingleton<OnboardingStateCubit>(() => OnboardingStateCubit());
+  sl.registerLazySingleton<FarmsStateCubit>(() => FarmsStateCubit());
   sl.registerLazySingleton<FarmStateCubit>(() => FarmStateCubit());
   sl.registerLazySingleton<PlotStateCubit>(() => PlotStateCubit());
   sl.registerLazySingleton<PlotProfileStateCubit>(() => PlotProfileStateCubit());

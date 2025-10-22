@@ -10,6 +10,7 @@ import 'package:logger/logger.dart';
 
 abstract class AuthApiService {
   Future<Either> signInRequest(SignInReqParams signInReqParams);
+
   Future<Either> signUpRequest(SignUpReqParams signUpReqParams);
 }
 
@@ -18,6 +19,9 @@ class AuthApiServiceImpl extends AuthApiService {
 
   @override
   Future<Either> signInRequest(SignInReqParams signInReqParams) async {
+    if (signInReqParams.username == "" || signInReqParams.password == "") {
+      return Left("All fields are required");
+    }
     try {
       var response = await sl<DioClient>()
           .post(AppUtils.$login, data: signInReqParams.toMap());
@@ -46,6 +50,16 @@ class AuthApiServiceImpl extends AuthApiService {
 
   @override
   Future<Either> signUpRequest(SignUpReqParams signUpReqParams) async {
+    if (signUpReqParams.email == "" ||
+        signUpReqParams.firstName == "" ||
+        signUpReqParams.lastName == "" ||
+        signUpReqParams.password == "" ||
+        signUpReqParams.phoneNumber == "" ||
+        signUpReqParams.username == "" ||
+        signUpReqParams.fullName == "") {
+      return Left("All fields are required");
+    }
+
     try {
       logger.log(Level.info, signUpReqParams.toMap());
       var signUpResponse = await sl<DioClient>()

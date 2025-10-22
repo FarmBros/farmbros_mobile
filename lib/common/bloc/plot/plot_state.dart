@@ -19,7 +19,7 @@ class PlotStateLoadGeoJSON extends PlotState {
 class PlotStateLoading extends PlotState {}
 
 class PlotStateSuccess extends PlotState {
-  final Map<String, dynamic>? data;
+  final data;
 
   PlotStateSuccess({this.data});
 }

@@ -51,7 +51,7 @@ enum PlotTypeField {
 
 // Fish pond plot type fields
   pondDepth("Pond Depth", FluentIcons.arrow_down_24_filled, false, false, false,
-      FieldValueType.integer),
+      FieldValueType.string),
   filtrationSystem("Filtration System", FluentIcons.filter_24_filled, false,
       false, false, FieldValueType.string),
   aerationSystem("Aeration System", FluentIcons.weather_blowing_snow_24_filled,
@@ -69,7 +69,7 @@ enum PlotTypeField {
   sourceType("Source Type", FluentIcons.water_24_filled, false, false, false,
       FieldValueType.string),
   depth("Depth", FluentIcons.arrow_down_24_filled, false, false, false,
-      FieldValueType.integer),
+      FieldValueType.string),
 
 // Shared fields
   feedingSystem("Feeding System", FluentIcons.food_24_filled, false, false,

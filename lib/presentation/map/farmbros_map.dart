@@ -143,125 +143,130 @@ class _FarmbrosMapState extends State<FarmbrosMap> {
     logger.log(Level.info, currentPath!.name);
 
     return Scaffold(
-      body: Stack(
-        children: [
-          // Google Map
-          GoogleMap(
-            initialCameraPosition: _initialPosition,
-            onMapCreated: extra != null
-                ? (controller) {
-                    _mapController = controller;
-                    // Reload boundary after map is ready
-                    if (extra['farm_boundary'] != null) {
-                      _loadFarmBoundary(
-                          extra['farm_boundary'], extra["farm_id"]);
+      body: SizedBox(
+        width: double.infinity,
+        height: MediaQuery.of(context).size.height,
+        child: Stack(
+          children: [
+            // Google Map
+            GoogleMap(
+              initialCameraPosition: _initialPosition,
+              onMapCreated: extra != null
+                  ? (controller) {
+                      _mapController = controller;
+                      // Reload boundary after map is ready
+                      if (extra['farm_boundary'] != null) {
+                        _loadFarmBoundary(
+                            extra['farm_boundary'], extra["farm_id"]);
+                      }
                     }
-                  }
-                : _onMapCreated,
-            onTap: _isDrawingMode ? _onTap : null,
-            polygons: _polygons,
-            markers: _markers,
-            mapType: _currentMapType,
-            myLocationEnabled: true,
-            myLocationButtonEnabled: false,
-            zoomControlsEnabled: false,
-            mapToolbarEnabled: false,
-          ),
-
-          Positioned(
-              top: 0,
-              left: 0,
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width,
-                child: FarmbrosAppbar(
-                  appBarTitle: isCreatingFarm
-                      ? "Map your Farm"
-                      : "Map your Plots & Structures",
-                  openSideBar: () {
-                    context.pop();
-                  },
-                  icon: FluentIcons.ios_arrow_24_regular,
-                  hasAction: true,
-                  appBarAction: _saveAllStructures,
-                  actionText:
-                      isCreatingFarm ? "Save Farm" : "Save Plot/Structure",
-                ),
-              )),
-
-          // Structure Selection Card (when not drawing)
-          if (_showStructureSelection && !_isDrawingMode)
-            Positioned(
-              left: 20,
-              bottom: 80,
-              child: StructureSelector(
-                  onPressed: () {
-                    setState(() {
-                      _showStructureSelection = false;
-                    });
-                  },
-                  isCreatingFarm: isCreatingFarm,
-                  isCreatingPlot: isCreatingPlot,
-                  startDrawing: _startDrawing),
+                  : _onMapCreated,
+              onTap: _isDrawingMode ? _onTap : null,
+              polygons: _polygons,
+              markers: _markers,
+              mapType: _currentMapType,
+              myLocationEnabled: true,
+              myLocationButtonEnabled: false,
+              zoomControlsEnabled: false,
+              mapToolbarEnabled: false,
             ),
 
-          // Active Drawing Card (Minimized/Expanded)
-          if (_isDrawingMode && _selectedStructureType != null)
             Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: FarmbrosAppbar(
+                    appBarTitle: isCreatingFarm
+                        ? "Map your Farm"
+                        : "Map your Plots & Structures",
+                    openSideBar: () {
+                      context.pop();
+                    },
+                    icon: FluentIcons.ios_arrow_24_regular,
+                    hasAction: true,
+                    appBarAction: _saveAllStructures,
+                    actionText:
+                        isCreatingFarm ? "Save Farm" : "Save Plot/Structure",
+                  ),
+                )),
+
+            // Structure Selection Card (when not drawing)
+            if (_showStructureSelection && !_isDrawingMode)
+              Positioned(
+                left: 20,
+                bottom: 80,
+                child: StructureSelector(
+                    onPressed: () {
+                      setState(() {
+                        _showStructureSelection = false;
+                      });
+                    },
+                    isCreatingFarm: isCreatingFarm,
+                    isCreatingPlot: isCreatingPlot,
+                    startDrawing: _startDrawing),
+              ),
+
+            // Active Drawing Card (Minimized/Expanded)
+            if (_isDrawingMode && _selectedStructureType != null)
+              Positioned(
+                left: 20,
+                bottom: 80,
+                child: StructureEditor(
+                    structureType: _selectedStructureType,
+                    toggleDrawingCardMinimize: () {
+                      setState(() {
+                        _isDrawingCardMinimized = !_isDrawingCardMinimized;
+                      });
+                    },
+                    isDrawingCardMinimized: _isDrawingCardMinimized,
+                    currentDrawingPoints: currentDrawingPoints,
+                    undoLastPoint: _undoLastPoint,
+                    clearCurrentDrawing: _clearCurrentDrawing,
+                    finishDrawing: _finishDrawing,
+                    cancelDrawing: _cancelDrawing),
+              ),
+
+            // Search Bar with Map Type Toggle
+            Positioned(
+              bottom: 15,
               left: 20,
-              bottom: 80,
-              child: StructureEditor(
-                  structureType: _selectedStructureType,
-                  toggleDrawingCardMinimize: () {
+              right: 20,
+              child: FarmbrosMapSearchBar(
+                  selectStructure: () {
                     setState(() {
-                      _isDrawingCardMinimized = !_isDrawingCardMinimized;
+                      _showStructureSelection = true;
                     });
                   },
-                  isDrawingCardMinimized: _isDrawingCardMinimized,
-                  currentDrawingPoints: currentDrawingPoints,
-                  undoLastPoint: _undoLastPoint,
-                  clearCurrentDrawing: _clearCurrentDrawing,
-                  finishDrawing: _finishDrawing,
-                  cancelDrawing: _cancelDrawing),
+                  showSuggestions: _showSuggestions,
+                  searchSuggestions: _searchSuggestions,
+                  selectSuggestion: _selectSuggestion,
+                  searchController: _searchController,
+                  searchFocusNode: _searchFocusNode,
+                  searchLocation: (String query) {
+                    _searchLocation(query);
+                  },
+                  onSearchChanged: _onSearchChanged,
+                  showStructureSelection: _showStructureSelection,
+                  isDrawingMode: _isDrawingMode,
+                  clearSearch: () {
+                    _searchController.clear();
+                    setState(() {
+                      _searchSuggestions.clear();
+                      _showSuggestions = false;
+                    });
+                  },
+                  changeMapLayer: () {
+                    setState(() {
+                      _currentMapType = _currentMapType == MapType.hybrid
+                          ? MapType.satellite
+                          : MapType.hybrid;
+                    });
+                  }),
             ),
-
-          // Search Bar with Map Type Toggle
-          Positioned(
-            bottom: 15,
-            left: 20,
-            right: 20,
-            child: FarmbrosMapSearchBar(
-                selectStructure: () {
-                  setState(() {
-                    _showStructureSelection = true;
-                  });
-                },
-                showSuggestions: _showSuggestions,
-                searchSuggestions: _searchSuggestions,
-                selectSuggestion: _selectSuggestion,
-                searchController: _searchController,
-                searchFocusNode: _searchFocusNode,
-                searchLocation: (String query) {
-                  _searchLocation(query);
-                },
-                onSearchChanged: _onSearchChanged,
-                showStructureSelection: _showStructureSelection,
-                isDrawingMode: _isDrawingMode,
-                clearSearch: () {
-                  _searchController.clear();
-                  setState(() {
-                    _searchSuggestions.clear();
-                    _showSuggestions = false;
-                  });
-                },
-                changeMapLayer: () {
-                  setState(() {
-                    _currentMapType = _currentMapType == MapType.hybrid
-                        ? MapType.satellite
-                        : MapType.hybrid;
-                  });
-                }),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

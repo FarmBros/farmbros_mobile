@@ -20,7 +20,12 @@ class FarmApiServiceImpl extends FarmApiService {
 
   @override
   Future<Either> saveFarmDetails(FarmDetailsParams farmDetailsParams) async {
-    logger.log(Level.info, farmDetailsParams.geoJson);
+    if (farmDetailsParams.name == "" ||
+        farmDetailsParams.description == "" ||
+        farmDetailsParams.geoJson.isEmpty) {
+      return Left("All fields are required");
+    }
+
     try {
       var response = await sl<DioClient>()
           .post(AppUtils.$saveFarm, data: farmDetailsParams.toJson());
@@ -80,8 +85,7 @@ class FarmApiServiceImpl extends FarmApiService {
       if (responseData["status"] == "success") {
         return Right(responseData);
       } else {
-        return Left(
-            responseData["message"] ?? "Action Failed! Farm not Found");
+        return Left(responseData["message"] ?? "Action Failed! Farm not Found");
       }
     } on DioException catch (e) {
       String errorMessage = "Action Failed! Farm not Found";

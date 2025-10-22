@@ -150,19 +150,24 @@ class _SignUpState extends State<SignUp> {
                           fontWeight: FontWeight.bold,
                           onPressed: () {
                             // validation
-                            if (username.text.isEmpty ||
-                                email.text.isEmpty ||
-                                password.text.isEmpty ||
-                                firstname.text.isEmpty ||
-                                lastname.text.isEmpty ||
-                                phoneNumber.text.isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text("Please fill in all fields"),
-                                ),
-                              );
-                              return;
-                            }
+                            // if (username.text.isEmpty ||
+                            //     email.text.isEmpty ||
+                            //     password.text.isEmpty ||
+                            //     firstname.text.isEmpty ||
+                            //     lastname.text.isEmpty ||
+                            //     phoneNumber.text.isEmpty) {
+                            //   ScaffoldMessenger.of(context).showSnackBar(
+                            //     const SnackBar(
+                            //       backgroundColor: ColorUtils.failureColor,
+                            //       content: Text(
+                            //         "Please fill in all fields",
+                            //         style: TextStyle(
+                            //             color: ColorUtils.primaryTextColor),
+                            //       ),
+                            //     ),
+                            //   );
+                            //   return;
+                            // }
 
                             final signUpParams = SignUpReqParams(
                               username: username.text.trim(),

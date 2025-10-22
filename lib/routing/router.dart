@@ -99,12 +99,12 @@ GoRouter createRouter(BuildContext context) {
           builder: (context, state) => const OnboardingController()),
     ],
     redirect: (context, state) {
-      final s = sessionCubit.state;
-      final ob = onboardingCubit.state;
+      final session = sessionCubit.state;
+      final onboardedState = onboardingCubit.state;
 
-      final isAuthed = s is ValidSessionState;
+      final isAuthed = session is ValidSessionState;
       final isOnboarded =
-          ob is UserOnboardingStatusState ? ob.isOnboarded : false;
+      onboardedState is UserOnboardingStatusState ? onboardedState.isOnboarded : false;
 
       final loc = state.matchedLocation;
 

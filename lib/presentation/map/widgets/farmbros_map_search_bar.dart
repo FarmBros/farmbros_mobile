@@ -16,21 +16,20 @@ class FarmbrosMapSearchBar extends StatelessWidget {
   final VoidCallback changeMapLayer;
   final VoidCallback clearSearch;
 
-  const FarmbrosMapSearchBar({
-    super.key,
-    required this.selectStructure,
-    required this.showSuggestions,
-    required this.searchSuggestions,
-    required this.selectSuggestion,
-    required this.searchController,
-    required this.searchFocusNode,
-    required this.searchLocation,
-    required this.onSearchChanged,
-    required this.showStructureSelection,
-    required this.isDrawingMode,
-    required this.changeMapLayer,
-    required this.clearSearch
-  });
+  const FarmbrosMapSearchBar(
+      {super.key,
+      required this.selectStructure,
+      required this.showSuggestions,
+      required this.searchSuggestions,
+      required this.selectSuggestion,
+      required this.searchController,
+      required this.searchFocusNode,
+      required this.searchLocation,
+      required this.onSearchChanged,
+      required this.showStructureSelection,
+      required this.isDrawingMode,
+      required this.changeMapLayer,
+      required this.clearSearch});
 
   @override
   Widget build(BuildContext context) {
@@ -120,26 +119,22 @@ class FarmbrosMapSearchBar extends StatelessWidget {
               children: [
                 // Draw Button (shows structure selection)
                 if (!showStructureSelection && !isDrawingMode)
-                  Positioned(
-                    right: 20,
-                    top: 20,
-                    child: Material(
-                      elevation: 4,
-                      borderRadius: BorderRadius.circular(50),
-                      child: InkWell(
-                        onTap: selectStructure,
-                        borderRadius: BorderRadius.circular(20),
-                        child: Container(
-                          padding: EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: ColorUtils.secondaryColor,
-                            borderRadius: BorderRadius.circular(50),
-                          ),
-                          child: Icon(
-                            Icons.edit,
-                            color: Colors.white,
-                            size: 24,
-                          ),
+                  Material(
+                    elevation: 4,
+                    borderRadius: BorderRadius.circular(50),
+                    child: InkWell(
+                      onTap: selectStructure,
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                        padding: EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: ColorUtils.secondaryColor,
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                        child: Icon(
+                          Icons.edit,
+                          color: Colors.white,
+                          size: 24,
                         ),
                       ),
                     ),

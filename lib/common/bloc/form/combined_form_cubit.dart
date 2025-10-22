@@ -3,9 +3,13 @@ import 'package:dartz/dartz.dart';
 import 'package:farmbros_mobile/common/bloc/form/comnined_form_state.dart';
 import 'package:farmbros_mobile/core/usecases/usecases.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:logger/logger.dart';
 
 class CombinedFormCubit extends Cubit<CombinedFormState> {
   CombinedFormCubit() : super(FormInitialState());
+
+  Logger logger = Logger();
+
 
   void execute(dynamic params, Usecases usecases) async {
     emit(FormLoadingState());

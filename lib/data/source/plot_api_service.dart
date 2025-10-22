@@ -13,7 +13,8 @@ abstract class PlotApiService {
 
   Future<Either> fetchFarmPlots(FetchPlotDetailsParams plotParams);
 
-  Future<Either> getPlotProfileDetails(PlotProfileDetailsParams plotProfileParams);
+  Future<Either> getPlotProfileDetails(
+      PlotProfileDetailsParams plotProfileParams);
 }
 
 class PlotApiServiceImpl extends PlotApiService {
@@ -21,7 +22,16 @@ class PlotApiServiceImpl extends PlotApiService {
 
   @override
   Future<Either> savePlotDetails(PlotDetailsParams plotDetailsParams) async {
-    logger.log(Level.info, plotDetailsParams.toJson());
+    if (plotDetailsParams.name == "" ||
+        plotDetailsParams.farmId == "" ||
+        plotDetailsParams.notes == "" ||
+        plotDetailsParams.plotNumber == "" ||
+        plotDetailsParams.plotType == "" ||
+        plotDetailsParams.geoJson.isEmpty ||
+        plotDetailsParams.plotTypeData.isEmpty) {
+      return Left("All fields are required");
+    }
+
     try {
       var response = await sl<DioClient>()
           .post(AppUtils.$savePlot, data: plotDetailsParams.toJson());
@@ -75,7 +85,8 @@ class PlotApiServiceImpl extends PlotApiService {
   }
 
   @override
-  Future<Either> getPlotProfileDetails(PlotProfileDetailsParams plotProfileParams) async {
+  Future<Either> getPlotProfileDetails(
+      PlotProfileDetailsParams plotProfileParams) async {
     try {
       var response = await sl<DioClient>()
           .post(AppUtils.$getPlot, data: plotProfileParams.toJson());
@@ -87,8 +98,7 @@ class PlotApiServiceImpl extends PlotApiService {
       if (responseData["status"] == "success") {
         return Right(responseData);
       } else {
-        return Left(
-            responseData["message"] ?? "Action Failed! Plot not Found");
+        return Left(responseData["message"] ?? "Action Failed! Plot not Found");
       }
     } on DioException catch (e) {
       String errorMessage = "Action Failed! Plot not Found";
