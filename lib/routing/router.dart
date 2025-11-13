@@ -24,6 +24,7 @@ import 'package:farmbros_mobile/service_locator.dart';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:logger/logger.dart';
 
 GoRouter createRouter(BuildContext context) {
   final sessionCubit = sl<SessionCubit>();
@@ -31,6 +32,7 @@ GoRouter createRouter(BuildContext context) {
   final refresh = GoRouterRefreshStream(
     StreamGroup.merge([sessionCubit.stream, onboardingCubit.stream]),
   );
+  Logger logger = Logger();
 
   return GoRouter(
     initialLocation: Routes.welcome,
@@ -103,8 +105,11 @@ GoRouter createRouter(BuildContext context) {
       final onboardedState = onboardingCubit.state;
 
       final isAuthed = session is ValidSessionState;
-      final isOnboarded =
-      onboardedState is UserOnboardingStatusState ? onboardedState.isOnboarded : false;
+      logger.log(Level.info, isAuthed);
+
+      final isOnboarded = onboardedState is UserOnboardingStatusState
+          ? onboardedState.isOnboarded
+          : false;
 
       final loc = state.matchedLocation;
 

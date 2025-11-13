@@ -1,5 +1,6 @@
 import 'package:farmbros_mobile/common/bloc/session/session_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -23,7 +24,13 @@ class SessionCubit extends Cubit<SessionState> {
     final token = prefs.getString("auth_token");
 
     if (token != null && token.isNotEmpty) {
-      emit(ValidSessionState(token: token));
+      final bool isTokenExpired = JwtDecoder.isExpired(token);
+      if (isTokenExpired) {
+        emit(ExpiredSessionState(reason: "Token expired"));
+        return;
+      } else {
+        emit(ValidSessionState(token: token));
+      }
     } else {
       emit(ExpiredSessionState(reason: "No valid token"));
     }
