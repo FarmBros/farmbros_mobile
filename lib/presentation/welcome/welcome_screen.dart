@@ -1,5 +1,6 @@
 import 'package:farmbros_mobile/core/configs/Utils/color_utils.dart';
 import 'package:farmbros_mobile/common/widgets/farmbros_button.dart';
+import 'package:farmbros_mobile/routing/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -14,7 +15,7 @@ class WelcomeScreen extends StatelessWidget {
         width: double.infinity,
         decoration: BoxDecoration(
             image: DecorationImage(
-              fit: BoxFit.cover,
+                fit: BoxFit.cover,
                 image: AssetImage("assets/images/background-one.png"))),
         padding: EdgeInsets.symmetric(horizontal: 40, vertical: 30),
         child: Column(
@@ -37,7 +38,7 @@ class WelcomeScreen extends StatelessWidget {
                   FarmbrosButton(
                     label: "Sign Up",
                     onPressed: () {
-                      context.go('/sign_up');
+                      context.go(Routes.signUp);
                     },
                     buttonColor: ColorUtils.primaryTextColor,
                     textColor: ColorUtils.secondaryColor,
@@ -47,7 +48,7 @@ class WelcomeScreen extends StatelessWidget {
                   FarmbrosButton(
                     label: "Sign In",
                     onPressed: () {
-                      context.go('/sign_in');
+                      context.go(Routes.signIn);
                     },
                     buttonColor: ColorUtils.transparent,
                     textColor: ColorUtils.secondaryTextColor,

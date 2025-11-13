@@ -6,6 +6,7 @@ import 'package:farmbros_mobile/common/widgets/farmbros_button.dart';
 import 'package:farmbros_mobile/common/widgets/farmbros_input.dart';
 import 'package:farmbros_mobile/data/models/sign_in_req_params.dart';
 import 'package:farmbros_mobile/domain/usecases/sign_in_use_case.dart';
+import 'package:farmbros_mobile/routing/routes.dart';
 import 'package:farmbros_mobile/service_locator.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/gestures.dart';
@@ -34,13 +35,15 @@ class _SignInState extends State<SignIn> {
 
   @override
   void dispose() {
+    username.dispose();
+    password.dispose();
     _tapGestureRecognizer.dispose();
     super.dispose();
   }
 
   void _handlePress() {
     HapticFeedback.vibrate();
-    context.go("/sign_up");
+    context.go(Routes.signUp);
   }
 
   @override
@@ -48,84 +51,116 @@ class _SignInState extends State<SignIn> {
     return BlocBuilder<CombinedFormCubit, CombinedFormState>(
       builder: (context, state) {
         return Scaffold(
-          body: Stack(
-            children: [
-              Container(
-                height: MediaQuery.of(context).size.height,
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 80),
-                decoration: const BoxDecoration(
-                  image: DecorationImage(
-                    fit: BoxFit.cover,
+          backgroundColor: Colors.white,
+          body: Container(
+            padding: EdgeInsets.only(top: 20),
+            decoration: BoxDecoration(
+                image: DecorationImage(
                     image: AssetImage("assets/images/background-two.png"),
+                    fit: BoxFit.cover)),
+            child: Column(
+              children: [
+                // Notification Banner
+                if (state is FormErrorState && state.generalError != null)
+                  FarmbrosNotificationBanner(
+                    message: state.generalError!,
+                    color: ColorUtils.failureColor,
+                  )
+                else if (state is FormSuccessState)
+                  const FarmbrosNotificationBanner(
+                    message: "Login successful",
+                    color: ColorUtils.successColor,
                   ),
-                ),
-                child: const Column(
-                  children: [
-                    Image(
-                      height: 200,
-                      width: 200,
-                      image: AssetImage("assets/images/farmbros-logo.png"),
-                    ),
-                  ],
-                ),
-              ),
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 40),
-                    height: MediaQuery.of(context).size.height * 0.6,
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(20),
-                        topRight: Radius.circular(20),
-                      ),
-                      color: ColorUtils.primaryTextColor,
-                      image: const DecorationImage(
-                        fit: BoxFit.cover,
-                        image: AssetImage("assets/images/login_bg.png"),
-                      ),
-                    ),
+
+                // Scrollable Form Content
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(24.0),
                     child: Column(
-                      spacing: 15,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const Text(
-                          "Welcome back, login to continue",
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                        const SizedBox(height: 40),
+
+                        // Logo
+                        Center(
+                          child: Image(
+                            height: 140,
+                            width: 140,
+                            image:
+                                AssetImage("assets/images/farmbros-logo.png"),
+                          ),
                         ),
+
+                        const SizedBox(height: 40),
+
+                        // Title
+                        const Text(
+                          "Welcome Back",
+                          style: TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+
+                        const SizedBox(height: 8),
+
+                        const Text(
+                          "Login to continue",
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.black54,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+
+                        const SizedBox(height: 40),
+
+                        // Form Fields
                         FarmbrosInput(
-                          label: "Username or email address",
                           controller: username,
+                          label: "Username or Email",
                           icon: FluentIcons.mail_48_regular,
                           isPassword: false,
                           isTextArea: false,
                         ),
+
+                        const SizedBox(height: 16),
+
                         FarmbrosInput(
-                          label: "Password",
                           controller: password,
+                          label: "Password",
                           icon: FluentIcons.key_32_regular,
                           isPassword: true,
                           isTextArea: false,
                         ),
-                        SizedBox(
-                          width: double.infinity,
+
+                        const SizedBox(height: 12),
+
+                        // Forgot Password Link
+                        Align(
+                          alignment: Alignment.centerRight,
                           child: InkWell(
-                            onTap: () => context.go("/forgot_password"),
-                            child: Text(
-                              "Forgot Password?",
-                              textAlign: TextAlign.right,
-                              style: TextStyle(
-                                decoration: TextDecoration.underline,
-                                color: ColorUtils.secondaryTextColor,
+                            onTap: () => context.go(Routes.forgotPassword),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: Text(
+                                "Forgot Password?",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.blue,
+                                  fontWeight: FontWeight.w600,
+                                  decoration: TextDecoration.underline,
+                                ),
                               ),
                             ),
                           ),
                         ),
+
+                        const SizedBox(height: 24),
+
+                        // Login Button
                         FarmbrosButton(
                           label: state is FormLoadingState
                               ? "Loading..."
@@ -138,88 +173,103 @@ class _SignInState extends State<SignIn> {
                               : () {
                                   context.read<CombinedFormCubit>().execute(
                                         SignInReqParams(
-                                          username: username.text,
+                                          username: username.text.trim(),
                                           password: password.text,
                                         ),
                                         sl<SignInUseCase>(),
                                       );
                                 },
-                          elevation: 4,
+                          elevation: 2,
                         ),
 
-                        Stack(
-                          clipBehavior: Clip.none,
+                        const SizedBox(height: 32),
+
+                        // Divider with text
+                        Row(
                           children: [
-                            Divider(color: ColorUtils.secondaryTextColor),
-                            Positioned(
-                              left: 100,
-                              right: 100,
-                              bottom: -5,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 5, horizontal: 10),
-                                decoration: BoxDecoration(
-                                    color: ColorUtils.primaryTextColor),
-                                child: const Text(
-                                  textAlign: TextAlign.center,
-                                  "or continue with",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
+                            Expanded(
+                              child: Divider(
+                                color: Colors.grey.shade300,
+                                thickness: 1,
+                              ),
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16),
+                              child: Text(
+                                "or continue with",
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
                                 ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Divider(
+                                color: Colors.grey.shade300,
+                                thickness: 1,
                               ),
                             ),
                           ],
                         ),
 
+                        const SizedBox(height: 32),
+
+                        // Google Sign In
                         InkWell(
                           onTap: () {},
-                          child: const Image(
-                            image: AssetImage("assets/images/google_logo.png"),
+                          borderRadius: BorderRadius.circular(12),
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey.shade300),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Center(
+                              child: Image(
+                                height: 32,
+                                width: 32,
+                                image:
+                                    AssetImage("assets/images/google_logo.png"),
+                              ),
+                            ),
                           ),
                         ),
 
-                        // Sign up link
-                        Text.rich(
-                          TextSpan(
-                            text: "Do not have an account? ",
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                            children: [
-                              TextSpan(
-                                text: "Sign Up",
-                                style: const TextStyle(
-                                  color: Colors.blue,
-                                  decoration: TextDecoration.underline,
-                                ),
-                                recognizer: _tapGestureRecognizer,
+                        const SizedBox(height: 32),
+
+                        // Sign Up Link
+                        Center(
+                          child: Text.rich(
+                            TextSpan(
+                              text: "Don't have an account? ",
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.black87,
                               ),
-                            ],
+                              children: [
+                                TextSpan(
+                                  text: "Sign Up",
+                                  style: const TextStyle(
+                                    color: Colors.blue,
+                                    fontWeight: FontWeight.bold,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                  recognizer: _tapGestureRecognizer,
+                                ),
+                              ],
+                            ),
                           ),
-                          textAlign: TextAlign.center,
                         ),
+
+                        const SizedBox(height: 24),
                       ],
                     ),
                   ),
                 ),
-              ),
-              Positioned(
-                top: 50,
-                left: 0,
-                right: 0,
-                child: state is FormErrorState && state.generalError != null
-                    ? FarmbrosNotificationBanner(
-                        message: state.generalError!,
-                        color: ColorUtils.failureColor,
-                      )
-                    : state is FormSuccessState
-                        ? FarmbrosNotificationBanner(
-                            message: "Login successful",
-                            color: ColorUtils.successColor,
-                          )
-                        : const SizedBox.shrink(),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },

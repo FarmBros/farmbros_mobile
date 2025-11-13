@@ -6,6 +6,7 @@ import 'package:farmbros_mobile/common/widgets/farmbros_button.dart';
 import 'package:farmbros_mobile/common/widgets/farmbros_input.dart';
 import 'package:farmbros_mobile/data/models/sign_up_req_params.dart';
 import 'package:farmbros_mobile/domain/usecases/sign_up_use_case.dart';
+import 'package:farmbros_mobile/routing/routes.dart';
 import 'package:farmbros_mobile/service_locator.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/gestures.dart';
@@ -38,13 +39,19 @@ class _SignUpState extends State<SignUp> {
 
   @override
   void dispose() {
+    username.dispose();
+    firstname.dispose();
+    lastname.dispose();
+    email.dispose();
+    phoneNumber.dispose();
+    password.dispose();
     _tapGestureRecognizer.dispose();
     super.dispose();
   }
 
   void _handlePress() {
     HapticFeedback.vibrate();
-    context.go("/sign_in");
+    context.go(Routes.signIn);
   }
 
   @override
@@ -52,55 +59,73 @@ class _SignUpState extends State<SignUp> {
     return BlocBuilder<CombinedFormCubit, CombinedFormState>(
       builder: (context, state) {
         return Scaffold(
-          body: Stack(
-            children: [
-              Container(
-                height: MediaQuery.of(context).size.height,
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 40),
-                decoration: const BoxDecoration(
-                  image: DecorationImage(
-                    fit: BoxFit.cover,
+          backgroundColor: Colors.white,
+          body: Container(
+            padding: EdgeInsets.only(top: 20),
+            decoration: BoxDecoration(
+                image: DecorationImage(
                     image: AssetImage("assets/images/background-two.png"),
+                    fit: BoxFit.cover)),
+            child: Column(
+              children: [
+                // Notification Banner
+                if (state is FormErrorState && state.generalError != null)
+                  FarmbrosNotificationBanner(
+                    message: state.generalError!,
+                    color: ColorUtils.failureColor,
+                  )
+                else if (state is FormSuccessState)
+                  const FarmbrosNotificationBanner(
+                    message: "Account Created Successfully",
+                    color: ColorUtils.successColor,
                   ),
-                ),
-                child: const Column(
-                  children: [
-                    Image(
-                      height: 200,
-                      width: 200,
-                      image: AssetImage("assets/images/farmbros-logo.png"),
-                    )
-                  ],
-                ),
-              ),
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
-                  height: MediaQuery.of(context).size.height * 0.70,
-                  decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      topRight: Radius.circular(20),
-                    ),
-                    color: ColorUtils.primaryTextColor,
-                    image: DecorationImage(
-                      fit: BoxFit.cover,
-                      image: AssetImage("assets/images/sign_up_bg.png"),
-                    ),
-                  ),
+
+                // Scrollable Form Content
+                Expanded(
                   child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(24.0),
                     child: Column(
-                      spacing: 15,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                        const SizedBox(height: 20),
+
+                        // Logo
+                        Center(
+                          child: Image(
+                            height: 120,
+                            width: 120,
+                            image:
+                                AssetImage("assets/images/farmbros-logo.png"),
+                          ),
+                        ),
+
+                        const SizedBox(height: 32),
+
+                        // Title
                         const Text(
                           "Create your Account",
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                          textAlign: TextAlign.center,
                         ),
+
+                        const SizedBox(height: 8),
+
+                        const Text(
+                          "Sign up to get started",
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.black54,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+
+                        const SizedBox(height: 32),
+
+                        // Form Fields
                         FarmbrosInput(
                           controller: email,
                           label: "Email Address",
@@ -108,20 +133,35 @@ class _SignUpState extends State<SignUp> {
                           isPassword: false,
                           isTextArea: false,
                         ),
-                        FarmbrosInput(
-                          controller: firstname,
-                          label: "Firstname",
-                          icon: FluentIcons.person_48_regular,
-                          isPassword: false,
-                          isTextArea: false,
+
+                        const SizedBox(height: 16),
+
+                        Row(
+                          children: [
+                            Expanded(
+                              child: FarmbrosInput(
+                                controller: firstname,
+                                label: "First Name",
+                                icon: FluentIcons.person_48_regular,
+                                isPassword: false,
+                                isTextArea: false,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: FarmbrosInput(
+                                controller: lastname,
+                                label: "Last Name",
+                                icon: FluentIcons.person_48_regular,
+                                isPassword: false,
+                                isTextArea: false,
+                              ),
+                            ),
+                          ],
                         ),
-                        FarmbrosInput(
-                          controller: lastname,
-                          label: "Lastname",
-                          icon: FluentIcons.person_48_regular,
-                          isPassword: false,
-                          isTextArea: false,
-                        ),
+
+                        const SizedBox(height: 16),
+
                         FarmbrosInput(
                           controller: username,
                           label: "Username",
@@ -129,6 +169,9 @@ class _SignUpState extends State<SignUp> {
                           isPassword: false,
                           isTextArea: false,
                         ),
+
+                        const SizedBox(height: 16),
+
                         FarmbrosInput(
                           controller: phoneNumber,
                           label: "Phone Number",
@@ -136,6 +179,9 @@ class _SignUpState extends State<SignUp> {
                           isPassword: false,
                           isTextArea: false,
                         ),
+
+                        const SizedBox(height: 16),
+
                         FarmbrosInput(
                           controller: password,
                           label: "Password",
@@ -143,32 +189,16 @@ class _SignUpState extends State<SignUp> {
                           isPassword: true,
                           isTextArea: false,
                         ),
+
+                        const SizedBox(height: 24),
+
+                        // Sign Up Button
                         FarmbrosButton(
                           label: "Sign Up",
                           buttonColor: ColorUtils.secondaryColor,
                           textColor: ColorUtils.primaryTextColor,
                           fontWeight: FontWeight.bold,
                           onPressed: () {
-                            // validation
-                            // if (username.text.isEmpty ||
-                            //     email.text.isEmpty ||
-                            //     password.text.isEmpty ||
-                            //     firstname.text.isEmpty ||
-                            //     lastname.text.isEmpty ||
-                            //     phoneNumber.text.isEmpty) {
-                            //   ScaffoldMessenger.of(context).showSnackBar(
-                            //     const SnackBar(
-                            //       backgroundColor: ColorUtils.failureColor,
-                            //       content: Text(
-                            //         "Please fill in all fields",
-                            //         style: TextStyle(
-                            //             color: ColorUtils.primaryTextColor),
-                            //       ),
-                            //     ),
-                            //   );
-                            //   return;
-                            // }
-
                             final signUpParams = SignUpReqParams(
                               username: username.text.trim(),
                               firstName: firstname.text.trim(),
@@ -185,81 +215,97 @@ class _SignUpState extends State<SignUp> {
                                   sl<SignUpUseCase>(),
                                 );
                           },
-                          elevation: 4,
+                          elevation: 2,
                         ),
-                        Stack(
-                          clipBehavior: Clip.none,
+
+                        const SizedBox(height: 24),
+
+                        // Divider with text
+                        Row(
                           children: [
-                            Divider(color: ColorUtils.secondaryTextColor),
-                            Positioned(
-                              left: 100,
-                              right: 100,
-                              bottom: -5,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 5,
-                                  horizontal: 10,
-                                ),
-                                decoration: const BoxDecoration(
-                                  color: ColorUtils.primaryTextColor,
-                                ),
-                                child: const Text(
-                                  "or continue with",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(fontWeight: FontWeight.bold),
+                            Expanded(
+                              child: Divider(
+                                color: Colors.grey.shade300,
+                                thickness: 1,
+                              ),
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16),
+                              child: Text(
+                                "or continue with",
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
-                            )
+                            ),
+                            Expanded(
+                              child: Divider(
+                                color: Colors.grey.shade300,
+                                thickness: 1,
+                              ),
+                            ),
                           ],
                         ),
+
+                        const SizedBox(height: 24),
+
+                        // Google Sign In
                         InkWell(
                           onTap: () {},
-                          child: const Image(
-                            image: AssetImage("assets/images/google_logo.png"),
+                          borderRadius: BorderRadius.circular(12),
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey.shade300),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Center(
+                              child: Image(
+                                height: 32,
+                                width: 32,
+                                image:
+                                    AssetImage("assets/images/google_logo.png"),
+                              ),
+                            ),
                           ),
                         ),
-                        Text.rich(
-                          TextSpan(
-                            text: "Already have an account? ",
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                            children: [
-                              TextSpan(
-                                text: "Sign In",
-                                style: const TextStyle(
-                                  color: Colors.blue,
-                                  decoration: TextDecoration.underline,
-                                ),
-                                recognizer: _tapGestureRecognizer,
+
+                        const SizedBox(height: 24),
+
+                        // Sign In Link
+                        Center(
+                          child: Text.rich(
+                            TextSpan(
+                              text: "Already have an account? ",
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.black87,
                               ),
-                            ],
+                              children: [
+                                TextSpan(
+                                  text: "Sign In",
+                                  style: const TextStyle(
+                                    color: Colors.blue,
+                                    fontWeight: FontWeight.bold,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                  recognizer: _tapGestureRecognizer,
+                                ),
+                              ],
+                            ),
                           ),
-                          textAlign: TextAlign.center,
-                        )
+                        ),
+
+                        const SizedBox(height: 24),
                       ],
                     ),
                   ),
                 ),
-              ),
-              Positioned(
-                top: 50,
-                left: 0,
-                right: 0,
-                child: state is FormErrorState && state.generalError != null
-                    ? FarmbrosNotificationBanner(
-                        message: state.generalError!,
-                        color: ColorUtils.failureColor,
-                      )
-                    : state is FormSuccessState
-                        ? const FarmbrosNotificationBanner(
-                            message: "Account Created Successfully",
-                            color: ColorUtils.successColor,
-                          )
-                        : const SizedBox.shrink(),
-              )
-            ],
+              ],
+            ),
           ),
         );
       },
