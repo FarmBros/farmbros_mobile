@@ -1,4 +1,5 @@
 import 'package:farmbros_mobile/core/configs/Utils/color_utils.dart';
+import 'package:farmbros_mobile/routing/routes.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -14,21 +15,21 @@ class FarmbrosNavigation extends StatelessWidget {
         "nav_label": "Dashboard",
         "nav_icon": FluentIcons.grid_24_regular,
         "nav_icon_active": FluentIcons.grid_24_filled,
-        "route": "/dashboard",
+        "route": Routes.dashboard,
         "type": "main"
       },
       {
         "nav_label": "Farms",
         "nav_icon": FluentIcons.leaf_three_24_regular,
         "nav_icon_active": FluentIcons.leaf_three_24_filled,
-        "route": "/farms",
+        "route": Routes.farms,
         "type": "farm"
       },
       {
         "nav_label": "Plots",
         "nav_icon": FluentIcons.location_24_regular,
         "nav_icon_active": FluentIcons.location_24_filled,
-        "route": "/plots",
+        "route": Routes.plots,
         "type": "farm"
       },
       {
@@ -42,7 +43,7 @@ class FarmbrosNavigation extends StatelessWidget {
         "nav_label": "Farmer Account",
         "nav_icon": FluentIcons.person_24_regular,
         "nav_icon_active": FluentIcons.person_24_filled,
-        "route": "/account",
+        "route": Routes.farmerAccount,
         "type": "farm"
       },
       {
