@@ -15,21 +15,26 @@ class FarmbrosMapSearchBar extends StatelessWidget {
   final bool isDrawingMode;
   final VoidCallback changeMapLayer;
   final VoidCallback clearSearch;
+  final VoidCallback? toggleEditMode;
+  final bool isEditingMode;
 
-  const FarmbrosMapSearchBar(
-      {super.key,
-      required this.selectStructure,
-      required this.showSuggestions,
-      required this.searchSuggestions,
-      required this.selectSuggestion,
-      required this.searchController,
-      required this.searchFocusNode,
-      required this.searchLocation,
-      required this.onSearchChanged,
-      required this.showStructureSelection,
-      required this.isDrawingMode,
-      required this.changeMapLayer,
-      required this.clearSearch});
+  const FarmbrosMapSearchBar({
+    super.key,
+    required this.selectStructure,
+    required this.showSuggestions,
+    required this.searchSuggestions,
+    required this.selectSuggestion,
+    required this.searchController,
+    required this.searchFocusNode,
+    required this.searchLocation,
+    required this.onSearchChanged,
+    required this.showStructureSelection,
+    required this.isDrawingMode,
+    required this.changeMapLayer,
+    required this.clearSearch,
+    this.toggleEditMode,
+    this.isEditingMode = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -117,8 +122,8 @@ class FarmbrosMapSearchBar extends StatelessWidget {
             Column(
               spacing: 10,
               children: [
-                // Draw Button (shows structure selection)
-                if (!showStructureSelection && !isDrawingMode)
+                // Draw Button (shows structure selection) - hidden when editing
+                if (!showStructureSelection && !isDrawingMode && !isEditingMode)
                   Material(
                     elevation: 4,
                     borderRadius: BorderRadius.circular(50),
@@ -139,6 +144,31 @@ class FarmbrosMapSearchBar extends StatelessWidget {
                       ),
                     ),
                   ),
+
+                // Edit Mode Toggle Button (only shown when structures exist and not drawing)
+                if (toggleEditMode != null && !isDrawingMode)
+                  Material(
+                    elevation: 4,
+                    borderRadius: BorderRadius.circular(50),
+                    child: InkWell(
+                      onTap: toggleEditMode,
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                        padding: EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: isEditingMode ? Colors.orange : Colors.blue,
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                        child: Icon(
+                          isEditingMode ? Icons.done : CupertinoIcons.pencil,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                // Map Layer Toggle
                 Material(
                   elevation: 4,
                   borderRadius: BorderRadius.circular(20),

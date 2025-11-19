@@ -105,7 +105,7 @@ GoRouter createRouter(BuildContext context) {
         ),
         routes: [
           GoRoute(
-            path: 'create_farm',
+            path: Routes.createFarm,
             builder: (context, state) => const CreateFarm(),
             routes: [
               GoRoute(
@@ -116,7 +116,7 @@ GoRouter createRouter(BuildContext context) {
             ],
           ),
           GoRoute(
-            path: 'farm_profile/:farm_id',
+            path: Routes.farmProfile,
             builder: (context, state) {
               final farmId = state.pathParameters['farm_id'];
               final extra = state.extra as Map<String, dynamic>?;
@@ -153,7 +153,7 @@ GoRouter createRouter(BuildContext context) {
             ],
           ),
           GoRoute(
-            path: 'plot_profile/:plot_id',
+            path: '/:plot_id',
             builder: (context, state) {
               final plotId = state.pathParameters['plot_id'];
               return PlotProfile(plotId: plotId!);

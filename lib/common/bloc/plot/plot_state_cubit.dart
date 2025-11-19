@@ -38,25 +38,4 @@ class PlotStateCubit extends Cubit<PlotState> {
       emit(PlotStateError(errorMessage: e.toString()));
     }
   }
-
-  // Future<void> fetch(
-//     Nonparamsusescase<Either<dynamic, dynamic>> nonparams) async {
-//   emit(PlotStateLoading());
-//
-//   try {
-//     Either result = await nonparams.call();
-//
-//     result.fold(
-//       (error) {
-//         emit(PlotStateError(errorMessage: error.toString()));
-//       },
-//       (data) {
-//         final List<dynamic> plots = data['data'] ?? [];
-//         emit(PlotStateSuccess(plots: plots));
-//       },
-//     );
-//   } catch (e) {
-//     emit(PlotStateError(errorMessage: e.toString()));
-//   }
-// }
 }

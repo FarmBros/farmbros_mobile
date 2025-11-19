@@ -1,15 +1,13 @@
 import 'dart:convert';
 import 'package:farmbros_mobile/common/bloc/farm/farm_state_cubit.dart';
-import 'package:farmbros_mobile/common/bloc/farm_bros_map/farm_bros_state_cubit.dart';
 import 'package:farmbros_mobile/common/bloc/plot/plot_state_cubit.dart';
 import 'package:farmbros_mobile/common/widgets/farmbros_appbar.dart';
 import 'package:farmbros_mobile/core/configs/Utils/color_utils.dart';
-import 'package:farmbros_mobile/data/models/farm_details_params.dart';
 import 'package:farmbros_mobile/domain/enums/enums.dart';
-import 'package:farmbros_mobile/domain/usecases/save_farm_use_case.dart';
 import 'package:farmbros_mobile/presentation/map/widgets/farmbros_map_search_bar.dart';
 import 'package:farmbros_mobile/presentation/map/widgets/structure_editor.dart';
 import 'package:farmbros_mobile/presentation/map/widgets/structure_selector.dart';
+import 'package:farmbros_mobile/presentation/map/widgets/structure_toggler.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +17,6 @@ import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
-import 'package:farmbros_mobile/service_locator.dart';
 
 class FarmbrosMap extends StatefulWidget {
   const FarmbrosMap({super.key});
@@ -47,6 +44,12 @@ class _FarmbrosMapState extends State<FarmbrosMap> {
   List<LatLng> currentDrawingPoints = [];
   String? _currentStructureName;
 
+  // Editing mode variables
+  bool _isEditingMode = false;
+  String? _editingStructureKey;
+  int? _selectedPolyPointIndex;
+  bool _isDraggingPoint = false;
+
   TextEditingController farmName = TextEditingController();
   TextEditingController farmDescription = TextEditingController();
 
@@ -64,14 +67,12 @@ class _FarmbrosMapState extends State<FarmbrosMap> {
       return;
     }
 
-    // Extract coordinates from GeoJSON format [[[lng, lat], [lng, lat], ...]]
     List<dynamic> coordinatesArray = boundary['coordinates'][0];
 
-    // Convert to List<LatLng> - NOTE: GeoJSON is [lng, lat] but LatLng is (lat, lng)
     List<LatLng> polygonPoints = coordinatesArray.map((coord) {
       double longitude = coord[0].toDouble();
       double latitude = coord[1].toDouble();
-      return LatLng(latitude, longitude); // Swap order!
+      return LatLng(latitude, longitude);
     }).toList();
 
     setState(() {
@@ -88,7 +89,6 @@ class _FarmbrosMapState extends State<FarmbrosMap> {
       );
     });
 
-    // Center camera on the farm boundary
     if (polygonPoints.isNotEmpty && _mapController != null) {
       _centerMapOnPolygon(polygonPoints);
     }
@@ -153,15 +153,16 @@ class _FarmbrosMapState extends State<FarmbrosMap> {
               initialCameraPosition: _initialPosition,
               onMapCreated: extra != null
                   ? (controller) {
-                      _mapController = controller;
-                      // Reload boundary after map is ready
-                      if (extra['farm_boundary'] != null) {
-                        _loadFarmBoundary(
-                            extra['farm_boundary'], extra["farm_id"]);
-                      }
-                    }
+                _mapController = controller;
+                if (extra['farm_boundary'] != null) {
+                  _loadFarmBoundary(
+                      extra['farm_boundary'], extra["farm_id"]);
+                }
+              }
                   : _onMapCreated,
-              onTap: _isDrawingMode ? _onTap : null,
+              onTap: _isDrawingMode
+                  ? _onTap
+                  : (_isEditingMode ? _onMapTapWhileEditing : null),
               polygons: _polygons,
               markers: _markers,
               mapType: _currentMapType,
@@ -188,12 +189,12 @@ class _FarmbrosMapState extends State<FarmbrosMap> {
                     hasAction: true,
                     appBarAction: _saveAllStructures,
                     actionText:
-                        isCreatingFarm ? "Save Farm" : "Save Plot/Structure",
+                    isCreatingFarm ? "Save Farm" : "Save Plot/Structure",
                   ),
                 )),
 
-            // Structure Selection Card (when not drawing)
-            if (_showStructureSelection && !_isDrawingMode)
+            // Structure Selection Card (when not drawing and not editing)
+            if (_showStructureSelection && !_isDrawingMode && !_isEditingMode)
               Positioned(
                 left: 20,
                 bottom: 80,
@@ -228,42 +229,76 @@ class _FarmbrosMapState extends State<FarmbrosMap> {
                     cancelDrawing: _cancelDrawing),
               ),
 
+            // Structure Toggler for editing existing structures
+            if (_isEditingMode && !_isDrawingMode)
+              Positioned(
+                left: 20,
+                bottom: 80,
+                child: StructureToggler(
+                  structures: _structures,
+                  selectedStructureKey: _editingStructureKey,
+                  onStructureSelected: _selectStructureForEditing,
+                  onExitEditMode: _exitEditingMode,
+                  onDeleteStructure: _deleteStructure,
+                ),
+              ),
+
+            // Polypoint tooltip when editing
+            if (_isEditingMode && _selectedPolyPointIndex != null && _editingStructureKey != null)
+              _buildPolyPointTooltip(),
+
             // Search Bar with Map Type Toggle
             Positioned(
               bottom: 15,
               left: 20,
               right: 20,
               child: FarmbrosMapSearchBar(
-                  selectStructure: () {
-                    setState(() {
-                      _showStructureSelection = true;
-                    });
-                  },
-                  showSuggestions: _showSuggestions,
-                  searchSuggestions: _searchSuggestions,
-                  selectSuggestion: _selectSuggestion,
-                  searchController: _searchController,
-                  searchFocusNode: _searchFocusNode,
-                  searchLocation: (String query) {
-                    _searchLocation(query);
-                  },
-                  onSearchChanged: _onSearchChanged,
-                  showStructureSelection: _showStructureSelection,
-                  isDrawingMode: _isDrawingMode,
-                  clearSearch: () {
-                    _searchController.clear();
-                    setState(() {
-                      _searchSuggestions.clear();
-                      _showSuggestions = false;
-                    });
-                  },
-                  changeMapLayer: () {
-                    setState(() {
-                      _currentMapType = _currentMapType == MapType.hybrid
-                          ? MapType.satellite
-                          : MapType.hybrid;
-                    });
-                  }),
+                selectStructure: () {
+                  setState(() {
+                    _showStructureSelection = true;
+                    _isEditingMode = false;
+                  });
+                },
+                showSuggestions: _showSuggestions,
+                searchSuggestions: _searchSuggestions,
+                selectSuggestion: _selectSuggestion,
+                searchController: _searchController,
+                searchFocusNode: _searchFocusNode,
+                searchLocation: (String query) {
+                  _searchLocation(query);
+                },
+                onSearchChanged: _onSearchChanged,
+                showStructureSelection: _showStructureSelection,
+                isDrawingMode: _isDrawingMode,
+                clearSearch: () {
+                  _searchController.clear();
+                  setState(() {
+                    _searchSuggestions.clear();
+                    _showSuggestions = false;
+                  });
+                },
+                changeMapLayer: () {
+                  setState(() {
+                    _currentMapType = _currentMapType == MapType.hybrid
+                        ? MapType.satellite
+                        : MapType.hybrid;
+                  });
+                },
+                // Add edit mode toggle
+                toggleEditMode: _structures.isNotEmpty ? () {
+                  setState(() {
+                    _isEditingMode = !_isEditingMode;
+                    if (_isEditingMode) {
+                      _showStructureSelection = false;
+                      _isDrawingMode = false;
+                    } else {
+                      _editingStructureKey = null;
+                      _selectedPolyPointIndex = null;
+                    }
+                  });
+                } : null,
+                isEditingMode: _isEditingMode,
+              ),
             ),
           ],
         ),
@@ -282,8 +317,10 @@ class _FarmbrosMapState extends State<FarmbrosMap> {
       _selectedStructureType = type;
       _isDrawingMode = true;
       _showStructureSelection = false;
-      _isDrawingCardMinimized = true; // Start minimized
+      _isDrawingCardMinimized = true;
       currentDrawingPoints.clear();
+      _isEditingMode = false;
+      _editingStructureKey = null;
     });
   }
 
@@ -293,6 +330,227 @@ class _FarmbrosMapState extends State<FarmbrosMap> {
     setState(() {
       currentDrawingPoints.add(position);
       _updateCurrentPolygon();
+      _updateDrawingMarkers();
+    });
+  }
+
+  void _updateDrawingMarkers() {
+    // Remove all drawing markers
+    _markers.removeWhere((m) => m.markerId.value.startsWith('drawing_point_'));
+
+    // Add markers for each point in current drawing
+    for (int i = 0; i < currentDrawingPoints.length; i++) {
+      _markers.add(
+        Marker(
+          markerId: MarkerId('drawing_point_$i'),
+          position: currentDrawingPoints[i],
+          icon: BitmapDescriptor.defaultMarkerWithHue(
+            BitmapDescriptor.hueAzure,
+          ),
+          anchor: Offset(0.5, 0.5),
+          infoWindow: InfoWindow(
+            title: 'Point ${i + 1}',
+            snippet: 'Tap to edit',
+          ),
+        ),
+      );
+    }
+  }
+
+  void _updateEditingMarkers() {
+    if (_editingStructureKey == null || !_structures.containsKey(_editingStructureKey)) {
+      return;
+    }
+
+    // Remove all editing markers
+    _markers.removeWhere((m) => m.markerId.value.startsWith('edit_point_'));
+
+    final typeIndex = int.parse(_editingStructureKey!.split('_')[0]);
+    final type = StructureType.values[typeIndex];
+
+    List<LatLng> points = _structures[_editingStructureKey]!;
+
+    // Add markers for each point in the editing structure
+    for (int i = 0; i < points.length; i++) {
+      _markers.add(
+        Marker(
+          markerId: MarkerId('edit_point_$i'),
+          position: points[i],
+          icon: BitmapDescriptor.defaultMarkerWithHue(
+            _selectedPolyPointIndex == i
+                ? BitmapDescriptor.hueOrange
+                : BitmapDescriptor.hueViolet,
+          ),
+          anchor: Offset(0.5, 0.5),
+          consumeTapEvents: true,
+          onTap: () => _selectPolyPoint(i),
+        ),
+      );
+    }
+  }
+
+  void _onMapTapWhileEditing(LatLng position) {
+    if (_isDraggingPoint && _selectedPolyPointIndex != null && _editingStructureKey != null) {
+      // Update the selected point's position
+      setState(() {
+        _structures[_editingStructureKey]![_selectedPolyPointIndex!] = position;
+        _updateAllPolygons();
+        _updateEditingMarkers();
+      });
+    } else {
+      // Deselect point
+      setState(() {
+        _selectedPolyPointIndex = null;
+        _isDraggingPoint = false;
+      });
+    }
+  }
+
+  void _selectPolyPoint(int index) {
+    setState(() {
+      _selectedPolyPointIndex = index;
+      _isDraggingPoint = false;
+    });
+  }
+
+  void _removePolyPoint() {
+    if (_selectedPolyPointIndex == null || _editingStructureKey == null) return;
+
+    setState(() {
+      if (_structures[_editingStructureKey]!.length > 3) {
+        _structures[_editingStructureKey]!.removeAt(_selectedPolyPointIndex!);
+        _selectedPolyPointIndex = null;
+        _updateAllPolygons();
+        _updateEditingMarkers();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Point removed'),
+            duration: Duration(seconds: 1),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Cannot remove point - minimum 3 points required'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    });
+  }
+
+  void _movePolyPoint() {
+    setState(() {
+      _isDraggingPoint = true;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Tap on the map to move the point to a new location'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  Widget _buildPolyPointTooltip() {
+    if (_selectedPolyPointIndex == null || _editingStructureKey == null) {
+      return SizedBox.shrink();
+    }
+
+    final point = _structures[_editingStructureKey]![_selectedPolyPointIndex!];
+
+    return Positioned(
+      top: 100,
+      right: 20,
+      child: Material(
+        elevation: 4,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Point ${_selectedPolyPointIndex! + 1}',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: ColorUtils.secondaryColor,
+                ),
+              ),
+              SizedBox(height: 8),
+              SizedBox(
+                width: 150,
+                child: ElevatedButton.icon(
+                  onPressed: _movePolyPoint,
+                  icon: Icon(Icons.open_with, size: 16),
+                  label: Text('Move Point'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                  ),
+                ),
+              ),
+              SizedBox(height: 6),
+              SizedBox(
+                width: 150,
+                child: ElevatedButton.icon(
+                  onPressed: _removePolyPoint,
+                  icon: Icon(Icons.delete, size: 16),
+                  label: Text('Remove Point'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: ColorUtils.failureColor,
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _selectStructureForEditing(String structureKey) {
+    setState(() {
+      _editingStructureKey = structureKey;
+      _selectedPolyPointIndex = null;
+      _updateEditingMarkers();
+    });
+  }
+
+  void _exitEditingMode() {
+    setState(() {
+      _isEditingMode = false;
+      _editingStructureKey = null;
+      _selectedPolyPointIndex = null;
+      _markers.removeWhere((m) => m.markerId.value.startsWith('edit_point_'));
+    });
+  }
+
+  void _deleteStructure(String structureKey) {
+    setState(() {
+      _structures.remove(structureKey);
+      if (_editingStructureKey == structureKey) {
+        _editingStructureKey = null;
+        _selectedPolyPointIndex = null;
+      }
+      _updateAllPolygons();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Structure deleted'),
+          duration: Duration(seconds: 2),
+        ),
+      );
     });
   }
 
@@ -346,6 +604,7 @@ class _FarmbrosMapState extends State<FarmbrosMap> {
     setState(() {
       currentDrawingPoints.removeLast();
       _updateCurrentPolygon();
+      _updateDrawingMarkers();
     });
   }
 
@@ -353,6 +612,7 @@ class _FarmbrosMapState extends State<FarmbrosMap> {
     setState(() {
       currentDrawingPoints.clear();
       _updateCurrentPolygon();
+      _updateDrawingMarkers();
     });
   }
 
@@ -370,6 +630,7 @@ class _FarmbrosMapState extends State<FarmbrosMap> {
       _selectedStructureType = null;
       _isDrawingCardMinimized = false;
       _updateAllPolygons();
+      _markers.removeWhere((m) => m.markerId.value.startsWith('drawing_point_'));
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -387,6 +648,7 @@ class _FarmbrosMapState extends State<FarmbrosMap> {
       _selectedStructureType = null;
       _isDrawingCardMinimized = false;
       _updateAllPolygons();
+      _markers.removeWhere((m) => m.markerId.value.startsWith('drawing_point_'));
     });
   }
 
@@ -398,7 +660,10 @@ class _FarmbrosMapState extends State<FarmbrosMap> {
     setState(() {
       if (isCreatingFarm) {
         _polygons.clear();
+      } else {
+        _polygons.removeWhere((p) => p.polygonId.value != 'current_drawing');
       }
+
       _structures.forEach((key, points) {
         final typeIndex = int.parse(key.split('_')[0]);
         final type = StructureType.values[typeIndex];
@@ -441,10 +706,10 @@ class _FarmbrosMapState extends State<FarmbrosMap> {
           setState(() {
             _searchSuggestions = (data["predictions"] as List)
                 .map((prediction) => {
-                      'name': prediction['structured_formatting']['main_text'],
-                      'address': prediction['description'],
-                      'place_id': prediction['place_id'],
-                    })
+              'name': prediction['structured_formatting']['main_text'],
+              'address': prediction['description'],
+              'place_id': prediction['place_id'],
+            })
                 .toList();
             _showSuggestions = true;
           });
@@ -521,7 +786,6 @@ class _FarmbrosMapState extends State<FarmbrosMap> {
     }
 
     if (isCreatingFarm) {
-      // Get the farm boundary GeoJSON
       Map<String, dynamic>? farmGeoJSON = getFarmBoundaryGeoJSON();
 
       if (farmGeoJSON == null) {
@@ -534,7 +798,6 @@ class _FarmbrosMapState extends State<FarmbrosMap> {
         return;
       }
 
-      // Save to Cubit state
       context.read<FarmStateCubit>().setFarmGeoJson(farmGeoJSON);
 
       logger.i("Farm boundary saved (GeoJSON format):");
@@ -547,10 +810,8 @@ class _FarmbrosMapState extends State<FarmbrosMap> {
         ),
       );
 
-      // Navigate back to create farm page
       context.pop();
     } else {
-      // For plots.dart/structures, convert all to GeoJSON format
       Map<String, dynamic> geoJSON = {};
 
       _structures.forEach((key, points) {
@@ -575,7 +836,6 @@ class _FarmbrosMapState extends State<FarmbrosMap> {
     }
   }
 
-  // Convert List<LatLng> to GeoJSON Polygon format
   Map<String, dynamic> _convertToGeoJSON(
       List<LatLng> points, StructureType type) {
     List<List<double>> coordinates = points.map((point) {
@@ -589,7 +849,7 @@ class _FarmbrosMapState extends State<FarmbrosMap> {
 
     return {
       "type": "Polygon",
-      "coordinates": [coordinates], // Wrapped in array for exterior ring
+      "coordinates": [coordinates],
       "properties": {
         "structureType": type.displayName,
         "color": type.color.value.toRadixString(16),
@@ -597,11 +857,9 @@ class _FarmbrosMapState extends State<FarmbrosMap> {
     };
   }
 
-  // Get GeoJSON for a specific structure (e.g., Farm boundary)
   Map<String, dynamic>? getFarmBoundaryGeoJSON() {
-    // Find the farm structure key
     String? farmKey = _structures.keys.firstWhere(
-      (key) => key.startsWith('${StructureType.farm.index}_'),
+          (key) => key.startsWith('${StructureType.farm.index}_'),
       orElse: () => '',
     );
 
@@ -609,7 +867,6 @@ class _FarmbrosMapState extends State<FarmbrosMap> {
       return null;
     }
 
-    // Extract structure type from key prefix
     final typeIndex = int.parse(farmKey.split('_')[0]);
     final type = StructureType.values[typeIndex];
 
