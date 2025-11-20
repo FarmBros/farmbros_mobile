@@ -34,26 +34,23 @@ class _FarmProfileState extends State<FarmProfile> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<FarmStateCubit>().execute(
-            FetchFarmDetailsParams(farmId: widget.farmId),
-            sl<FetchFarmUsecase>(),
-          );
+        FetchFarmDetailsParams(farmId: widget.farmId),
+        sl<FetchFarmUsecase>(),
+      );
     });
   }
 
-  /// Convert boundary GeoJSON to Google Maps Polygon
   void _loadFarmBoundary(Map<String, dynamic> boundary, String farmId) {
     if (boundary['type'] != 'Polygon' || boundary['coordinates'] == null) {
       return;
     }
 
-    // Extract coordinates from GeoJSON format [[[lng, lat], [lng, lat], ...]]
     List<dynamic> coordinatesArray = boundary['coordinates'][0];
 
-    // Convert to List<LatLng> - NOTE: GeoJSON is [lng, lat] but LatLng is (lat, lng)
     List<LatLng> polygonPoints = coordinatesArray.map((coord) {
       double longitude = coord[0].toDouble();
       double latitude = coord[1].toDouble();
-      return LatLng(latitude, longitude); // Swap order!
+      return LatLng(latitude, longitude);
     }).toList();
 
     setState(() {
@@ -70,13 +67,11 @@ class _FarmProfileState extends State<FarmProfile> {
       );
     });
 
-    // Center camera on the farm boundary
     if (polygonPoints.isNotEmpty && _mapController != null) {
       _centerMapOnPolygon(polygonPoints);
     }
   }
 
-  /// Center the map camera on polygon bounds
   void _centerMapOnPolygon(List<LatLng> points) {
     if (points.isEmpty) return;
 
@@ -107,7 +102,7 @@ class _FarmProfileState extends State<FarmProfile> {
     Logger logger = Logger();
 
     return Scaffold(
-      backgroundColor: ColorUtils.lightBackgroundColor,
+      backgroundColor: Colors.grey.shade50,
       body: BlocBuilder<FarmStateCubit, FarmState>(
         builder: (BuildContext context, state) {
           if (state is FarmStateLoading) {
@@ -132,207 +127,226 @@ class _FarmProfileState extends State<FarmProfile> {
                     },
                     hasAction: false,
                   ),
-                  Gap(10),
-                  Padding(
-                    padding: const EdgeInsets.all(20.0),
+                  // Farm Header Section
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: ColorUtils.primaryTextColor,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
                     child: Column(
-                      spacing: 20,
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Farmer Avatar and Farm Name Section
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Column(
-                              children: [
-                                CircleAvatar(
-                                  radius: 40,
-                                  backgroundColor:
-                                      ColorUtils.accentBackgroundColor,
-                                  child: Icon(
-                                    FluentIcons.person_24_filled,
-                                    size: 40,
-                                    color: ColorUtils.secondaryBackgroundColor,
-                                  ),
-                                ),
-                                Gap(10),
-                                GestureDetector(
-                                  onTap: () {},
-                                  child: Container(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 16, vertical: 8),
-                                    decoration: BoxDecoration(
-                                      color:
-                                          ColorUtils.secondaryBackgroundColor,
-                                      borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(
-                                          color: ColorUtils.primaryBorderColor),
-                                    ),
-                                    child: Text(
-                                      "Farmer Profile",
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
+                        // Farm Icon
+                        Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: ColorUtils.secondaryColor,
+                              width: 3,
                             ),
-                            Gap(20),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    farm["name"]?.toString() ?? "Farm Name",
-                                    style: TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Gap(8),
-                                  Text(
-                                    farm["description"]?.toString() ??
-                                        "No description available",
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: ColorUtils.inActiveColor,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                          ),
+                          child: CircleAvatar(
+                            radius: 50,
+                            backgroundColor:
+                            ColorUtils.secondaryColor.withOpacity(0.1),
+                            child: Icon(
+                              FluentIcons.plant_grass_28_regular,
+                              size: 50,
+                              color: ColorUtils.secondaryColor,
                             ),
-                          ],
+                          ),
                         ),
-                        // Farm Details Section
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          spacing: 5,
-                          children: [
-                            Text(
-                              "Farm Details",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            _buildDetailItem(
-                              FluentIcons.resize_large_24_regular,
-                              "Dimensions/Size",
-                              _getAreaDisplay(farm["area_sqm"]),
-                            ),
-                            _buildDetailItem(
-                              FluentIcons.location_24_regular,
-                              "Location",
-                              "Nairobi, Kenya",
-                            ),
-                            _buildDetailItem(
-                              FluentIcons.grid_24_regular,
-                              "Plots",
-                              "12 Plots",
-                            ),
-                          ],
+                        const SizedBox(height: 16),
+                        // Farm Name
+                        Text(
+                          farm["name"]?.toString() ?? "Farm Name",
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
                         ),
-                        // Flora & Fauna Overview Section
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          spacing: 0,
-                          children: [
-                            Text(
-                              "Flora & Fauna Overview",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            GridView.count(
-                              shrinkWrap: true,
-                              physics: NeverScrollableScrollPhysics(),
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 10,
-                              mainAxisSpacing: 10,
-                              children: [
-                                _buildMonitorCard(
-                                  FluentIcons.plant_grass_24_regular,
-                                  "Crops",
-                                  "15 Types",
-                                  ColorUtils.secondaryColor,
-                                ),
-                                _buildMonitorCard(
-                                  FluentIcons.animal_cat_24_regular,
-                                  "Animals",
-                                  "8 Types",
-                                  ColorUtils.secondaryColor,
-                                ),
-                                _buildMonitorCard(
-                                  FluentIcons.building_24_regular,
-                                  "Structures",
-                                  "6 Buildings",
-                                  ColorUtils.secondaryColor,
-                                ),
-                                _buildMonitorCard(
-                                  FluentIcons.wrench_24_regular,
-                                  "Equipment",
-                                  "20 Items",
-                                  ColorUtils.secondaryColor,
-                                ),
-                              ],
-                            ),
-                          ],
+                        const SizedBox(height: 4),
+                        // Farm Description
+                        Text(
+                          farm["description"]?.toString() ??
+                              "No description available",
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey.shade600,
+                          ),
+                          textAlign: TextAlign.center,
                         ),
-                        // Map Section with Boundary
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          spacing: 10,
-                          children: [
-                            Text(
-                              "Farm Boundary",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: Container(
-                                width: double.infinity,
-                                height: 250,
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                      color: ColorUtils.primaryBorderColor,
-                                      width: 2),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: GoogleMap(
-                                  onMapCreated: (controller) {
-                                    _mapController = controller;
-                                    // Reload boundary after map is ready
-                                    if (farm['boundary'] != null) {
-                                      _loadFarmBoundary(
-                                          farm['boundary'], widget.farmId);
-                                    }
-                                  },
-                                  initialCameraPosition: CameraPosition(
-                                    target: LatLng(
-                                      farm["centroid"]["coordinates"][1],
-                                      farm["centroid"]["coordinates"][0],
-                                    ),
-                                    zoom: 50,
-                                  ),
-                                  polygons: _polygons,
-                                  mapType: MapType.hybrid,
-                                  myLocationButtonEnabled: false,
-                                  zoomControlsEnabled: false,
-                                ),
-                              ),
-                            ),
-                          ],
-                        )
                       ],
                     ),
                   ),
+                  const SizedBox(height: 16),
+                  // Stats Section
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: _StatCard(
+                            icon: FluentIcons.resize_large_24_regular,
+                            label: "Size",
+                            value: _getAreaDisplay(farm["area_sqm"]),
+                            color: Colors.blue,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _StatCard(
+                            icon: FluentIcons.grid_24_regular,
+                            label: "Plots",
+                            value: "12",
+                            color: Colors.green,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _StatCard(
+                            icon: FluentIcons.location_24_regular,
+                            label: "Location",
+                            value: "Nairobi",
+                            color: Colors.purple,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // Farm Details Section
+                  _SectionContainer(
+                    title: "Farm Details",
+                    child: Column(
+                      children: [
+                        _DetailRow(
+                          icon: FluentIcons.resize_large_24_regular,
+                          label: "Dimensions/Size",
+                          value: _getAreaDisplay(farm["area_sqm"]),
+                        ),
+                        const Divider(height: 1),
+                        _DetailRow(
+                          icon: FluentIcons.location_24_regular,
+                          label: "Location",
+                          value: "Nairobi, Kenya",
+                        ),
+                        const Divider(height: 1),
+                        _DetailRow(
+                          icon: FluentIcons.grid_24_regular,
+                          label: "Total Plots",
+                          value: "12 Plots",
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // Flora & Fauna Overview Section
+                  _SectionContainer(
+                    title: "Flora & Fauna Overview",
+                    child: GridView.count(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: 1.1,
+                      padding: const EdgeInsets.all(16),
+                      children: [
+                        _MonitorCard(
+                          icon: FluentIcons.plant_grass_24_regular,
+                          title: "Crops",
+                          subtitle: "15 Types",
+                          color: Colors.green,
+                        ),
+                        _MonitorCard(
+                          icon: FluentIcons.animal_cat_24_regular,
+                          title: "Animals",
+                          subtitle: "8 Types",
+                          color: Colors.orange,
+                        ),
+                        _MonitorCard(
+                          icon: FluentIcons.building_24_regular,
+                          title: "Structures",
+                          subtitle: "6 Buildings",
+                          color: Colors.blue,
+                        ),
+                        _MonitorCard(
+                          icon: FluentIcons.wrench_24_regular,
+                          title: "Equipment",
+                          subtitle: "20 Items",
+                          color: Colors.red,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // Map Section
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 4, bottom: 8),
+                          child: Text(
+                            "Farm Boundary",
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Container(
+                            width: double.infinity,
+                            height: 250,
+                            decoration: BoxDecoration(
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: GoogleMap(
+                              onMapCreated: (controller) {
+                                _mapController = controller;
+                                if (farm['boundary'] != null) {
+                                  _loadFarmBoundary(
+                                      farm['boundary'], widget.farmId);
+                                }
+                              },
+                              initialCameraPosition: CameraPosition(
+                                target: LatLng(
+                                  farm["centroid"]["coordinates"][1],
+                                  farm["centroid"]["coordinates"][0],
+                                ),
+                                zoom: 50,
+                              ),
+                              polygons: _polygons,
+                              mapType: MapType.hybrid,
+                              myLocationButtonEnabled: false,
+                              zoomControlsEnabled: false,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 32),
                 ],
               ),
             );
@@ -366,7 +380,7 @@ class _FarmProfileState extends State<FarmProfile> {
                 Gap(16),
                 Text("Error",
                     style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 Gap(8),
                 Text(message,
                     textAlign: TextAlign.center,
@@ -392,68 +406,237 @@ class _FarmProfileState extends State<FarmProfile> {
     }
   }
 
-  Widget _buildDetailItem(IconData icon, String label, String value) {
+  @override
+  void dispose() {
+    _mapController?.dispose();
+    super.dispose();
+  }
+}
+
+// Stat Card Widget
+class _StatCard extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color color;
+
+  const _StatCard({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: ColorUtils.secondaryBackgroundColor,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: ColorUtils.primaryBorderColor),
+        color: ColorUtils.primaryTextColor,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
-      child: Row(
+      child: Column(
         children: [
-          Icon(icon, color: ColorUtils.accentBackgroundColor, size: 24),
-          Gap(15),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(label,
-                  style:
-                      TextStyle(fontSize: 12, color: ColorUtils.inActiveColor)),
-              Gap(4),
-              Text(value,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            ],
+          Icon(icon, size: 28, color: color),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey.shade600,
+            ),
           ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildMonitorCard(
-      IconData icon, String title, String subtitle, Color color) {
+// Section Container Widget
+class _SectionContainer extends StatelessWidget {
+  final String title;
+  final Widget child;
+
+  const _SectionContainer({
+    required this.title,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 4, bottom: 8),
+            child: Text(
+              title,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+          ),
+          Container(
+            decoration: BoxDecoration(
+              color: ColorUtils.primaryTextColor,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: child,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Detail Row Widget
+class _DetailRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+
+  const _DetailRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: ColorUtils.secondaryColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              icon,
+              size: 20,
+              color: ColorUtils.secondaryColor,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Monitor Card Widget
+class _MonitorCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final Color color;
+
+  const _MonitorCard({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: ColorUtils.secondaryBackgroundColor,
+        color: ColorUtils.primaryTextColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: ColorUtils.primaryBorderColor),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: EdgeInsets.all(12),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: color.withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(icon, size: 32, color: color),
+            child: Icon(icon, size: 28, color: color),
           ),
-          Gap(12),
-          Text(title,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          Gap(4),
-          Text(subtitle,
-              style: TextStyle(fontSize: 12, color: ColorUtils.inActiveColor)),
+          const SizedBox(height: 10),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 2),
+          Text(
+            subtitle,
+            style: TextStyle(
+              fontSize: 11,
+              color: Colors.grey.shade600,
+            ),
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _mapController?.dispose();
-    super.dispose();
   }
 }

@@ -1,5 +1,6 @@
 import 'package:farmbros_mobile/common/bloc/farm/farm_state_cubit.dart';
 import 'package:farmbros_mobile/common/bloc/farm/farms_state_cubit.dart';
+import 'package:farmbros_mobile/common/bloc/farm_logger/crop_logger_state_cubit.dart';
 import 'package:farmbros_mobile/common/bloc/form/combined_form_cubit.dart';
 import 'package:farmbros_mobile/common/bloc/onboarding/onboarding_state_cubit.dart';
 import 'package:farmbros_mobile/common/bloc/plot/plot_profile_state_cubit.dart';
@@ -53,6 +54,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => FarmStateCubit()),
         BlocProvider(create: (_) => PlotStateCubit()),
         BlocProvider(create: (_) => PlotProfileStateCubit()),
+        BlocProvider(create: (_) => CropLoggerStateCubit()),
         BlocProvider(
           create: (_) {
             final cubit = ServerStatusStateCubit();

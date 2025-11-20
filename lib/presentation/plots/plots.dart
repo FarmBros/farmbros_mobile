@@ -337,7 +337,7 @@ class _PlotsState extends State<Plots> {
               onPressed: () {
                 logger.log(Level.trace, selectedFarm);
                 context.push(
-                    "${Routes.plots}/create_plot/map",
+                    "${Routes.plots}/create_plot",
                     extra: {
                       "farm": selectedFarm,
                     });

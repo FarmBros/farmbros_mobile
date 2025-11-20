@@ -15,4 +15,7 @@ class AppUtils {
   static const String $savePlot = "${$baseUrl}/plots/create";
   static const String $getPlot = "${$baseUrl}/plots/get_plot";
   static const String $getFarmPlots = "${$baseUrl}/plots/get_plots_by_farm";
+
+  // logger routes
+  static const String $getAllCrops = "${$baseUrl}/crops/get_all";
 }

@@ -1,5 +1,6 @@
 import 'package:farmbros_mobile/common/bloc/farm/farm_state_cubit.dart';
 import 'package:farmbros_mobile/common/bloc/farm/farms_state_cubit.dart';
+import 'package:farmbros_mobile/common/bloc/farm_logger/crop_logger_state_cubit.dart';
 import 'package:farmbros_mobile/common/bloc/onboarding/onboarding_state_cubit.dart';
 import 'package:farmbros_mobile/common/bloc/plot/plot_profile_state_cubit.dart';
 import 'package:farmbros_mobile/common/bloc/plot/plot_state_cubit.dart';
@@ -7,16 +8,20 @@ import 'package:farmbros_mobile/common/bloc/session/session_state_cubit.dart';
 import 'package:farmbros_mobile/core/network/dio_client.dart';
 import 'package:farmbros_mobile/data/repository/auth_repository_impl.dart';
 import 'package:farmbros_mobile/data/repository/farm_details_impl.dart';
+import 'package:farmbros_mobile/data/repository/farm_logger_impl.dart';
 import 'package:farmbros_mobile/data/repository/plot_details_impl.dart';
 import 'package:farmbros_mobile/data/repository/server_status_repository_impl.dart';
 import 'package:farmbros_mobile/data/source/auth_api_service.dart';
 import 'package:farmbros_mobile/data/source/farm_api_service.dart';
+import 'package:farmbros_mobile/data/source/farm_logger_service.dart';
 import 'package:farmbros_mobile/data/source/plot_api_service.dart';
 import 'package:farmbros_mobile/data/source/server_status_api_service.dart';
 import 'package:farmbros_mobile/domain/repository/auth_repository.dart';
 import 'package:farmbros_mobile/domain/repository/farm_details_repository.dart';
+import 'package:farmbros_mobile/domain/repository/farm_logger_repository.dart';
 import 'package:farmbros_mobile/domain/repository/plot_details_repository.dart';
 import 'package:farmbros_mobile/domain/repository/server_status_repository.dart';
+import 'package:farmbros_mobile/domain/usecases/crop_logger_usecase.dart';
 import 'package:farmbros_mobile/domain/usecases/fetch_farm_plots_use_case.dart';
 import 'package:farmbros_mobile/domain/usecases/fetch_farm_usecase.dart';
 import 'package:farmbros_mobile/domain/usecases/fetch_farms_use_case.dart';
@@ -40,19 +45,23 @@ void setupServiceLocator() {
   sl.registerLazySingleton<FarmsStateCubit>(() => FarmsStateCubit());
   sl.registerLazySingleton<FarmStateCubit>(() => FarmStateCubit());
   sl.registerLazySingleton<PlotStateCubit>(() => PlotStateCubit());
-  sl.registerLazySingleton<PlotProfileStateCubit>(() => PlotProfileStateCubit());
+  sl.registerLazySingleton<PlotProfileStateCubit>(
+      () => PlotProfileStateCubit());
+  sl.registerLazySingleton<CropLoggerStateCubit>(() => CropLoggerStateCubit());
 
   // Services
   sl.registerSingleton<AuthApiService>(AuthApiServiceImpl());
   sl.registerSingleton<ServerStatusApiService>(ServerStatusApiServiceImpl());
   sl.registerSingleton<FarmApiService>(FarmApiServiceImpl());
   sl.registerSingleton<PlotApiService>(PlotApiServiceImpl());
+  sl.registerSingleton<FarmLoggerAPIService>(FarmLoggerAPIServiceImpl());
 
   // Repositories
   sl.registerSingleton<AuthRepository>(AuthRepositoryImpl());
   sl.registerSingleton<ServerStatusRepository>(ServerStatusRepositoryImpl());
   sl.registerSingleton<FarmDetailsRepository>(FarmDetailsImpl());
   sl.registerSingleton<PlotDetailsRepository>(PlotDetailsImpl());
+  sl.registerSingleton<FarmLoggerRepository>(FarmLoggerImpl());
 
   // Usecases
   sl.registerSingleton<SignInUseCase>(SignInUseCase());
@@ -84,5 +93,9 @@ void setupServiceLocator() {
 
   sl.registerSingleton<PlotProfileUseCase>(
     PlotProfileUseCase(sl<PlotApiService>()),
+  );
+
+  sl.registerSingleton<CropLoggerUseCase>(
+    CropLoggerUseCase(sl<FarmLoggerAPIService>()),
   );
 }
