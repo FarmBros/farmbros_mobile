@@ -16,7 +16,7 @@ class FarmbrosBottomsheet extends StatefulWidget {
 
 class _FarmbrosBottomsheetState extends State<FarmbrosBottomsheet> {
   String _selectedFilter = 'All';
-  List<Map<String, dynamic>> crops = [];
+  List crops = [];
   Logger logger = Logger();
 
   @override

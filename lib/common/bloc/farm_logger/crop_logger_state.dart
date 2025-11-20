@@ -3,7 +3,7 @@ abstract class CropLoggerState {}
 class CropLoggerStateLoading extends CropLoggerState {}
 
 class CropLoggerStateSuccess extends CropLoggerState {
-  final List<Map<String, dynamic>>? crops;
+  final List? crops;
 
   CropLoggerStateSuccess({this.crops});
 }

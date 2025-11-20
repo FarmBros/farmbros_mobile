@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 class CollectionHolder extends StatefulWidget {
   final String collectionName;
-  final List<Map<String, dynamic>> items;
+  final List items;
 
   const CollectionHolder({
     super.key,
@@ -68,7 +68,7 @@ class _CollectionHolderState extends State<CollectionHolder> {
             itemCount: widget.items.length,
             itemBuilder: (context, index) {
               return ItemHolder(
-                name: widget.items[index]['name'] ?? 'Item',
+                name: widget.items[index]['common_name'] ?? 'Item',
                 imagePath: widget.items[index]['image'] ?? '',
               );
             },

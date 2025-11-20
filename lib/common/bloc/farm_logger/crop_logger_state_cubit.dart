@@ -18,8 +18,7 @@ class CropLoggerStateCubit extends Cubit<CropLoggerState> {
       result.fold((error) {
         emit(CropLoggerStateError(errorMessage: error.toString()));
       }, (data) {
-        final List<Map<String, dynamic>> crops = data['data'] ?? [];
-        logger.d(crops);
+        final List crops = data['data'] ?? [];
         emit(CropLoggerStateSuccess(crops: crops));
       });
     } catch (e) {
