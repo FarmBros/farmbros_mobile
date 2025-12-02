@@ -69,7 +69,7 @@ class _CollectionHolderState extends State<CollectionHolder> {
             itemBuilder: (context, index) {
               return ItemHolder(
                 name: widget.items[index]['common_name'] ?? 'Item',
-                imagePath: widget.items[index]['image'] ?? '',
+                imagePath: widget.items[index]['common_name'] ?? '',
               );
             },
           ),

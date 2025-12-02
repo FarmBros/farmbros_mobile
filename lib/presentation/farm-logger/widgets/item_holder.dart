@@ -1,5 +1,6 @@
 import 'package:farmbros_mobile/core/configs/Utils/color_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 
 class ItemHolder extends StatefulWidget {
   final String name;
@@ -18,6 +19,9 @@ class ItemHolder extends StatefulWidget {
 class _ItemHolderState extends State<ItemHolder> {
   @override
   Widget build(BuildContext context) {
+    Logger logger = Logger();
+    logger.d(widget.imagePath.toLowerCase().replaceAll(' ', '_'));
+
     return GestureDetector(
       onTap: () {
         // Handle item tap
@@ -52,7 +56,9 @@ class _ItemHolderState extends State<ItemHolder> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: Image(
-                  image: AssetImage(widget.imagePath),
+                  image: AssetImage(
+                    'assets/crop-images/${widget.imagePath.toLowerCase().replaceAll(' ', '_')}.jpg'
+                  ),
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
                     return Icon(
