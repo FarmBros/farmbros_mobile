@@ -7,14 +7,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logger/logger.dart';
 
-class FarmbrosBottomsheet extends StatefulWidget {
-  const FarmbrosBottomsheet({super.key});
+import 'package:farmbros_mobile/common/bloc/plot/plot_state_cubit.dart'; // Add this import
+
+import 'package:farmbros_mobile/common/bloc/planted_crop/planted_crop_state_cubit.dart'; // Add this import
+
+class FarmLoggerBottomSheet extends StatefulWidget {
+  final List<dynamic> farms;
+  final PlotStateCubit plotStateCubit;
+  final PlantedCropStateCubit plantedCropStateCubit; // Add this line
+
+  const FarmLoggerBottomSheet({
+    super.key,
+    required this.farms,
+    required this.plotStateCubit,
+    required this.plantedCropStateCubit, // Add this line
+  });
 
   @override
-  State<FarmbrosBottomsheet> createState() => _FarmbrosBottomsheetState();
+  State<FarmLoggerBottomSheet> createState() => _FarmLoggerBottomSheetState();
 }
 
-class _FarmbrosBottomsheetState extends State<FarmbrosBottomsheet> {
+class _FarmLoggerBottomSheetState extends State<FarmLoggerBottomSheet> {
   String _selectedFilter = 'All';
   List crops = [];
   Logger logger = Logger();
@@ -25,7 +38,6 @@ class _FarmbrosBottomsheetState extends State<FarmbrosBottomsheet> {
         builder: (context, cropLogger) {
       if (cropLogger is CropLoggerStateSuccess) {
         crops = cropLogger.crops ?? [];
-        logger.d(crops);
       } else if (cropLogger is CropLoggerStateError) {}
       return Container(
         height: MediaQuery.of(context).size.height * 0.65,
@@ -154,21 +166,28 @@ class _FarmbrosBottomsheetState extends State<FarmbrosBottomsheet> {
                         CollectionHolder(
                           collectionName: 'Animals',
                           items: [],
+                          farms: widget.farms,
                         ),
                       if (_selectedFilter == 'All' ||
                           _selectedFilter == 'Crops')
-                        CollectionHolder(collectionName: 'Crops', items: crops),
+                        CollectionHolder(
+                          collectionName: 'Crops',
+                          items: crops,
+                          farms: widget.farms,
+                        ),
                       if (_selectedFilter == 'All' ||
                           _selectedFilter == 'Equipment')
                         CollectionHolder(
                           collectionName: 'Equipment',
                           items: [],
+                          farms: widget.farms,
                         ),
                       if (_selectedFilter == 'All' ||
                           _selectedFilter == 'Structures')
                         CollectionHolder(
                           collectionName: 'Structures',
                           items: [],
+                          farms: widget.farms,
                         ),
                     ],
                   ),

@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
-import 'package:farmbros_mobile/core/configs/Utils/app_utils.dart';
+import 'package:farmbros_mobile/core/network/endpoints.dart';
 import 'package:farmbros_mobile/core/network/dio_client.dart';
 import 'package:farmbros_mobile/data/models/crop_logger_details_params.dart';
 import 'package:logger/logger.dart';
@@ -18,7 +18,7 @@ class FarmLoggerAPIServiceImpl extends FarmLoggerAPIService {
       CropLoggerDetailsParams cropLoggerDetailsParams) async {
     try {
       var response = await sl<DioClient>()
-          .post(AppUtils.$getAllCrops, data: cropLoggerDetailsParams.toJson());
+          .post(Endpoints.$getAllCrops, data: cropLoggerDetailsParams.toJson());
 
       final responseData = response.data;
 

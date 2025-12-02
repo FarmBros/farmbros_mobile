@@ -2,14 +2,18 @@ import 'package:farmbros_mobile/core/configs/Utils/color_utils.dart';
 import 'package:farmbros_mobile/presentation/farm-logger/widgets/item_holder.dart';
 import 'package:flutter/material.dart';
 
+import 'package:farmbros_mobile/common/bloc/plot/plot_state_cubit.dart'; // Add this import
+
 class CollectionHolder extends StatefulWidget {
   final String collectionName;
   final List items;
+  final List<dynamic> farms;
 
   const CollectionHolder({
     super.key,
     required this.collectionName,
     required this.items,
+    required this.farms,
   });
 
   @override
@@ -70,6 +74,8 @@ class _CollectionHolderState extends State<CollectionHolder> {
               return ItemHolder(
                 name: widget.items[index]['common_name'] ?? 'Item',
                 imagePath: widget.items[index]['common_name'] ?? '',
+                cropData: widget.items[index],
+                farms: widget.farms,
               );
             },
           ),

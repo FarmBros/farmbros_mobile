@@ -1,15 +1,21 @@
+import 'package:farmbros_mobile/common/bloc/plot/plot_state_cubit.dart';
 import 'package:farmbros_mobile/core/configs/Utils/color_utils.dart';
+import 'package:farmbros_mobile/presentation/farm-logger/widgets/crop_details_card.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 
 class ItemHolder extends StatefulWidget {
   final String name;
   final String imagePath;
+  final Map<String, dynamic> cropData;
+  final List<dynamic> farms;
 
   const ItemHolder({
     super.key,
     required this.name,
     required this.imagePath,
+    required this.cropData,
+    required this.farms,
   });
 
   @override
@@ -17,14 +23,20 @@ class ItemHolder extends StatefulWidget {
 }
 
 class _ItemHolderState extends State<ItemHolder> {
+  Logger logger = Logger();
+
   @override
   Widget build(BuildContext context) {
-    Logger logger = Logger();
-    logger.d(widget.imagePath.toLowerCase().replaceAll(' ', '_'));
-
     return GestureDetector(
       onTap: () {
-        // Handle item tap
+        logger.d(widget.cropData);
+        showDialog(
+          context: context,
+          builder: (context) => CropDetailsCard(
+            cropData: widget.cropData,
+            farms: widget.farms,
+          ),
+        );
       },
       child: Container(
         decoration: BoxDecoration(
@@ -57,8 +69,7 @@ class _ItemHolderState extends State<ItemHolder> {
                 borderRadius: BorderRadius.circular(8),
                 child: Image(
                   image: AssetImage(
-                    'assets/crop-images/${widget.imagePath.toLowerCase().replaceAll(' ', '_')}.jpg'
-                  ),
+                      'assets/crop-images/${widget.imagePath.toLowerCase().replaceAll(' ', '_')}.jpg'),
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
                     return Icon(

@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
-import 'package:farmbros_mobile/core/configs/Utils/app_utils.dart';
+import 'package:farmbros_mobile/core/network/endpoints.dart';
 import 'package:farmbros_mobile/core/network/dio_client.dart';
 import 'package:farmbros_mobile/data/models/farm_details_params.dart';
 import 'package:farmbros_mobile/data/models/fetch_farm_details_params.dart';
@@ -28,7 +28,7 @@ class FarmApiServiceImpl extends FarmApiService {
 
     try {
       var response = await sl<DioClient>()
-          .post(AppUtils.$saveFarm, data: farmDetailsParams.toJson());
+          .post(Endpoints.$saveFarm, data: farmDetailsParams.toJson());
 
       final responseData = response.data;
 
@@ -52,7 +52,7 @@ class FarmApiServiceImpl extends FarmApiService {
   @override
   Future<Either> fetchMyFarmDetails() async {
     try {
-      var response = await sl<DioClient>().post(AppUtils.$getMyFarms);
+      var response = await sl<DioClient>().post(Endpoints.$getMyFarms);
 
       final responseData = response.data;
 
@@ -78,7 +78,7 @@ class FarmApiServiceImpl extends FarmApiService {
       FetchFarmDetailsParams fetchFarmDetailsParams) async {
     try {
       var response = await sl<DioClient>()
-          .post(AppUtils.$getFarm, data: fetchFarmDetailsParams.toJson());
+          .post(Endpoints.$getFarm, data: fetchFarmDetailsParams.toJson());
 
       final responseData = response.data;
 

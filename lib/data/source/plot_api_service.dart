@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
-import 'package:farmbros_mobile/core/configs/Utils/app_utils.dart';
+import 'package:farmbros_mobile/core/network/endpoints.dart';
 import 'package:farmbros_mobile/core/network/dio_client.dart';
 import 'package:farmbros_mobile/data/models/fetch_farm_plots_params.dart';
 import 'package:farmbros_mobile/data/models/plot_details_params.dart';
@@ -34,7 +34,7 @@ class PlotApiServiceImpl extends PlotApiService {
 
     try {
       var response = await sl<DioClient>()
-          .post(AppUtils.$savePlot, data: plotDetailsParams.toJson());
+          .post(Endpoints.$savePlot, data: plotDetailsParams.toJson());
 
       final responseData = response.data;
 
@@ -61,7 +61,7 @@ class PlotApiServiceImpl extends PlotApiService {
   Future<Either> fetchFarmPlots(FetchPlotDetailsParams plotParams) async {
     try {
       var response = await sl<DioClient>()
-          .post(AppUtils.$getFarmPlots, data: plotParams.toJson());
+          .post(Endpoints.$getFarmPlots, data: plotParams.toJson());
 
       final responseData = response.data;
 
@@ -89,7 +89,7 @@ class PlotApiServiceImpl extends PlotApiService {
       PlotProfileDetailsParams plotProfileParams) async {
     try {
       var response = await sl<DioClient>()
-          .post(AppUtils.$getPlot, data: plotProfileParams.toJson());
+          .post(Endpoints.$getPlot, data: plotProfileParams.toJson());
 
       final responseData = response.data;
 

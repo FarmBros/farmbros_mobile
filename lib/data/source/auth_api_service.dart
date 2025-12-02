@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:farmbros_mobile/common/bloc/session/session_state_cubit.dart';
-import 'package:farmbros_mobile/core/configs/Utils/app_utils.dart';
+import 'package:farmbros_mobile/core/network/endpoints.dart';
 import 'package:farmbros_mobile/core/network/dio_client.dart';
 import 'package:farmbros_mobile/data/models/sign_in_req_params.dart';
 import 'package:farmbros_mobile/data/models/sign_up_req_params.dart';
@@ -24,7 +24,7 @@ class AuthApiServiceImpl extends AuthApiService {
     }
     try {
       var response = await sl<DioClient>()
-          .post(AppUtils.$login, data: signInReqParams.toMap());
+          .post(Endpoints.$login, data: signInReqParams.toMap());
 
       final responseData = response.data;
       if (responseData["status"] == "success") {
@@ -63,7 +63,7 @@ class AuthApiServiceImpl extends AuthApiService {
     try {
       logger.log(Level.info, signUpReqParams.toMap());
       var signUpResponse = await sl<DioClient>()
-          .post(AppUtils.$register, data: signUpReqParams.toMap());
+          .post(Endpoints.$register, data: signUpReqParams.toMap());
 
       final responseData = signUpResponse.data;
 

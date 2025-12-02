@@ -1,4 +1,4 @@
-class AppUtils {
+class Endpoints {
   // static const String $baseUrl = 'https://cachyos.tailfb4b08.ts.net:10000';
   // static const String $baseUrl = 'http://10.0.2.2:8000';
   // static const String $baseUrl = 'https://philanthropically-farsighted-malik.ngrok-free.dev';
@@ -18,4 +18,8 @@ class AppUtils {
 
   // logger routes
   static const String $getAllCrops = "${$baseUrl}/crops/get_all";
+
+  // planted crops routes
+  static const String $savePlantedCrop = "${$baseUrl}/planted_crops/create";
+  static const String $getAllPlantedCrops = "${$baseUrl}/planted_crops/get_all";
 }

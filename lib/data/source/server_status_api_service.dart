@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
-import 'package:farmbros_mobile/core/configs/Utils/app_utils.dart';
+import 'package:farmbros_mobile/core/network/endpoints.dart';
 import 'package:farmbros_mobile/core/network/dio_client.dart';
 import 'package:farmbros_mobile/service_locator.dart';
 
@@ -12,7 +12,7 @@ class ServerStatusApiServiceImpl extends ServerStatusApiService {
   @override
   Future<Either<String, bool>> checkServerStatus() async {
     try {
-      final response = await sl<DioClient>().get(AppUtils.$baseUrl);
+      final response = await sl<DioClient>().get(Endpoints.$baseUrl);
 
       if (response.statusCode == 200) {
         return const Right(true);
