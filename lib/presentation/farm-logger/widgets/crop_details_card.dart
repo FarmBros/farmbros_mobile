@@ -33,6 +33,16 @@ class _CropDetailsCardState extends State<CropDetailsCard> {
   String? _selectedFarm;
   String? _selectedPlot;
 
+  String? _plantingMethod;
+  double? _plantingSpacing;
+  DateTime? _germinationDate;
+  DateTime? _transplantDate;
+  int? _seedlingAge;
+  DateTime? _harvestDate;
+  int? _numberOfCrops;
+  double? _estimatedYield;
+  String? _notes;
+
   List<dynamic> _farms = [];
   List<Map<String, dynamic>> _plots = [];
 
@@ -617,10 +627,134 @@ class _CropDetailsCardState extends State<CropDetailsCard> {
           onChanged: (value) {
             setState(() {
               _selectedPlot = value;
-              logger.d(_selectedPlot);
             });
           },
           enabled: _selectedFarm != null,
+        ),
+
+        const SizedBox(height: 16),
+
+        // Planting Method
+        _buildTextField(
+          label: 'Planting Method',
+          icon: FluentIcons.leaf_one_24_regular,
+          onChanged: (value) {
+            setState(() {
+              _plantingMethod = value;
+            });
+          },
+        ),
+
+        const SizedBox(height: 16),
+
+        // Notes
+        _buildTextField(
+          label: 'Notes',
+          icon: FluentIcons.note_24_regular,
+          maxLines: 3,
+          onChanged: (value) {
+            setState(() {
+              _notes = value;
+            });
+          },
+        ),
+
+        const SizedBox(height: 16),
+
+        // Planting Spacing
+        _buildTextField(
+          label: 'Planting Spacing (m)',
+          icon: FluentIcons.ruler_24_regular,
+          keyboardType: TextInputType.number,
+          onChanged: (value) {
+            setState(() {
+              _plantingSpacing = double.tryParse(value);
+            });
+          },
+        ),
+
+        const SizedBox(height: 16),
+
+        // Number of Crops
+        _buildTextField(
+          label: 'Number of Crops',
+          icon: FluentIcons.number_row_24_regular,
+          keyboardType: TextInputType.number,
+          onChanged: (value) {
+            setState(() {
+              _numberOfCrops = int.tryParse(value);
+            });
+          },
+        ),
+
+        const SizedBox(height: 16),
+
+        // Estimated Yield
+        _buildTextField(
+          label: 'Estimated Yield (kg)',
+          icon: FluentIcons.box_24_regular,
+          keyboardType: TextInputType.number,
+          onChanged: (value) {
+            setState(() {
+              _estimatedYield = double.tryParse(value);
+            });
+          },
+        ),
+
+        const SizedBox(height: 16),
+
+        // Seedling Age
+        _buildTextField(
+          label: 'Seedling Age (days)',
+          icon: FluentIcons.leaf_one_24_regular,
+          keyboardType: TextInputType.number,
+          onChanged: (value) {
+            setState(() {
+              _seedlingAge = int.tryParse(value);
+            });
+          },
+        ),
+
+        const SizedBox(height: 16),
+
+        // Germination Date
+        _buildDatePickerField(
+          label: 'Germination Date',
+          icon: FluentIcons.calendar_ltr_24_regular,
+          selectedDate: _germinationDate,
+          onDateSelected: (date) {
+            setState(() {
+              _germinationDate = date;
+            });
+          },
+        ),
+
+        const SizedBox(height: 16),
+
+        // Transplant Date
+        _buildDatePickerField(
+          label: 'Transplant Date',
+          icon: FluentIcons.calendar_ltr_24_regular,
+          selectedDate: _transplantDate,
+          onDateSelected: (date) {
+            setState(() {
+              _transplantDate = date;
+            });
+          },
+        ),
+
+        const SizedBox(height: 16),
+
+        // Harvest Date
+        _buildDatePickerField(
+          label: 'Harvest Date',
+          icon: FluentIcons.calendar_ltr_24_regular,
+          selectedDate: _harvestDate,
+          onDateSelected: (date) {
+            setState(() {
+              _harvestDate = date;
+            });
+          },
         ),
 
         const SizedBox(height: 20),
@@ -635,6 +769,15 @@ class _CropDetailsCardState extends State<CropDetailsCard> {
                     final plantCropParams = PlantACropDetailsParams(
                       cropId: widget.cropData['uuid'],
                       plotId: _selectedPlot!,
+                      plantingMethod: _plantingMethod,
+                      plantingSpacing: _plantingSpacing,
+                      germinationDate: _germinationDate,
+                      transplantDate: _transplantDate,
+                      seedlingAge: _seedlingAge,
+                      harvestDate: _harvestDate,
+                      numberOfCrops: _numberOfCrops,
+                      estimatedYield: _estimatedYield,
+                      notes: _notes,
                     );
                     context.read<PlantedCropStateCubit>().plantACrop(
                         plantCropParams, sl<PlantACropUseCase>());
@@ -755,6 +898,156 @@ class _CropDetailsCardState extends State<CropDetailsCard> {
                   ),
                 );
               }).toList(),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTextField({
+    required String label,
+    required IconData icon,
+    ValueChanged<String>? onChanged,
+    TextInputType keyboardType = TextInputType.text,
+    int maxLines = 1,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              icon,
+              size: 16,
+              color: ColorUtils.secondaryColor,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        TextFormField(
+          keyboardType: keyboardType,
+          maxLines: maxLines,
+          decoration: InputDecoration(
+            hintText: 'Enter $label',
+            isDense: true,
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: ColorUtils.secondaryColor, width: 2),
+            ),
+            fillColor: Colors.grey.shade50,
+            filled: true,
+          ),
+          onChanged: onChanged,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDatePickerField({
+    required String label,
+    required IconData icon,
+    required DateTime? selectedDate,
+    required ValueChanged<DateTime> onDateSelected,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              icon,
+              size: 16,
+              color: ColorUtils.secondaryColor,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        GestureDetector(
+          onTap: () async {
+            final DateTime? picked = await showDatePicker(
+              context: context,
+              initialDate: selectedDate ?? DateTime.now(),
+              firstDate: DateTime(2000),
+              lastDate: DateTime(2101),
+              builder: (context, child) {
+                return Theme(
+                  data: Theme.of(context).copyWith(
+                    colorScheme: ColorScheme.light(
+                      primary: ColorUtils.secondaryColor, // header background color
+                      onPrimary: Colors.white, // header text color
+                      onSurface: Colors.black, // body text color
+                    ),
+                    textButtonTheme: TextButtonThemeData(
+                      style: TextButton.styleFrom(
+                        foregroundColor: ColorUtils.secondaryColor, // button text color
+                      ),
+                    ),
+                  ),
+                  child: child!,
+                );
+              },
+            );
+            if (picked != null && picked != selectedDate) {
+              onDateSelected(picked);
+            }
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade50,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.grey.shade300),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    selectedDate == null
+                        ? 'Select $label'
+                        : '${selectedDate.toLocal().year}-${selectedDate.toLocal().month.toString().padLeft(2, '0')}-${selectedDate.toLocal().day.toString().padLeft(2, '0')}',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: selectedDate == null
+                          ? Colors.grey.shade500
+                          : Colors.black87,
+                    ),
+                  ),
+                ),
+                Icon(
+                  FluentIcons.calendar_ltr_24_regular,
+                  size: 18,
+                  color: ColorUtils.secondaryColor,
+                ),
+              ],
             ),
           ),
         ),

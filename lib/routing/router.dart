@@ -8,7 +8,7 @@ import 'package:farmbros_mobile/core/configs/Helpers/go_stream.dart';
 import 'package:farmbros_mobile/presentation/Onboarding/onboarding_controller.dart';
 import 'package:farmbros_mobile/presentation/create-farm/create_farm.dart';
 import 'package:farmbros_mobile/presentation/create-plot/create_plot.dart';
-import 'package:farmbros_mobile/presentation/dashboard/ui/dashboard.dart';
+import 'package:farmbros_mobile/presentation/dashboard/dashboard.dart';
 import 'package:farmbros_mobile/presentation/farm-logger/farm_logger.dart';
 import 'package:farmbros_mobile/presentation/farm-profile/farm_profile.dart';
 import 'package:farmbros_mobile/presentation/farmer_account/account.dart';
